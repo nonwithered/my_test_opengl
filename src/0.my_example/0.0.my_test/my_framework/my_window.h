@@ -24,8 +24,6 @@ public:
 
     virtual void Close() = 0;
 
-    virtual int GetKey(int key) = 0;
-
     virtual void NewModule(std::function<std::unique_ptr<Module>()> create) = 0;
 
 };
@@ -50,7 +48,7 @@ public:
     virtual void Frame(Context &context) {
     }
 
-    virtual void Events(Context &context) {
+    virtual void KeyEvent(Context &context, int key, bool press) {
     }
 
     void Close() {
@@ -86,10 +84,11 @@ private:
 
 private:
 
-    void Events() {
+    void KeyEvent(int key, bool press) {
+        auto scope = Use();
         for (auto i = modules_.begin(); i != modules_.end(); ++i) {
             auto &module = *i;
-            module->Events(*this);
+            module->KeyEvent(*this, key, press);
         }
     }
 
@@ -120,6 +119,11 @@ private:
         }
     }
 
+    void SetCallback() {
+        glfwSetFramebufferSizeCallback(id_, (GLFWframebuffersizefun) Callback(glfwSetFramebufferSizeCallback));
+        glfwSetKeyCallback(id_, (GLFWkeyfun) Callback(glfwSetKeyCallback));
+    }
+
 public:
 
     Window(const std::string &title, int width, int height)
@@ -132,8 +136,8 @@ public:
             throw std::exception();
         }
         auto scope = Use();
-        glfwSetFramebufferSizeCallback(id_, (GLFWframebuffersizefun) Callback(glfwSetFramebufferSizeCallback));
         // glfwSwapInterval(0);
+        SetCallback();
     }
 
     Window(Window &&that)
@@ -161,7 +165,6 @@ public:
         auto scope = Use();
         MoveModules();
         CleanModules();
-        Events();
         Frame();
         glfwSwapBuffers(id_);
     }
@@ -170,15 +173,27 @@ public:
         return glfwWindowShouldClose(id_);
     }
 
-    void OnSizeChanged(int width, int height) {
-        LOGD(TAG, "OnSizeChanged %s %d %d", title_.data(), width, height);
+    bool IsSame(GLFWwindow *id) {
+        return id_ == id;
+    }
+
+    void FramebufferSizeCallback(int width, int height) {
+        LOGI(TAG, "FramebufferSizeCallback %s %d %d", title_.data(), width, height);
         width_ = width;
         height_ = height;
         LoopOnce();
     }
 
-    bool IsSame(GLFWwindow *id) {
-        return id_ == id;
+    void KeyCallback(int key, int scancode, int action, int mods) {
+        LOGI(TAG, "KeyCallback %s %d %d %d %d", title_.data(), key, scancode, action, mods);
+        if (key == GLFW_KEY_UNKNOWN) {
+            return;
+        }
+        if (action != GLFW_PRESS && action != GLFW_RELEASE) {
+            return;
+        }
+        KeyEvent(key, action == GLFW_PRESS);
+        LoopOnce();
     }
 
     class Scope {
@@ -234,10 +249,6 @@ public:
         glfwSetWindowShouldClose(id_, true);
     }
 
-    int GetKey(int key) override {
-        return glfwGetKey(id_, key);
-    }
-
     void NewModule(std::function<std::unique_ptr<Module>()> create) override {
         pending_modules_.push_back(std::move(create()));
     }
@@ -249,7 +260,7 @@ void *Window::Callback(void *k, void *v) {
     static constexpr auto TAG = "Callback";
     static std::unordered_map<void *, void *> m;
     if (k == nullptr) {
-        LOGE(TAG, "invalid k");
+        LOGE(TAG, "invalid key");
         throw std::exception();
     }
     auto i = m.find(k);

@@ -12,6 +12,18 @@ private:
     Runtime(const Runtime &) = delete;
     Runtime(Runtime &&) = delete;
 
+    static void FramebufferSizeCallback(GLFWwindow *window, int width, int height) {
+        runtime->FindWindow(window).FramebufferSizeCallback(width, height);
+    }
+    static void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
+        runtime->FindWindow(window).KeyCallback(key, scancode, action, mods);
+    }
+
+    void SetCallback() {
+        Window::Callback(glfwSetFramebufferSizeCallback, FramebufferSizeCallback);
+        Window::Callback(glfwSetKeyCallback, KeyCallback);
+    }
+
 private:
 
     static constexpr auto TAG = "Runtime";
@@ -29,10 +41,6 @@ private:
         }
         LOGE(TAG, "FindWindow fail %p", id);
         throw std::exception();
-    }
-
-    static void FramebufferSizeCallback(GLFWwindow *window, int width, int height) {
-        runtime->FindWindow(window).OnSizeChanged(width, height);
     }
 
     void MoveWindows() {
@@ -75,7 +83,7 @@ public:
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
         #endif
 
-        Window::Callback(glfwSetFramebufferSizeCallback, FramebufferSizeCallback);
+        SetCallback();
     }
 
     ~Runtime() {
