@@ -34,21 +34,30 @@ private:
     static constexpr auto TAG = "Module";
     bool finish_ = false;
 
+    Module(const Module &) = delete;
+    Module(Module &&) = delete;
+
     std::vector<std::unique_ptr<Module>> pending_modules_;
     std::vector<std::unique_ptr<Module>> modules_;
 
-    Module(const Module &) = delete;
-    Module(Module &&) = delete;
+    std::unordered_map<int, std::function<bool(Context &)>> key_event_press_;
+    std::unordered_map<int, std::function<bool(Context &)>> key_event_release_;
 
 protected:
     virtual void Frame(Context &context) {
     }
 
-    virtual void Event(Context &context, int key, bool press) {
-    }
-
     void Close() {
         finish_ = true;
+    }
+
+    void KeyEvent(int key, bool press, std::function<bool(Context &)> event) {
+        auto &events = press ? key_event_press_ : key_event_release_;
+        if (event) {
+            events[key] = std::move(event);
+        } else {
+            events.erase(key);
+        }
     }
 
 public:
@@ -65,10 +74,20 @@ public:
         pending_modules_.push_back(std::move(module));
     }
 
-    void PerformEvent(Context &context, int key, bool press) {
+    void PerformKeyEvent(Context &context, int key, bool press) {
+        {
+            auto &events = press ? key_event_press_ : key_event_release_;
+            auto i = events.find(key);
+            if (i != events.end()) {
+                auto &event = i->second;
+                if (event && event(context)) {
+                    return;
+                }
+            }
+        }
         for (auto i = modules_.begin(); i != modules_.end(); ++i) {
             auto &module = *i;
-            module->Event(context, key, press);
+            module->PerformKeyEvent(context, key, press);
         }
     }
 

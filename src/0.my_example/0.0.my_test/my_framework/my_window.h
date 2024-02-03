@@ -128,7 +128,6 @@ public:
         LOGI(TAG, "FramebufferSizeCallback %s %d %d", title_.data(), width, height);
         width_ = width;
         height_ = height;
-        PerformFrame();
     }
 
     void KeyCallback(int key, int scancode, int action, int mods) {
@@ -141,9 +140,8 @@ public:
         }
         {
             auto scope = Use();
-            module_->PerformEvent(*this, key, action == GLFW_PRESS);
+            module_->PerformKeyEvent(*this, key, action == GLFW_PRESS);
         }
-        PerformFrame();
     }
 
     int width() override {

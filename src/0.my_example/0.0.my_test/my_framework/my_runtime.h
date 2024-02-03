@@ -37,9 +37,11 @@ private:
 
     static void FramebufferSizeCallback(GLFWwindow *window, int width, int height) {
         Instance()->Find(window).FramebufferSizeCallback(width, height);
+        Instance()->PerformFrame();
     }
     static void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
         Instance()->Find(window).KeyCallback(key, scancode, action, mods);
+        Instance()->PerformFrame();
     }
 
     void SetCallback() {
@@ -80,7 +82,6 @@ private:
                 window.PerformFrame();
             }
         }
-        glfwPollEvents();
     }
 
 public:
@@ -127,6 +128,7 @@ public:
     void Loop() {
         while (!windows_.empty() || !pending_windows_.empty()) {
             PerformFrame();
+            glfwPollEvents();
         }
     }
 };

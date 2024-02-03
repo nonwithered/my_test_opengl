@@ -17,7 +17,15 @@ private:
 
     float step_ = 100;
 
-    IntervalCounter counter_;
+    Fraction fraction_ = Fraction(1);
+
+    bool move_left_ = false;
+    bool move_up_ = false;
+    bool move_right_ = false;
+    bool move_down_ = false;
+
+    bool move_fast_ = false;
+    bool move_slow_ = false;
 
 public:
 
@@ -31,16 +39,9 @@ public:
     float right_ = 0;
     float bottom_ = 0;
 
-    bool move_left_ = false;
-    bool move_up_ = false;
-    bool move_right_ = false;
-    bool move_down_ = false;
-
-    bool move_fast_ = false;
-    bool move_slow_ = false;
-
     RectangleModule(std::function<DrawRectangle()> draw) : Module(), draw_(draw()) {
         LOGI(TAG, "ctor");
+        SetupEvent();
     }
 
     ~RectangleModule() override {
@@ -56,54 +57,43 @@ public:
         draw_(x, y, width, height);
     }
 
-    void Event(Context &context, int key, bool press) override {
-        switch (key) {
-            case GLFW_KEY_2: {
-                if (press) {
-                    Close();
-                }
-                break;
-            }
-            case GLFW_KEY_LEFT: {
-                move_left_ = press;
-                break;
-            }
-            case GLFW_KEY_UP: {
-                move_up_ = press;
-                break;
-            }
-            case GLFW_KEY_RIGHT: {
-                move_right_ = press;
-                break;
-            }
-            case GLFW_KEY_DOWN: {
-                move_down_ = press;
-                break;
-            }
-            case GLFW_KEY_A: {
-                move_fast_ = press;
-                break;
-            }
-            case GLFW_KEY_S: {
-                move_slow_ = press;
-                break;
-            }
-            case GLFW_KEY_SPACE: {
-                left_ = reset_left_;
-                top_ = reset_top_;
-                right_ = reset_right_;
-                bottom_ = reset_bottom_;
-                break;
-            }
-        }
-    }
-
 private:
 
+    void BindFlag(int key, bool RectangleModule:: *flag) {
+        Module::KeyEvent(key, true, [this, flag](Context &) {
+            this->*flag = true;
+            return false;
+        });
+        Module::KeyEvent(key, false, [this, flag](Context &) {
+            this->*flag = false;
+            return false;
+        });
+    }
+
+    void SetupEvent() {
+        Module::KeyEvent(GLFW_KEY_2, true, [this](Context &) {
+            Close();
+            return false;
+        });
+        Module::KeyEvent(GLFW_KEY_SPACE, true, [this](Context &) {
+            left_ = reset_left_;
+            top_ = reset_top_;
+            right_ = reset_right_;
+            bottom_ = reset_bottom_;
+            return false;
+        });
+        BindFlag(GLFW_KEY_LEFT, &RectangleModule::move_left_);
+        BindFlag(GLFW_KEY_UP, &RectangleModule::move_up_);
+        BindFlag(GLFW_KEY_RIGHT, &RectangleModule::move_right_);
+        BindFlag(GLFW_KEY_DOWN, &RectangleModule::move_down_);
+        BindFlag(GLFW_KEY_A, &RectangleModule::move_fast_);
+        BindFlag(GLFW_KEY_S, &RectangleModule::move_slow_);
+    }
+
     void PerformMove() {
-        auto interval = counter_.Count();
-        auto step = interval * step_;
-        auto delta_rate = 100 * interval;
+        auto fraction = fraction_();
+        auto step = fraction * step_;
+        auto delta_rate = 100 * fraction;
         auto min_rate = 100;
         if (move_left_) {
             left_ -= step;
@@ -145,6 +135,7 @@ private:
 public:
     BackgroundModule() : Module() {
         LOGI(TAG, "ctor");
+        SetupEvent();
     }
 
     ~BackgroundModule() override {
@@ -156,27 +147,21 @@ public:
         glClear(GL_COLOR_BUFFER_BIT);
     }
 
-    void Event(Context &context, int key, bool press) override {
-        if (!press) {
-            return;
-        }
-        switch (key) {
-            case GLFW_KEY_ESCAPE: {
-                context.Close();
-                break;
-            }
-            case GLFW_KEY_1: {
-                if (rect_created) {
-                    break;
-                }
+private:
+
+    void SetupEvent() {
+        Module::KeyEvent(GLFW_KEY_ESCAPE, true, [](Context &context) {
+            context.Close();
+            return false;
+        });
+        Module::KeyEvent(GLFW_KEY_1, true, [this](Context &context) {
+            if (!rect_created) {
                 rect_created = true;
                 InitSubModule(context);
-                break;
             }
-        }
+            return false;
+        });
     }
-
-private:
 
     void InitSubModule(Context &context) {
         context.NewModule([]() -> std::unique_ptr<Module> {
