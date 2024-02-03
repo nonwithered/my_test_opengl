@@ -36,17 +36,14 @@ private:
 
     GLFWwindow *id_;
 
+    Global &global_;
+
     const std::string title_;
 
     int width_ = 0;
     int height_ = 0;
 
     std::unique_ptr<Module> module_ = std::make_unique<Module>(*this);
-
-    void SetCallback() {
-        glfwSetFramebufferSizeCallback(id_, (GLFWframebuffersizefun) Callback(glfwSetFramebufferSizeCallback));
-        glfwSetKeyCallback(id_, (GLFWkeyfun) Callback(glfwSetKeyCallback));
-    }
 
     class Scope {
 
@@ -75,8 +72,9 @@ private:
 
 public:
 
-    Window(const std::string &title, int width, int height, std::function<void(Window &)> init)
+    Window(Global &global, const std::string &title, int width, int height, std::function<void(Window &)> init)
     : id_(glfwCreateWindow(width, height, title.data(), nullptr, nullptr))
+    , global_(global)
     , title_(title)
     , width_(width)
     , height_(height) {
@@ -85,8 +83,6 @@ public:
             throw std::exception();
         }
         auto scope = Use();
-        // glfwSwapInterval(0);
-        SetCallback();
         if (init) {
             init(*this);
         } else {
@@ -138,6 +134,14 @@ public:
             auto scope = Use();
             module_->PerformKeyEvent(key, press);
         }
+    }
+
+    GLFWwindow *id() {
+        return id_;
+    }
+
+    Global &global() override {
+        return global_;
     }
 
     int width() override {

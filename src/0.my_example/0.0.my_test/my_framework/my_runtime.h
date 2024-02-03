@@ -6,8 +6,9 @@
 
 #include "my_utils/my_counter.h"
 #include "my_utils/my_fraction.h"
+#include "my_model/my_actor.h"
 
-class Runtime {
+class Runtime : public Global {
 
 private:
 
@@ -17,6 +18,8 @@ private:
 
     std::vector<std::unique_ptr<Window>> windows_;
     std::vector<std::unique_ptr<Window>> pending_windows_;
+
+    std::shared_ptr<Actor> actor_ = Actor::Make();
 
     Counter counter_ = Counter(1);
     Fraction fraction_ = Fraction(1);
@@ -44,11 +47,6 @@ private:
     static void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
         Instance()->Find(window).KeyCallback(key, scancode, action, mods);
         Instance()->PerformFrame();
-    }
-
-    void SetCallback() {
-        Window::Callback(glfwSetFramebufferSizeCallback, FramebufferSizeCallback);
-        Window::Callback(glfwSetKeyCallback, KeyCallback);
     }
 
     Window &Find(GLFWwindow *id) {
@@ -87,6 +85,19 @@ private:
         }
     }
 
+    void SetupWindow(Window &w) {
+        if (!init_gl_) {
+            init_gl_ = true;
+            if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
+                LOGE(TAG, "gladLoadGLLoader fail");
+                throw std::exception();
+            }
+        }
+        glfwSetFramebufferSizeCallback(w.id(), FramebufferSizeCallback);
+        glfwSetKeyCallback(w.id(), KeyCallback);
+        // glfwSwapInterval(0);
+    }
+
 public:
 
     Runtime() {
@@ -104,8 +115,6 @@ public:
         #ifdef __APPLE__
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
         #endif
-
-        SetCallback();
     }
 
     ~Runtime() {
@@ -115,14 +124,8 @@ public:
 
     void NewWindow(const std::string &title, int width, int height, std::function<void(Window &)> init) {
         LOGI(TAG, "add window %s", title.data());
-        auto window = std::make_unique<Window>(title, width, height, [this, &init](Window &w) {
-            if (!init_gl_) {
-                init_gl_ = true;
-                if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
-                    LOGE(TAG, "gladLoadGLLoader fail");
-                    throw std::exception();
-                }
-            }
+        auto window = std::make_unique<Window>(*this, title, width, height, [this, &init](Window &w) {
+            SetupWindow(w);
             if (init) {
                 init(w);
             } else {

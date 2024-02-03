@@ -7,7 +7,7 @@
 class Actor {
 
 public:
-    std::shared_ptr<Actor> Make() {
+    static std::shared_ptr<Actor> Make() {
         auto p = std::make_shared<Actor>();
         p->self_ = p;
         return p;
@@ -26,10 +26,11 @@ private:
     Actor(Actor &&) = delete;
 
 protected:
-    Actor() = default;
     Actor(const Actor &) = default;
 
 public:
+
+    Actor() = default;
 
     virtual ~Actor() = default;
 
@@ -75,16 +76,21 @@ public:
         return p;
     }
 
-    void Collect(std::function<void(Actor &)> &block) {
+    bool Collect(std::function<bool(Actor &)> &block) {
         if (!block) {
             LOGE(TAG, "ForEach invalid");
             throw std::exception();
         }
-        block(*this);
+        if (block(*this)) {
+            return true;
+        }
         for (auto i = children_.begin(); i != children_.end(); ++i) {
             auto &p = *i;
-            p->Collect(block);
+            if(p->Collect(block)) {
+                return true;
+            }
         }
+        return false;
     }
 
     std::shared_ptr<Actor> Transform(glm::mat4 &transform, const Actor *root = nullptr) {
