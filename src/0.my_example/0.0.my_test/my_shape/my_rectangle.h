@@ -32,7 +32,7 @@ public:
         std::function<void(UniformLocation)> uniform)
     : shader_(vs, fs)
     , vao_(data, configs, indices)
-    , uniform_(uniform) {
+    , uniform_(std::move(uniform)) {
         for (auto &image : images) {
             textures_.push_back(image);
         }

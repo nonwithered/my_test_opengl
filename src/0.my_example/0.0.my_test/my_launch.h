@@ -56,8 +56,14 @@ public:
         draw_(x, y, width, height);
     }
 
-    void KeyEvent(Context &context, int key, bool press) override {
+    void Event(Context &context, int key, bool press) override {
         switch (key) {
+            case GLFW_KEY_2: {
+                if (press) {
+                    Close();
+                }
+                break;
+            }
             case GLFW_KEY_LEFT: {
                 move_left_ = press;
                 break;
@@ -93,6 +99,7 @@ public:
     }
 
 private:
+
     void PerformMove() {
         auto interval = counter_.Count();
         auto step = interval * step_;
@@ -145,12 +152,11 @@ public:
     }
 
     void Frame(Context &context) override {
-        glViewport(0, 0, context.width(), context.height());
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
     }
 
-    void KeyEvent(Context &context, int key, bool press) override {
+    void Event(Context &context, int key, bool press) override {
         if (!press) {
             return;
         }
@@ -189,7 +195,7 @@ private:
             module->bottom_ = module->reset_bottom_;
 
             return module;
-        });
+        }());
         context.NewModule([]() -> std::unique_ptr<Module> {
             auto module = std::make_unique<RectangleModule>([]() -> auto {
                 return DrawRectangleMultiColor({ 0xffff0000, 0xff00ff00, 0xff0000ff, 0xffffffff });
@@ -206,7 +212,7 @@ private:
             module->bottom_ = module->reset_bottom_;
 
             return module;
-        });
+        }());
         context.NewModule([]() -> std::unique_ptr<Module> {
             auto module = std::make_unique<RectangleModule>([]() -> auto {
                 return DrawRectangleWithPicture("resources/textures/container.jpg");
@@ -223,6 +229,6 @@ private:
             module->bottom_ = module->reset_bottom_;
 
             return module;
-        });
+        }());
     }
 };

@@ -9,9 +9,7 @@ int main()
         800,
         600,
         [](Context &w) {
-            w.NewModule([]() -> std::unique_ptr<Module> {
-                return std::make_unique<BackgroundModule>();
-            });
+            w.NewModule(std::make_unique<BackgroundModule>());
         }
     );
     
