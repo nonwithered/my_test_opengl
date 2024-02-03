@@ -44,7 +44,30 @@ private:
     std::unordered_map<int, std::function<bool(Context &)>> key_event_release_;
 
 protected:
+
     virtual void Frame(Context &context) {
+        for (auto i = modules_.begin(); i != modules_.end(); ) {
+            auto &module = *i;
+            if (module->IsClosed()) {
+                LOGI(TAG, "close module");
+                i = modules_.erase(i);
+            } else {
+                ++i;
+                module->PerformFrame(context);
+            }
+        }
+    }
+
+    virtual bool KeyEvent(Context &context, int key, bool press) {
+        auto &events = press ? key_event_press_ : key_event_release_;
+        auto i = events.find(key);
+        if (i != events.end()) {
+            auto &event = i->second;
+            if (event && event(context)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     void Close() {
@@ -75,15 +98,8 @@ public:
     }
 
     void PerformKeyEvent(Context &context, int key, bool press) {
-        {
-            auto &events = press ? key_event_press_ : key_event_release_;
-            auto i = events.find(key);
-            if (i != events.end()) {
-                auto &event = i->second;
-                if (event && event(context)) {
-                    return;
-                }
-            }
+        if (KeyEvent(context, key, press)) {
+            return;
         }
         for (auto i = modules_.begin(); i != modules_.end(); ++i) {
             auto &module = *i;
@@ -98,16 +114,5 @@ public:
             i = pending_modules_.erase(i);
         }
         Frame(context);
-        for (auto i = modules_.begin(); i != modules_.end(); ) {
-            auto &module = *i;
-            if (module->IsClosed()) {
-                LOGI(TAG, "close module");
-                i = modules_.erase(i);
-            } else {
-                ++i;
-                module->PerformFrame(context);
-            }
-        }
     }
-
 };

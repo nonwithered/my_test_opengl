@@ -55,6 +55,7 @@ public:
         auto x = left_;
         auto y = context.height() - height - top_;
         draw_(x, y, width, height);
+        Module::Frame(context);
     }
 
 private:
@@ -145,6 +146,7 @@ public:
     void Frame(Context &context) override {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+        Module::Frame(context);
     }
 
 private:
@@ -154,17 +156,17 @@ private:
             context.Close();
             return false;
         });
-        Module::KeyEvent(GLFW_KEY_1, true, [this](Context &context) {
+        Module::KeyEvent(GLFW_KEY_1, true, [this](Context &) {
             if (!rect_created) {
                 rect_created = true;
-                InitSubModule(context);
+                InitSubModule();
             }
             return false;
         });
     }
 
-    void InitSubModule(Context &context) {
-        context.NewModule([]() -> std::unique_ptr<Module> {
+    void InitSubModule() {
+        Module::NewModule([]() -> std::unique_ptr<Module> {
             auto module = std::make_unique<RectangleModule>([]() -> auto {
                 return DrawRectangleSingleColor([]() { return 0xffff00ff; });
             });
@@ -181,7 +183,7 @@ private:
 
             return module;
         }());
-        context.NewModule([]() -> std::unique_ptr<Module> {
+        Module::NewModule([]() -> std::unique_ptr<Module> {
             auto module = std::make_unique<RectangleModule>([]() -> auto {
                 return DrawRectangleMultiColor({ 0xffff0000, 0xff00ff00, 0xff0000ff, 0xffffffff });
             });
@@ -198,7 +200,7 @@ private:
 
             return module;
         }());
-        context.NewModule([]() -> std::unique_ptr<Module> {
+        Module::NewModule([]() -> std::unique_ptr<Module> {
             auto module = std::make_unique<RectangleModule>([]() -> auto {
                 return DrawRectangleWithPicture("resources/textures/container.jpg");
             });
