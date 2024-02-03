@@ -4,7 +4,7 @@
 
 #include "my_window.h"
 
-#include "my_utils/my_fps.h"
+#include "my_utils/my_counter.h"
 
 class Runtime {
 
@@ -16,6 +16,8 @@ private:
 
     std::list<Window> windows_;
     std::list<Window> pending_windows_;
+
+    Counter counter_ = Counter(1);
 
     Runtime(const Runtime &) = delete;
     Runtime(Runtime &&) = delete;
@@ -56,7 +58,12 @@ private:
     }
 
     void PerformFrame() {
-        FPS();
+        {
+            auto count = counter_();
+            if (count > 0) {
+                LOGI(TAG, "FPS %u", count);
+            }
+        }
         for (auto i = pending_windows_.begin(); i != pending_windows_.end(); ) {
             auto &window = *i;
             LOGI(TAG, "move window %s", window.title().data());

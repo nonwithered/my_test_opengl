@@ -110,7 +110,7 @@ public:
     }
 
     void PerformFrame() {
-        LOGI(TAG, "PerformFrame %s", title_.data());
+        LOGD(TAG, "PerformFrame %s", title_.data());
         auto scope = Use();
         module_->PerformFrame(*this);
         glfwSwapBuffers(id_);
