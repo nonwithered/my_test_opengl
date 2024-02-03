@@ -82,8 +82,7 @@ public:
         if (KeyEvent(key, press)) {
             return;
         }
-        for (auto i = children_.begin(); i != children_.end(); ++i) {
-            auto &module = *i;
+        for (auto &module : children_) {
             module->PerformKeyEvent(key, press);
         }
     }

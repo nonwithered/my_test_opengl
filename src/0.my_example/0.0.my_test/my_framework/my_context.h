@@ -2,7 +2,7 @@
 
 #include <log.h>
 
-class Module;
+class Actor;
 
 class Global {
 
@@ -16,7 +16,11 @@ protected:
 public:
     virtual ~Global() = default;
 
+    virtual Actor &Model() = 0;
+
 };
+
+class Module;
 
 class Context {
 

@@ -141,4 +141,8 @@ public:
             glfwPollEvents();
         }
     }
+
+    Actor &Model() override {
+        return *actor_;
+    }
 };

@@ -7,9 +7,10 @@
 class Actor {
 
 public:
+
     static std::shared_ptr<Actor> Make() {
         auto p = std::make_shared<Actor>();
-        p->self_ = p;
+        p->self(p);
         return p;
     }
 
@@ -17,19 +18,35 @@ private:
 
     static constexpr auto TAG = "Actor";
 
-    Transform transform_;
+    static const std::string &name_empty() {
+        const std::string empty_ = "";
+        return empty_;
+    }
 
     std::weak_ptr<Actor> self_;
     std::weak_ptr<Actor> parent_;
-    std::vector<std::shared_ptr<Actor>> children_;
+    std::unique_ptr<std::vector<std::shared_ptr<Actor>>> children_;
+
+    Transform transform_;
+    std::unique_ptr<std::string> name_;
+
+    std::vector<std::shared_ptr<Actor>> &children() {
+        if (!children_) {
+            children_ = std::make_unique<decltype(children_)::element_type>();
+        }
+        return *children_;
+    }
 
     Actor(Actor &&) = delete;
 
 protected:
     Actor(const Actor &) = default;
 
-public:
+    void self(const std::shared_ptr<Actor> &p) {
+        self_ = p;
+    }
 
+public:
     Actor() = default;
 
     virtual ~Actor() = default;
@@ -52,13 +69,13 @@ public:
             throw std::exception();
         }
         child->parent_ = self_;
-        children_.push_back(std::move(child));
+        children().push_back(std::move(child));
     }
 
     void operator-=(std::shared_ptr<Actor> child) {
-        for (auto i = children_.begin(); i != children_.end(); ) {
+        for (auto i = children().begin(); i != children().end(); ) {
             if (*i == child) {
-                children_.erase(i);
+                children().erase(i);
                 return;
             }
         }
@@ -66,7 +83,7 @@ public:
 
     std::shared_ptr<Actor> Lookup(std::function<bool(Actor &)> block) {
         if (!block) {
-            LOGE(TAG, "Lookup invalid");
+            LOGE(TAG, "Lookup invalid %s", name().data());
             throw std::exception();
         }
         std::shared_ptr<Actor> p = self_.lock();
@@ -76,16 +93,15 @@ public:
         return p;
     }
 
-    bool Collect(std::function<bool(Actor &)> &block) {
+    bool Collect(const std::function<bool(Actor &)> &block) {
         if (!block) {
-            LOGE(TAG, "ForEach invalid");
+            LOGE(TAG, "Collect invalid %s", name().data());
             throw std::exception();
         }
         if (block(*this)) {
             return true;
         }
-        for (auto i = children_.begin(); i != children_.end(); ++i) {
-            auto &p = *i;
+        for (auto &p : children()) {
             if(p->Collect(block)) {
                 return true;
             }
@@ -93,11 +109,44 @@ public:
         return false;
     }
 
+    std::shared_ptr<Actor> Collect(const std::function<bool(Actor &, size_t)> &block) {
+        for (auto i = 0; i != children().size(); ++i) {
+            auto &p = children()[i];
+            if (block(*p, i)) {
+                return p;
+            }
+        }
+        return nullptr;
+    }
+
     std::shared_ptr<Actor> Transform(glm::mat4 &transform, const Actor *root = nullptr) {
         return Lookup([&transform, root](Actor &actor) -> bool {
             transform = actor.transform_.operator glm::mat4() * transform;
             return actor.parent_.lock().get() == root;
         });
+    }
+
+    std::shared_ptr<Actor> Find(const std::string &s) {
+        std::shared_ptr<Actor> p;
+        Collect([&s, &p](Actor &actor) -> bool {
+            bool b = actor.name() == s;
+            if (b) {
+                p = actor.self_.lock();
+            }
+            return b;
+        });
+    }
+
+    const std::string &name() const {
+        if (!name_) {
+            return name_empty();
+        } else {
+            return name_->data();
+        }
+    }
+
+    void name(const std::string &s) {
+        name_ = std::make_unique<std::string>(s);
     }
 
 };

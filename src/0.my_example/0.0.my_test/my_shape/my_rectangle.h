@@ -53,11 +53,7 @@ public:
     }
 };
 
-DrawRectangle DrawRectangleSingleColor(std::function<uint32_t()> color) {
-    if (!color) {
-        LOGE("DrawRectangleSingleColor", "invalid color");
-        throw std::exception();
-    }
+DrawRectangle DrawRectangleSingleColor(uint32_t color) {
     return DrawRectangle(
 // vs
         R"(
@@ -104,7 +100,7 @@ void main()
         },
 // uniform
         [color](UniformLocation location) {
-            auto color_ = GetColorVec4(color());
+            auto color_ = GetColorVec4(color);
             glUniform4f(location("ourColor"), color_[0], color_[1], color_[2], color_[3]);
         }
     );

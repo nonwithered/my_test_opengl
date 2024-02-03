@@ -4,18 +4,46 @@
 
 #include "my_shape/my_rectangle.h"
 
-bool rect_created = false;
+class RectModel : public Actor {
+
+public:
+
+    static std::shared_ptr<RectModel> Make() {
+        auto p = std::make_shared<RectModel>();
+        p->self(p);
+        return p;
+    }
+
+    static RectModel &Find(Context &context) {
+        auto actor = context.global().Model().Collect([](Actor &actor, size_t) -> bool {
+            return dynamic_cast<RectModel *>(&actor) != nullptr;
+        });
+        return dynamic_cast<RectModel &>(*actor);
+    }
+
+public:
+
+    const int rect_grow_rate = 200;
+
+    const float bg_rate = 0.5;
+    const float bg_r = 0.2f;
+    const float bg_g = 0.3f;
+    const float bg_b = 0.3f;
+
+    const uint32_t rect_single_color = 0xffff00ff;
+
+};
 
 class RectangleModule : public Module {
 
 private:
     static constexpr auto TAG = "RectangleModule";
-
-    static constexpr auto kRate = 100;
+    
+    const int rate_ = RectModel::Find(context()).rect_grow_rate;
 
     DrawRectangle draw_;
 
-    float step_ = kRate;
+    float step_;
 
     bool move_left_ = false;
     bool move_up_ = false;
@@ -37,14 +65,10 @@ public:
     float right_ = 0;
     float bottom_ = 0;
 
-    RectangleModule(Context &context, std::function<DrawRectangle()> draw) : Module(context), draw_([&draw]() -> auto {
-        if (draw) {
-            return draw();
-        } else {
-            LOGE(TAG, "invalid init");
-            throw std::exception();
-        }
-    }()) {
+    RectangleModule(Context &context, DrawRectangle draw)
+     : Module(context)
+     , step_(rate_)
+     , draw_(std::move(draw)) {
         LOGI(TAG, "ctor");
         SetupEvent();
     }
@@ -66,22 +90,22 @@ public:
 private:
 
     void BindFlag(int key, bool RectangleModule:: *flag) {
-        Module::KeyEvent(key, true, [this, flag]() {
+        Module::KeyEvent(key, true, [this, flag]() -> auto {
             this->*flag = true;
             return false;
         });
-        Module::KeyEvent(key, false, [this, flag]() {
+        Module::KeyEvent(key, false, [this, flag]() -> auto {
             this->*flag = false;
             return false;
         });
     }
 
     void SetupEvent() {
-        Module::KeyEvent(GLFW_KEY_2, true, [this]() {
+        Module::KeyEvent(GLFW_KEY_2, true, [this]() -> auto {
             Close();
             return false;
         });
-        Module::KeyEvent(GLFW_KEY_SPACE, true, [this]() {
+        Module::KeyEvent(GLFW_KEY_SPACE, true, [this]() -> auto {
             left_ = reset_left_;
             top_ = reset_top_;
             right_ = reset_right_;
@@ -98,8 +122,8 @@ private:
 
     void Change(float fraction) {
         auto step = fraction * step_;
-        auto delta_rate = kRate * fraction;
-        auto min_rate = kRate;
+        auto delta_rate = rate_ * fraction;
+        auto min_rate = rate_;
         if (move_left_) {
             left_ -= step;
             right_ -= step;
@@ -133,19 +157,21 @@ class BackgroundModule : public Module {
 private:
     static constexpr auto TAG = "BackgroundModule";
 
-    static constexpr auto kRate = 0.1;
-
 public:
+    
+    const float rate_ = RectModel::Find(context()).bg_rate;
 
-    float r = 0.5;
-    float g = 0.5;
-    float b = 0.5;
+    float r = RectModel::Find(context()).bg_r;
+    float g = RectModel::Find(context()).bg_g;
+    float b = RectModel::Find(context()).bg_b;
 
     bool r_ = false;
     bool g_ = false;
     bool b_ = false;
 
     bool p_ = false;
+
+    bool rect_created = false;
 
     BackgroundModule(Context &context) : Module(context) {
         LOGI(TAG, "ctor");
@@ -166,11 +192,11 @@ public:
 private:
 
     void SetupEvent() {
-        Module::KeyEvent(GLFW_KEY_ESCAPE, true, [this]() {
+        Module::KeyEvent(GLFW_KEY_ESCAPE, true, [this]() -> auto {
             context().Close();
             return false;
         });
-        Module::KeyEvent(GLFW_KEY_1, true, [this]() {
+        Module::KeyEvent(GLFW_KEY_1, true, [this]() -> auto {
             if (!rect_created) {
                 rect_created = true;
                 InitSubModule();
@@ -195,7 +221,7 @@ private:
     }
 
     void Change(float fraction) {
-        auto step = fraction * kRate;
+        auto step = fraction * rate_;
         if (p_) {
             step *= -1;
         }
@@ -230,9 +256,7 @@ private:
 
     void InitSubModule() {
         Module::NewModule([this]() -> std::unique_ptr<Module> {
-            auto module = std::make_unique<RectangleModule>(context(), []() -> auto {
-                return DrawRectangleSingleColor([]() { return 0xffff00ff; });
-            });
+            auto module = std::make_unique<RectangleModule>(context(), DrawRectangleSingleColor(RectModel::Find(context()).rect_single_color));
 
             module->reset_left_ = 200;
             module->reset_top_ = 100;
@@ -247,9 +271,7 @@ private:
             return module;
         }());
         Module::NewModule([this]() -> std::unique_ptr<Module> {
-            auto module = std::make_unique<RectangleModule>(context(), []() -> auto {
-                return DrawRectangleMultiColor({ 0xffff0000, 0xff00ff00, 0xff0000ff, 0xffffffff });
-            });
+            auto module = std::make_unique<RectangleModule>(context(), DrawRectangleMultiColor({ 0xffff0000, 0xff00ff00, 0xff0000ff, 0xffffffff }));
 
             module->reset_left_ = 400;
             module->reset_top_ = 100;
@@ -264,9 +286,7 @@ private:
             return module;
         }());
         Module::NewModule([this]() -> std::unique_ptr<Module> {
-            auto module = std::make_unique<RectangleModule>(context(), []() -> auto {
-                return DrawRectangleWithPicture("resources/textures/container.jpg");
-            });
+            auto module = std::make_unique<RectangleModule>(context(), DrawRectangleWithPicture("resources/textures/container.jpg"));
 
             module->reset_left_ = 600;
             module->reset_top_ = 100;
@@ -293,6 +313,7 @@ private:
 public:
     LauncherModule(Context &context) : Module(context) {
         LOGI(TAG, "ctor");
+        context.global().Model() += RectModel::Make();
         context.NewModule(std::make_unique<BackgroundModule>(context));
         Close();
     }
