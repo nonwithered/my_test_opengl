@@ -120,7 +120,11 @@ public:
                     throw std::exception();
                 }
             }
-            init(w);
+            if (init) {
+                init(w);
+            } else {
+                LOGW(TAG, "NewWindow invalid init");
+            }
         });
         pending_windows_.push_back(std::move(window));
     }

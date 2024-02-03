@@ -39,7 +39,14 @@ public:
     float right_ = 0;
     float bottom_ = 0;
 
-    RectangleModule(std::function<DrawRectangle()> draw) : Module(), draw_(draw()) {
+    RectangleModule(std::function<DrawRectangle()> draw) : Module(), draw_([&draw]() -> auto {
+        if (draw) {
+            return draw();
+        } else {
+            LOGE(TAG, "invalid init");
+            throw std::exception();
+        }
+    }()) {
         LOGI(TAG, "ctor");
         SetupEvent();
     }

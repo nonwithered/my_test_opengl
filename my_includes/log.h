@@ -1,5 +1,4 @@
-#ifndef MY_INCLUDES_LOG_
-#define MY_INCLUDES_LOG_
+#pragma once
 
 #include <base.h>
 
@@ -30,5 +29,3 @@ int _log_thread_num();
 #define LOGW(tag, msg, ...) _LOG_IF(W, tag, msg, ##__VA_ARGS__)
 
 #define LOGE(tag, msg, ...) _LOG_IF(E, tag, msg, ##__VA_ARGS__)
-
-#endif // MY_INCLUDES_LOG_

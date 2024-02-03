@@ -37,8 +37,8 @@ private:
     Module(const Module &) = delete;
     Module(Module &&) = delete;
 
-    std::vector<std::unique_ptr<Module>> pending_modules_;
-    std::vector<std::unique_ptr<Module>> modules_;
+    std::vector<std::unique_ptr<Module>> pending_children_;
+    std::vector<std::unique_ptr<Module>> children_;
 
     std::unordered_map<int, std::function<bool(Context &)>> key_event_press_;
     std::unordered_map<int, std::function<bool(Context &)>> key_event_release_;
@@ -46,11 +46,11 @@ private:
 protected:
 
     virtual void Frame(Context &context) {
-        for (auto i = modules_.begin(); i != modules_.end(); ) {
+        for (auto i = children_.begin(); i != children_.end(); ) {
             auto &module = *i;
             if (module->IsClosed()) {
                 LOGI(TAG, "close module");
-                i = modules_.erase(i);
+                i = children_.erase(i);
             } else {
                 ++i;
                 module->PerformFrame(context);
@@ -94,24 +94,24 @@ public:
 
     void NewModule(std::unique_ptr<Module> module) {
         LOGI(TAG, "NewModule");
-        pending_modules_.push_back(std::move(module));
+        pending_children_.push_back(std::move(module));
     }
 
     void PerformKeyEvent(Context &context, int key, bool press) {
         if (KeyEvent(context, key, press)) {
             return;
         }
-        for (auto i = modules_.begin(); i != modules_.end(); ++i) {
+        for (auto i = children_.begin(); i != children_.end(); ++i) {
             auto &module = *i;
             module->PerformKeyEvent(context, key, press);
         }
     }
 
     void PerformFrame(Context &context) {
-        for (auto i = pending_modules_.begin(); i != pending_modules_.end(); ) {
+        for (auto i = pending_children_.begin(); i != pending_children_.end(); ) {
             auto &module = *i;
-            modules_.push_back(std::move(module));
-            i = pending_modules_.erase(i);
+            children_.push_back(std::move(module));
+            i = pending_children_.erase(i);
         }
         Frame(context);
     }

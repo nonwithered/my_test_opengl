@@ -1,5 +1,4 @@
-#ifndef MY_INCLUDES_BASE_
-#define MY_INCLUDES_BASE_
+#pragma once
 
 #include <cstdio>
 #include <cstdlib>
@@ -28,5 +27,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-
-#endif // MY_INCLUDES_BASE_
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>

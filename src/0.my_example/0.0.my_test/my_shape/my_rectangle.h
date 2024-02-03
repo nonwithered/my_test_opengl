@@ -54,6 +54,10 @@ public:
 };
 
 DrawRectangle DrawRectangleSingleColor(std::function<uint32_t()> color) {
+    if (!color) {
+        LOGE("DrawRectangleSingleColor", "invalid color");
+        throw std::exception();
+    }
     return DrawRectangle(
 // vs
         R"(

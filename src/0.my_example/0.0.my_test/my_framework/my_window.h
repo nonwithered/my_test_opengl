@@ -86,7 +86,11 @@ public:
         auto scope = Use();
         // glfwSwapInterval(0);
         SetCallback();
-        init(*this);
+        if (init) {
+            init(*this);
+        } else {
+            LOGW(TAG, "invalid init");
+        }
     }
 
     Window(Window &&that)
