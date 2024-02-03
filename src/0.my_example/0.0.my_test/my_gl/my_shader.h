@@ -25,7 +25,7 @@ public:
         auto src_ptr = src.data();
         glShaderSource(id_, 1, &src_ptr, nullptr);
         glCompileShader(id_);
-        LOGI(TAG, "compile %u %s", id_, src.data());
+        LOGI(TAG, "compile %u", id_);
         GLint success;
         GLchar infoLog[512];
         glGetShaderiv(id_, GL_COMPILE_STATUS, &success);
@@ -77,7 +77,7 @@ public:
         auto src_ptr = src.data();
         glShaderSource(id_, 1, &src_ptr, nullptr);
         glCompileShader(id_);
-        LOGI(TAG, "compile %u %s", id_, src.data());
+        LOGI(TAG, "compile %u", id_);
         GLint success;
         GLchar infoLog[512];
         glGetShaderiv(id_, GL_COMPILE_STATUS, &success);

@@ -131,16 +131,18 @@ public:
     }
 
     void KeyCallback(int key, int scancode, int action, int mods) {
-        LOGI(TAG, "KeyCallback %s %d %d %d %d", title_.data(), key, scancode, action, mods);
+        LOGD(TAG, "KeyCallback %s %d %d %d %d", title_.data(), key, scancode, action, mods);
         if (key == GLFW_KEY_UNKNOWN) {
             return;
         }
         if (action != GLFW_PRESS && action != GLFW_RELEASE) {
             return;
         }
+        bool press = action == GLFW_PRESS;
+        LOGI(TAG, "PerformKeyEvent %s %d %d", title_.data(), key, press);
         {
             auto scope = Use();
-            module_->PerformKeyEvent(*this, key, action == GLFW_PRESS);
+            module_->PerformKeyEvent(*this, key, press);
         }
     }
 

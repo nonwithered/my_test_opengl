@@ -112,10 +112,6 @@ private:
             top_ += step;
             bottom_ += step;
         }
-        if (move_down_) {
-            top_ += step;
-            bottom_ += step;
-        }
         if (move_fast_) {
             step_ += delta_rate;
         }
