@@ -32,6 +32,7 @@ public:
 private:
 
     Window(const Window &) = delete;
+    Window(Window &&) = delete;
 
     GLFWwindow *id_;
 
@@ -40,7 +41,7 @@ private:
     int width_ = 0;
     int height_ = 0;
 
-    std::unique_ptr<Module> module_ = std::make_unique<Module>();
+    std::unique_ptr<Module> module_ = std::make_unique<Module>(*this);
 
     void SetCallback() {
         glfwSetFramebufferSizeCallback(id_, (GLFWframebuffersizefun) Callback(glfwSetFramebufferSizeCallback));
@@ -93,17 +94,6 @@ public:
         }
     }
 
-    Window(Window &&that)
-    : id_(that.id_)
-    , title_(std::move(that.title_))
-    , width_(that.width_)
-    , height_(that.height_)
-    , module_(std::move(that.module_)) {
-        that.id_ = nullptr;
-        that.width_ = 0;
-        that.height_ = 0;
-    }
-
     ~Window() {
         if (id_ == nullptr) {
             return;
@@ -113,10 +103,10 @@ public:
         id_ = nullptr;
     }
 
-    void PerformFrame() {
+    void PerformFrame(float fraction) {
         LOGD(TAG, "PerformFrame %s", title_.data());
         auto scope = Use();
-        module_->PerformFrame(*this);
+        module_->PerformFrame(fraction);
         glfwSwapBuffers(id_);
     }
 
@@ -146,7 +136,7 @@ public:
         LOGI(TAG, "PerformKeyEvent %s %d %d", title_.data(), key, press);
         {
             auto scope = Use();
-            module_->PerformKeyEvent(*this, key, press);
+            module_->PerformKeyEvent(key, press);
         }
     }
 

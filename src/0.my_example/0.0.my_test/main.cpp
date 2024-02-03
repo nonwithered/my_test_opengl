@@ -1,4 +1,4 @@
-#include "my_launch.h"
+#include "my_temp/test_rect_move.h"
 
 int main()
 {
@@ -8,8 +8,8 @@ int main()
         "my_test",
         800,
         600,
-        [](Context &w) {
-            w.NewModule(std::make_unique<BackgroundModule>());
+        [](Context &context) {
+            context.NewModule(std::make_unique<LauncherModule>(context));
         }
     );
     

@@ -5,6 +5,7 @@
 #include "my_window.h"
 
 #include "my_utils/my_counter.h"
+#include "my_utils/my_fraction.h"
 
 class Runtime {
 
@@ -14,10 +15,11 @@ private:
 
     bool init_gl_ = false;
 
-    std::list<Window> windows_;
-    std::list<Window> pending_windows_;
+    std::vector<std::unique_ptr<Window>> windows_;
+    std::vector<std::unique_ptr<Window>> pending_windows_;
 
     Counter counter_ = Counter(1);
+    Fraction fraction_ = Fraction(1);
 
     Runtime(const Runtime &) = delete;
     Runtime(Runtime &&) = delete;
@@ -51,8 +53,8 @@ private:
 
     Window &Find(GLFWwindow *id) {
         for (auto &window : windows_) {
-            if (window.IsSame(id)) {
-                return window;
+            if (window->IsSame(id)) {
+                return *window;
             }
         }
         LOGE(TAG, "Find fail %p", id);
@@ -60,6 +62,7 @@ private:
     }
 
     void PerformFrame() {
+        auto fraction = fraction_();
         {
             auto count = counter_();
             if (count > 0) {
@@ -68,18 +71,18 @@ private:
         }
         for (auto i = pending_windows_.begin(); i != pending_windows_.end(); ) {
             auto &window = *i;
-            LOGI(TAG, "move window %s", window.title().data());
+            LOGI(TAG, "move window %s", window->title().data());
             windows_.push_back(std::move(window));
             i = pending_windows_.erase(i);
         }
         for (auto i = windows_.begin(); i != windows_.end();) {
             auto &window = *i;
-            if (window.IsClosed()) {
-                LOGI(TAG, "close window %s", window.title().data());
+            if (window->IsClosed()) {
+                LOGI(TAG, "close window %s", window->title().data());
                 i = windows_.erase(i);
             } else {
                 ++i;
-                window.PerformFrame();
+                window->PerformFrame(fraction);
             }
         }
     }
@@ -112,7 +115,7 @@ public:
 
     void NewWindow(const std::string &title, int width, int height, std::function<void(Window &)> init) {
         LOGI(TAG, "add window %s", title.data());
-        auto window = Window(title, width, height, [this, &init](Window &w) {
+        auto window = std::make_unique<Window>(title, width, height, [this, &init](Window &w) {
             if (!init_gl_) {
                 init_gl_ = true;
                 if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {

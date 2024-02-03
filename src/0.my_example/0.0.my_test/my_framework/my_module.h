@@ -37,15 +37,21 @@ private:
     Module(const Module &) = delete;
     Module(Module &&) = delete;
 
+    Context &context_;
+
     std::vector<std::unique_ptr<Module>> pending_children_;
     std::vector<std::unique_ptr<Module>> children_;
 
-    std::unordered_map<int, std::function<bool(Context &)>> key_event_press_;
-    std::unordered_map<int, std::function<bool(Context &)>> key_event_release_;
+    std::unordered_map<int, std::function<bool()>> key_event_press_;
+    std::unordered_map<int, std::function<bool()>> key_event_release_;
 
 protected:
 
-    virtual void Frame(Context &context) {
+    Context &context() {
+        return context_;
+    }
+
+    virtual void Frame(float fraction) {
         for (auto i = children_.begin(); i != children_.end(); ) {
             auto &module = *i;
             if (module->IsClosed()) {
@@ -53,17 +59,17 @@ protected:
                 i = children_.erase(i);
             } else {
                 ++i;
-                module->PerformFrame(context);
+                module->PerformFrame(fraction);
             }
         }
     }
 
-    virtual bool KeyEvent(Context &context, int key, bool press) {
+    virtual bool KeyEvent(int key, bool press) {
         auto &events = press ? key_event_press_ : key_event_release_;
         auto i = events.find(key);
         if (i != events.end()) {
             auto &event = i->second;
-            if (event && event(context)) {
+            if (event && event()) {
                 return true;
             }
         }
@@ -74,7 +80,7 @@ protected:
         finish_ = true;
     }
 
-    void KeyEvent(int key, bool press, std::function<bool(Context &)> event) {
+    void KeyEvent(int key, bool press, std::function<bool()> event) {
         auto &events = press ? key_event_press_ : key_event_release_;
         if (event) {
             events[key] = std::move(event);
@@ -84,7 +90,8 @@ protected:
     }
 
 public:
-    Module() = default;
+    Module(Context &context): context_(context) {
+    }
 
     virtual ~Module() = default;
 
@@ -97,22 +104,22 @@ public:
         pending_children_.push_back(std::move(module));
     }
 
-    void PerformKeyEvent(Context &context, int key, bool press) {
-        if (KeyEvent(context, key, press)) {
+    void PerformKeyEvent(int key, bool press) {
+        if (KeyEvent(key, press)) {
             return;
         }
         for (auto i = children_.begin(); i != children_.end(); ++i) {
             auto &module = *i;
-            module->PerformKeyEvent(context, key, press);
+            module->PerformKeyEvent(key, press);
         }
     }
 
-    void PerformFrame(Context &context) {
+    void PerformFrame(float fraction) {
         for (auto i = pending_children_.begin(); i != pending_children_.end(); ) {
             auto &module = *i;
             children_.push_back(std::move(module));
             i = pending_children_.erase(i);
         }
-        Frame(context);
+        Frame(fraction);
     }
 };
