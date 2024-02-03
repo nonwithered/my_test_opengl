@@ -292,6 +292,12 @@ private:
 
 public:
     LauncherModule(Context &context) : Module(context) {
+        LOGI(TAG, "ctor");
         context.NewModule(std::make_unique<BackgroundModule>(context));
+        Close();
+    }
+
+    ~LauncherModule() override {
+        LOGI(TAG, "dtor");
     }
 };
