@@ -194,7 +194,7 @@ private:
 
     void SetupEvent() {
         Module::KeyEvent(GLFW_KEY_ESCAPE, true, [this]() -> auto {
-            context().Close();
+            Close();
             return false;
         });
         Module::KeyEvent(GLFW_KEY_1, true, [this]() -> auto {
@@ -305,22 +305,16 @@ private:
     }
 };
 
+void Runtime::Init() {
+    
+    model() += RectModel::Make();
 
-
-class LauncherModule : public Module {
-
-private:
-    static constexpr auto TAG = "LauncherModule";
-
-public:
-    LauncherModule(Context &context) : Module(context) {
-        LOGI(TAG, "ctor");
-        context.global().model() += RectModel::Make();
-        context.NewModule(std::make_unique<BackgroundModule>(context));
-        Close();
-    }
-
-    ~LauncherModule() override {
-        LOGI(TAG, "dtor");
-    }
-};
+    NewWindow(
+        "my_test",
+        800,
+        600,
+        [](Context &context) -> auto {
+            return std::make_unique<BackgroundModule>(context);
+        }
+    );
+}

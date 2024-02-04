@@ -52,7 +52,7 @@ private:
         throw std::exception();
     }
 
-    void PerformFrame() {
+    bool PerformFrame() {
         interval_fraction_ = interval_();
         {
             auto count = counter_();
@@ -68,14 +68,14 @@ private:
         }
         for (auto i = windows_.begin(); i != windows_.end();) {
             auto &window = *i;
-            if (window->IsClosed()) {
+            if (!window->PerformFrame()) {
+                ++i;
+            } else {
                 LOGI(TAG, "close window %s", window->title().data());
                 i = windows_.erase(i);
-            } else {
-                ++i;
-                window->PerformFrame();
             }
         }
+        return windows_.empty() && pending_windows_.empty();
     }
 
     void SetupWindow(Window &w) {
@@ -106,6 +106,8 @@ private:
 
 public:
 
+    void Init();
+
     Runtime() {
 
         Instance(this);
@@ -128,22 +130,21 @@ public:
         LOGI(TAG, "dtor");
     }
 
-    void NewWindow(const std::string &title, int width, int height, std::function<void(Window &)> init) {
-        LOGI(TAG, "add window %s", title.data());
-        auto window = std::make_unique<Window>(*this, title, width, height, [this, &init](Window &w) {
+    void NewWindow(const std::string &title, int width, int height, std::function<std::unique_ptr<Module>(Context &)> launch) {
+        LOGI(TAG, "NewWindow %s", title.data());
+        if (!launch) {
+            LOGE(TAG, "NewWindow invalid launch");
+            throw std::exception();
+        }
+        auto window = std::make_unique<Window>(*this, title, width, height, [this, &launch](Window &w) {
             SetupWindow(w);
-            if (init) {
-                init(w);
-            } else {
-                LOGW(TAG, "NewWindow invalid init");
-            }
+            return launch(w);
         });
         pending_windows_.push_back(std::move(window));
     }
 
     void Loop() {
-        while (!windows_.empty() || !pending_windows_.empty()) {
-            PerformFrame();
+        while (!PerformFrame()) {
             glfwPollEvents();
         }
     }

@@ -35,12 +35,11 @@ protected:
     virtual void Frame() {
         for (auto i = children_.begin(); i != children_.end(); ) {
             auto &module = *i;
-            if (module->IsClosed()) {
+            if (!module->PerformFrame()) {
+                ++i;
+            } else {
                 LOGI(TAG, "close module");
                 i = children_.erase(i);
-            } else {
-                ++i;
-                module->PerformFrame();
             }
         }
     }
@@ -93,22 +92,19 @@ public:
 
     virtual ~Module() = default;
 
-    bool IsClosed() {
-        return finish_;
-    }
-
     void NewModule(std::unique_ptr<Module> module) {
         LOGI(TAG, "NewModule");
         pending_children_.push_back(std::move(module));
     }
 
-    void PerformFrame() {
+    bool PerformFrame() {
         for (auto i = pending_children_.begin(); i != pending_children_.end(); ) {
             auto &module = *i;
             children_.push_back(std::move(module));
             i = pending_children_.erase(i);
         }
         Frame();
+        return finish_;
     }
 
     void PerformKeyEvent(int type, bool press) {

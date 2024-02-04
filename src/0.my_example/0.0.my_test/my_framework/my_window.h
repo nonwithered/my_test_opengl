@@ -43,7 +43,7 @@ private:
     int width_ = 0;
     int height_ = 0;
 
-    std::unique_ptr<Module> module_ = std::make_unique<Module>(*this);
+    std::unique_ptr<Module> module_;
 
     class Scope {
 
@@ -70,9 +70,13 @@ private:
         return Scope(*this);
     }
 
+    void Close() {
+        glfwSetWindowShouldClose(id_, true);
+    }
+
 public:
 
-    Window(Global &global, const std::string &title, int width, int height, std::function<void(Window &)> init)
+    Window(Global &global, const std::string &title, int width, int height, std::function<std::unique_ptr<Module>(Window &)> launch)
     : id_(glfwCreateWindow(width, height, title.data(), nullptr, nullptr))
     , global_(global)
     , title_(title)
@@ -83,11 +87,11 @@ public:
             throw std::exception();
         }
         auto scope = Use();
-        if (init) {
-            init(*this);
-        } else {
-            LOGW(TAG, "invalid init");
+        if (!launch) {
+            LOGW(TAG, "invalid launch");
+            throw std::exception();
         }
+        module_ = launch(*this);
     }
 
     ~Window() {
@@ -99,15 +103,16 @@ public:
         id_ = nullptr;
     }
 
-    void PerformFrame() {
+    bool PerformFrame() {
         LOGD(TAG, "PerformFrame %s", title_.data());
         auto scope = Use();
-        module_->PerformFrame();
-        glfwSwapBuffers(id_);
-    }
-
-    bool IsClosed() {
-        return glfwWindowShouldClose(id_);
+        if (!module_->PerformFrame()) {
+            glfwSwapBuffers(id_);
+            return false;
+        } else {
+            module_.reset();
+            return true;
+        }
     }
 
     bool IsSame(GLFWwindow *id) {
@@ -168,10 +173,6 @@ public:
 
     const std::string &title() override {
         return title_;
-    }
-
-    void Close() override {
-        glfwSetWindowShouldClose(id_, true);
     }
 
     void NewModule(std::unique_ptr<Module> module) override {
