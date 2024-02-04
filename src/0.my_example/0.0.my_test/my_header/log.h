@@ -1,11 +1,25 @@
 #pragma once
 
-#include <base.h>
+#include "my_header/base.h"
 
 #define _DO_ONCE(block) do block while (false)
 
-const char *_log_time();
-int _log_thread_num();
+const char *_log_time() {
+    constexpr std::size_t kSize = 32;
+    thread_local static std::array<char, kSize> str{};
+    auto t = std::time(nullptr);
+    auto *p = std::localtime(&t);
+    std::strftime(str.data(), kSize, "%Y-%m-%d %H:%M:%S", p);
+    return str.data();
+}
+
+int _log_thread_num() {
+    std::stringstream ss;
+    ss << std::this_thread::get_id();
+    int id;
+    ss >> id;
+    return id;
+}
 
 #define _LOG(level, tag, msg, ...) fprintf(stderr, "%s %8d %s %s: " msg "\n", _log_time(), _log_thread_num(), level, tag, __VA_ARGS__)
 

@@ -1,11 +1,11 @@
 #pragma once
 
-#include <log.h>
+#include "my_header/log.h"
 
-#include "my_window.h"
+#include "my_framework/my_window.h"
 
 #include "my_utils/my_counter.h"
-#include "my_utils/my_fraction.h"
+#include "my_utils/my_interval.h"
 #include "my_model/my_actor.h"
 
 class Runtime : public Global {
@@ -22,7 +22,9 @@ private:
     std::shared_ptr<Actor> actor_ = Actor::Make();
 
     Counter counter_ = Counter(1);
-    Fraction fraction_ = Fraction(1);
+    Interval interval_ = Interval(1);
+
+    float interval_fraction_ = 0.0f;
 
     Runtime(const Runtime &) = delete;
     Runtime(Runtime &&) = delete;
@@ -40,15 +42,6 @@ private:
         throw std::exception();
     }
 
-    static void FramebufferSizeCallback(GLFWwindow *window, int width, int height) {
-        Instance()->Find(window).FramebufferSizeCallback(width, height);
-        Instance()->PerformFrame();
-    }
-    static void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
-        Instance()->Find(window).KeyCallback(key, scancode, action, mods);
-        Instance()->PerformFrame();
-    }
-
     Window &Find(GLFWwindow *id) {
         for (auto &window : windows_) {
             if (window->IsSame(id)) {
@@ -60,7 +53,7 @@ private:
     }
 
     void PerformFrame() {
-        auto fraction = fraction_();
+        interval_fraction_ = interval_();
         {
             auto count = counter_();
             if (count > 0) {
@@ -80,7 +73,7 @@ private:
                 i = windows_.erase(i);
             } else {
                 ++i;
-                window->PerformFrame(fraction);
+                window->PerformFrame();
             }
         }
     }
@@ -93,8 +86,16 @@ private:
                 throw std::exception();
             }
         }
-        glfwSetFramebufferSizeCallback(w.id(), FramebufferSizeCallback);
-        glfwSetKeyCallback(w.id(), KeyCallback);
+        glfwSetFramebufferSizeCallback(w.id(), [](GLFWwindow *window, int width, int height) {
+            auto &runtime = *Instance();
+            runtime.Find(window).FramebufferSizeCallback(width, height);
+            runtime.PerformFrame();
+        });
+        glfwSetKeyCallback(w.id(), [](GLFWwindow *window, int key, int scancode, int action, int mods) {
+            auto &runtime = *Instance();
+            runtime.Find(window).KeyCallback(key, scancode, action, mods);
+            runtime.PerformFrame();
+        });
         // glfwSwapInterval(0);
     }
 
@@ -142,7 +143,11 @@ public:
         }
     }
 
-    Actor &Model() override {
+    Actor &model() override {
         return *actor_;
+    }
+
+    float interval() override {
+        return interval_fraction_;
     }
 };

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <log.h>
+#include "my_header/log.h"
 
 class Actor;
 
@@ -16,7 +16,9 @@ protected:
 public:
     virtual ~Global() = default;
 
-    virtual Actor &Model() = 0;
+    virtual Actor &model() = 0;
+
+    virtual float interval() = 0;
 
 };
 
@@ -45,5 +47,7 @@ public:
     virtual void Close() = 0;
 
     virtual void NewModule(std::unique_ptr<Module> create) = 0;
+
+    virtual bool GetKey(int key) = 0;
 
 };

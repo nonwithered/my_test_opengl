@@ -1,6 +1,6 @@
 #pragma once
 
-#include <log.h>
+#include "my_header/log.h"
 
 #include "my_model/my_transform.h"
 
@@ -25,17 +25,10 @@ private:
 
     std::weak_ptr<Actor> self_;
     std::weak_ptr<Actor> parent_;
-    std::unique_ptr<std::vector<std::shared_ptr<Actor>>> children_;
+    std::vector<std::shared_ptr<Actor>> children_;
 
     Transform transform_;
-    std::unique_ptr<std::string> name_;
-
-    std::vector<std::shared_ptr<Actor>> &children() {
-        if (!children_) {
-            children_ = std::make_unique<decltype(children_)::element_type>();
-        }
-        return *children_;
-    }
+    std::string name_;
 
     Actor(Actor &&) = delete;
 
@@ -69,13 +62,13 @@ public:
             throw std::exception();
         }
         child->parent_ = self_;
-        children().push_back(std::move(child));
+        children_.push_back(std::move(child));
     }
 
     void operator-=(std::shared_ptr<Actor> child) {
-        for (auto i = children().begin(); i != children().end(); ) {
+        for (auto i = children_.begin(); i != children_.end(); ) {
             if (*i == child) {
-                children().erase(i);
+                children_.erase(i);
                 return;
             }
         }
@@ -101,7 +94,7 @@ public:
         if (block(*this)) {
             return true;
         }
-        for (auto &p : children()) {
+        for (auto &p : children_) {
             if(p->Collect(block)) {
                 return true;
             }
@@ -110,8 +103,8 @@ public:
     }
 
     std::shared_ptr<Actor> Collect(const std::function<bool(Actor &, size_t)> &block) {
-        for (auto i = 0; i != children().size(); ++i) {
-            auto &p = children()[i];
+        for (auto i = 0; i != children_.size(); ++i) {
+            auto &p = children_[i];
             if (block(*p, i)) {
                 return p;
             }
@@ -138,15 +131,11 @@ public:
     }
 
     const std::string &name() const {
-        if (!name_) {
-            return name_empty();
-        } else {
-            return name_->data();
-        }
+        return name_;
     }
 
     void name(const std::string &s) {
-        name_ = std::make_unique<std::string>(s);
+        name_ = s;
     }
 
 };

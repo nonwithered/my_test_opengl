@@ -1,8 +1,8 @@
 #pragma once
 
-#include <log.h>
+#include "my_header/log.h"
 
-#include "my_image.h"
+#include "my_resource/my_image.h"
 
 class Texture {
 

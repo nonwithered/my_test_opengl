@@ -1,6 +1,6 @@
 #pragma once
 
-#include <log.h>
+#include "my_header/log.h"
 
 #include "my_framework/my_module.h"
 
@@ -99,10 +99,10 @@ public:
         id_ = nullptr;
     }
 
-    void PerformFrame(float fraction) {
+    void PerformFrame() {
         LOGD(TAG, "PerformFrame %s", title_.data());
         auto scope = Use();
-        module_->PerformFrame(fraction);
+        module_->PerformFrame();
         glfwSwapBuffers(id_);
     }
 
@@ -163,5 +163,9 @@ public:
     void NewModule(std::unique_ptr<Module> module) override {
         LOGI(TAG, "NewModule");
         module_->NewModule(std::move(module));
+    }
+
+    bool GetKey(int key) override {
+        return glfwGetKey(id_, GLFW_KEY_ESCAPE) == GLFW_PRESS;
     }
 };

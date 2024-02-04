@@ -1,6 +1,6 @@
 #pragma once
 
-#include <log.h>
+#include "my_header/log.h"
 
 class VS {
 

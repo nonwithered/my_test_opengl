@@ -1,15 +1,15 @@
 #pragma once
 
-#include <log.h>
+#include "my_header/log.h"
 
-class Fraction {
+class Interval {
 
 private:
 
-    static constexpr auto TAG = "Fraction";
+    static constexpr auto TAG = "Interval";
 
-    Fraction(const Fraction &) = delete;
-    Fraction(Fraction &&) = delete;
+    Interval(const Interval &) = delete;
+    Interval(Interval &&) = delete;
 
     std::chrono::system_clock clock_ = std::chrono::system_clock();
     std::chrono::time_point<std::chrono::system_clock> last_time_ = clock_.now();
@@ -18,7 +18,7 @@ private:
 
 public:
 
-    Fraction(unsigned int period) : period_(std::chrono::seconds(period)) {
+    Interval(unsigned int period) : period_(std::chrono::seconds(period)) {
     }
 
 

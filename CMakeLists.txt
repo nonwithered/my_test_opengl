@@ -91,10 +91,6 @@ set(0.my_example
 configure_file(configuration/root_directory.h.in configuration/root_directory.h)
 include_directories(${CMAKE_BINARY_DIR}/configuration)
 
-# my_lib
-add_library(my_lib "src/my_lib.cpp")
-set(LIBS ${LIBS} my_lib)
-
 # first create relevant static libraries required for other projects
 add_library(STB_IMAGE "src/stb_image/stb_image.cpp")
 set(LIBS ${LIBS} STB_IMAGE)

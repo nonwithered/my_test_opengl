@@ -2,7 +2,7 @@
 
 #include "my_framework/my_runtime.h"
 
-#include "my_shape/my_rectangle.h"
+#include "my_temp/my_rectangle.h"
 
 class RectModel : public Actor {
 
@@ -15,7 +15,7 @@ public:
     }
 
     static RectModel &Find(Context &context) {
-        auto actor = context.global().Model().Collect([](Actor &actor, size_t) -> bool {
+        auto actor = context.global().model().Collect([](Actor &actor, size_t) -> bool {
             return dynamic_cast<RectModel *>(&actor) != nullptr;
         });
         return dynamic_cast<RectModel &>(*actor);
@@ -77,14 +77,14 @@ public:
         LOGI(TAG, "dtor");
     }
 
-    void Frame(float fraction) override {
-        Change(fraction);
+    void Frame() override {
+        Change();
         auto width = right_ - left_;
         auto height = bottom_ - top_;
         auto x = left_;
         auto y = context().height() - height - top_;
         draw_(x, y, width, height);
-        Module::Frame(fraction);
+        Module::Frame();
     }
 
 private:
@@ -120,7 +120,8 @@ private:
         BindFlag(GLFW_KEY_S, &RectangleModule::move_slow_);
     }
 
-    void Change(float fraction) {
+    void Change() {
+        auto fraction = context().global().interval();
         auto step = fraction * step_;
         auto delta_rate = rate_ * fraction;
         auto min_rate = rate_;
@@ -182,11 +183,11 @@ public:
         LOGI(TAG, "dtor");
     }
 
-    void Frame(float fraction) override {
-        Change(fraction);
+    void Frame() override {
+        Change();
         glClearColor(r, g, b, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-        Module::Frame(fraction);
+        Module::Frame();
     }
 
 private:
@@ -220,7 +221,8 @@ private:
         });
     }
 
-    void Change(float fraction) {
+    void Change() {
+        auto fraction = context().global().interval();
         auto step = fraction * rate_;
         if (p_) {
             step *= -1;
@@ -313,7 +315,7 @@ private:
 public:
     LauncherModule(Context &context) : Module(context) {
         LOGI(TAG, "ctor");
-        context.global().Model() += RectModel::Make();
+        context.global().model() += RectModel::Make();
         context.NewModule(std::make_unique<BackgroundModule>(context));
         Close();
     }

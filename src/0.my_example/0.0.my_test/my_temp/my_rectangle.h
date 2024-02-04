@@ -1,6 +1,6 @@
 #pragma once
 
-#include "my_gl/my_render.h"
+#include "my_resource/my_render.h"
 
 #include "my_utils/my_color.h"
 

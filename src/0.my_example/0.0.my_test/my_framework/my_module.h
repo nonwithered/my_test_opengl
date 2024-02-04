@@ -25,7 +25,11 @@ protected:
         return context_;
     }
 
-    virtual void Frame(float fraction) {
+    void Close() {
+        finish_ = true;
+    }
+
+    virtual void Frame() {
         for (auto i = children_.begin(); i != children_.end(); ) {
             auto &module = *i;
             if (module->IsClosed()) {
@@ -33,7 +37,7 @@ protected:
                 i = children_.erase(i);
             } else {
                 ++i;
-                module->PerformFrame(fraction);
+                module->PerformFrame();
             }
         }
     }
@@ -48,10 +52,6 @@ protected:
             }
         }
         return false;
-    }
-
-    void Close() {
-        finish_ = true;
     }
 
     void KeyEvent(int key, bool press, std::function<bool()> event) {
@@ -87,12 +87,12 @@ public:
         }
     }
 
-    void PerformFrame(float fraction) {
+    void PerformFrame() {
         for (auto i = pending_children_.begin(); i != pending_children_.end(); ) {
             auto &module = *i;
             children_.push_back(std::move(module));
             i = pending_children_.erase(i);
         }
-        Frame(fraction);
+        Frame();
     }
 };

@@ -2,9 +2,9 @@
 
 #include <stb_image.h>
 
-#include <log.h>
-
 #include <learnopengl/filesystem.h>
+
+#include "my_header/log.h"
 
 class ImageData {
 

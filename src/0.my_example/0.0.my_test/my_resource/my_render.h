@@ -1,10 +1,10 @@
 #pragma once
 
-#include <log.h>
+#include "my_header/log.h"
 
-#include "my_vertex.h"
-#include "my_shader.h"
-#include "my_texture.h"
+#include "my_resource/my_vertex.h"
+#include "my_resource/my_shader.h"
+#include "my_resource/my_texture.h"
 
 using UniformLocation = std::function<int(std::string)>;
 
