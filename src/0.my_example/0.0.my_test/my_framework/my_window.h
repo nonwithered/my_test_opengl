@@ -136,6 +136,20 @@ public:
         }
     }
 
+    void MouseButtonCallback(int button, int action, int mods) {
+        LOGD(TAG, "MouseButtonCallback %s %d %d %d", title_.data(), button, action, mods);
+        if (action != GLFW_PRESS && action != GLFW_RELEASE) {
+            return;
+        }
+        bool press = action == GLFW_PRESS;
+        LOGI(TAG, "PerformMouseButtonEvent %s %d %d", title_.data(), button, press);
+        {
+            auto scope = Use();
+            module_->PerformMouseButtonEvent(button, press);
+        }
+
+    }
+
     GLFWwindow *id() {
         return id_;
     }
@@ -167,5 +181,15 @@ public:
 
     bool GetKey(int key) override {
         return glfwGetKey(id_, GLFW_KEY_ESCAPE) == GLFW_PRESS;
+    }
+
+    bool GetMouseButton(int button) override {
+        return glfwGetMouseButton(id_, GLFW_KEY_ESCAPE) == GLFW_PRESS;
+    }
+
+    std::array<double, 2> GetCursorPos() override {
+        std::array<double, 2> pos{};
+        glfwGetCursorPos(id_, &pos[0], &pos[1]);
+        return pos;
     }
 };

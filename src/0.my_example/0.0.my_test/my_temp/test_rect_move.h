@@ -89,7 +89,7 @@ public:
 
 private:
 
-    void BindFlag(int key, bool RectangleModule:: *flag) {
+    void BindKeyFlag(int key, bool RectangleModule:: *flag) {
         Module::KeyEvent(key, true, [this, flag]() -> auto {
             this->*flag = true;
             return false;
@@ -112,12 +112,12 @@ private:
             bottom_ = reset_bottom_;
             return false;
         });
-        BindFlag(GLFW_KEY_LEFT, &RectangleModule::move_left_);
-        BindFlag(GLFW_KEY_UP, &RectangleModule::move_up_);
-        BindFlag(GLFW_KEY_RIGHT, &RectangleModule::move_right_);
-        BindFlag(GLFW_KEY_DOWN, &RectangleModule::move_down_);
-        BindFlag(GLFW_KEY_A, &RectangleModule::move_fast_);
-        BindFlag(GLFW_KEY_S, &RectangleModule::move_slow_);
+        BindKeyFlag(GLFW_KEY_LEFT, &RectangleModule::move_left_);
+        BindKeyFlag(GLFW_KEY_UP, &RectangleModule::move_up_);
+        BindKeyFlag(GLFW_KEY_RIGHT, &RectangleModule::move_right_);
+        BindKeyFlag(GLFW_KEY_DOWN, &RectangleModule::move_down_);
+        BindKeyFlag(GLFW_KEY_A, &RectangleModule::move_fast_);
+        BindKeyFlag(GLFW_KEY_S, &RectangleModule::move_slow_);
     }
 
     void Change() {
@@ -204,18 +204,18 @@ private:
             }
             return false;
         });
-        BindFlag(GLFW_KEY_Z, &BackgroundModule::r_);
-        BindFlag(GLFW_KEY_X, &BackgroundModule::g_);
-        BindFlag(GLFW_KEY_C, &BackgroundModule::b_);
-        BindFlag(GLFW_KEY_V, &BackgroundModule::p_);
+        BindKeyFlag(GLFW_KEY_Z, &BackgroundModule::r_);
+        BindKeyFlag(GLFW_KEY_X, &BackgroundModule::g_);
+        BindKeyFlag(GLFW_KEY_C, &BackgroundModule::b_);
+        BindKeyFlag(GLFW_KEY_V, &BackgroundModule::p_);
     }
 
-    void BindFlag(int key, bool BackgroundModule:: *flag) {
-        Module::KeyEvent(key, true, [this, flag]() {
+    void BindKeyFlag(int type, bool BackgroundModule:: *flag) {
+        Module::KeyEvent(type, true, [this, flag]() {
             this->*flag = true;
             return false;
         });
-        Module::KeyEvent(key, false, [this, flag]() {
+        Module::KeyEvent(type, false, [this, flag]() {
             this->*flag = false;
             return false;
         });

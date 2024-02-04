@@ -19,6 +19,9 @@ private:
     std::unordered_map<int, std::function<bool()>> key_event_press_;
     std::unordered_map<int, std::function<bool()>> key_event_release_;
 
+    std::unordered_map<int, std::function<bool()>> mouse_button_event_press_;
+    std::unordered_map<int, std::function<bool()>> mouse_button_event_release_;
+
 protected:
 
     Context &context() {
@@ -63,6 +66,27 @@ protected:
         }
     }
 
+    virtual bool MouseButtonEvent(int button, bool press) {
+        auto &events = press ? mouse_button_event_press_ : mouse_button_event_release_;
+        auto i = events.find(button);
+        if (i != events.end()) {
+            auto &event = i->second;
+            if (event && event()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void MouseButtonEvent(int button, bool press, std::function<bool()> event) {
+        auto &events = press ? mouse_button_event_press_ : mouse_button_event_release_;
+        if (event) {
+            events[button] = std::move(event);
+        } else {
+            events.erase(button);
+        }
+    }
+
 public:
     Module(Context &context): context_(context) {
     }
@@ -78,15 +102,6 @@ public:
         pending_children_.push_back(std::move(module));
     }
 
-    void PerformKeyEvent(int key, bool press) {
-        if (KeyEvent(key, press)) {
-            return;
-        }
-        for (auto &module : children_) {
-            module->PerformKeyEvent(key, press);
-        }
-    }
-
     void PerformFrame() {
         for (auto i = pending_children_.begin(); i != pending_children_.end(); ) {
             auto &module = *i;
@@ -94,5 +109,23 @@ public:
             i = pending_children_.erase(i);
         }
         Frame();
+    }
+
+    void PerformKeyEvent(int type, bool press) {
+        if (KeyEvent(type, press)) {
+            return;
+        }
+        for (auto &module : children_) {
+            module->PerformKeyEvent(type, press);
+        }
+    }
+
+    void PerformMouseButtonEvent(int type, bool press) {
+        if (MouseButtonEvent(type, press)) {
+            return;
+        }
+        for (auto &module : children_) {
+            module->PerformMouseButtonEvent(type, press);
+        }
     }
 };

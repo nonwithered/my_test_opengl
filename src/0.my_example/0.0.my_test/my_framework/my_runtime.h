@@ -96,6 +96,11 @@ private:
             runtime.Find(window).KeyCallback(key, scancode, action, mods);
             runtime.PerformFrame();
         });
+        glfwSetMouseButtonCallback(w.id(), [](GLFWwindow *window, int button, int action, int mods) {
+            auto &runtime = *Instance();
+            runtime.Find(window).MouseButtonCallback(button, action, mods);
+            runtime.PerformFrame();
+        });
         // glfwSwapInterval(0);
     }
 

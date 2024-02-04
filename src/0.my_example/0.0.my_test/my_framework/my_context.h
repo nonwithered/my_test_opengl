@@ -50,4 +50,8 @@ public:
 
     virtual bool GetKey(int key) = 0;
 
+    virtual bool GetMouseButton(int button) = 0;
+
+    virtual std::array<double, 2> GetCursorPos() = 0;
+
 };
