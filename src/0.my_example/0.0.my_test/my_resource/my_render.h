@@ -6,8 +6,6 @@
 #include "my_resource/my_shader.h"
 #include "my_resource/my_texture.h"
 
-using UniformLocation = std::function<int(std::string)>;
-
 void RenderDraw(Shader &shader, VAO &vao, const std::vector<Texture *> &textures, std::function<void(UniformLocation)> draw) {
     static constexpr auto TAG = "Render";
     if (!draw) {

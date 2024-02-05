@@ -2,6 +2,8 @@
 
 #include "my_header/log.h"
 
+#include "my_resource/my_uniform.h"
+
 class VertexShader {
 
 private:
@@ -190,18 +192,7 @@ public:
         return Scope(id_);
     }
 
-    template<typename T, int n>
-    void Uniform(const std::string &location, T v...) {
-        Uniform<T, n, false, 0>().uniform(program_.GetUniformLocation(location), v...);
-    }
-
-    template<typename T, int n>
-    void Uniform(const std::string &location, GLsizei count, const T *value) {
-        Uniform<T, n, true, 0>().uniform(program_.GetUniformLocation(location), count, value);
-    }
-
-    template<typename T, int n, int m>
-    void Uniform(const std::string &location, GLsizei count, GLboolean transpose, const T *value) {
-        Uniform<T, n, true, m>().uniform(program_.GetUniformLocation(location), count, transpose, value);
+    UniformLocation Location(const std::string &name) {
+        return UniformLocation(GetUniformLocation(name));
     }
 };
