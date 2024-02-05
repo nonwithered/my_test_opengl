@@ -56,7 +56,7 @@ public:
         transform_.Scale(x, y, z);
     }
 
-    void operator+=(std::shared_ptr<Actor> child) {
+    void insert(std::shared_ptr<Actor> child) {
         if (child->parent_.lock()) {
             LOGE(TAG, "invalid add child");
             throw std::exception();
@@ -65,7 +65,7 @@ public:
         children_.push_back(std::move(child));
     }
 
-    void operator-=(std::shared_ptr<Actor> child) {
+    void erase(std::shared_ptr<Actor> child) {
         for (auto i = children_.begin(); i != children_.end(); ) {
             if (*i == child) {
                 children_.erase(i);
@@ -114,7 +114,7 @@ public:
 
     std::shared_ptr<Actor> Transform(glm::mat4 &transform, const Actor *root = nullptr) {
         return Lookup([&transform, root](Actor &actor) -> bool {
-            transform = actor.transform_.operator glm::mat4() * transform;
+            transform = actor.transform_.matrix() * transform;
             return actor.parent_.lock().get() == root;
         });
     }

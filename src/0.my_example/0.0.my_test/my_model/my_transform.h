@@ -35,7 +35,7 @@ public:
         scale_[2] *= z;
     }
 
-    operator glm::mat4() {
+    glm::mat4 matrix() const {
         auto transform = glm::mat4(1.0f);
         {
             auto [x, y, z] = translate_;
