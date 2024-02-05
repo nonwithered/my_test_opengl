@@ -6,7 +6,6 @@ class Module {
 
 private:
     static constexpr auto TAG = "Module";
-    bool finish_ = false;
 
     Module(const Module &) = delete;
     Module(Module &&) = delete;
@@ -28,11 +27,7 @@ protected:
         return context_;
     }
 
-    void Close() {
-        finish_ = true;
-    }
-
-    virtual void Frame() {
+    virtual bool Frame() {
         for (auto i = children_.begin(); i != children_.end(); ) {
             auto &module = *i;
             if (!module->PerformFrame()) {
@@ -42,6 +37,7 @@ protected:
                 i = children_.erase(i);
             }
         }
+        return false;
     }
 
     virtual bool KeyEvent(int key, bool press) {
@@ -103,8 +99,7 @@ public:
             children_.push_back(std::move(module));
             i = pending_children_.erase(i);
         }
-        Frame();
-        return finish_;
+        return Frame();
     }
 
     void PerformKeyEvent(int type, bool press) {

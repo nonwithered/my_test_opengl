@@ -41,6 +41,8 @@ private:
     
     const int rate_ = RectModel::Find(context()).rect_grow_rate;
 
+    bool finish_ = false;
+
     DrawRectangle draw_;
 
     float step_;
@@ -77,7 +79,7 @@ public:
         LOGI(TAG, "dtor");
     }
 
-    void Frame() override {
+    bool Frame() override {
         Change();
         auto width = right_ - left_;
         auto height = bottom_ - top_;
@@ -85,6 +87,7 @@ public:
         auto y = context().height() - height - top_;
         draw_(x, y, width, height);
         Module::Frame();
+        return finish_;
     }
 
 private:
@@ -102,7 +105,7 @@ private:
 
     void SetupEvent() {
         Module::KeyEvent(GLFW_KEY_2, true, [this]() -> auto {
-            Close();
+            finish_ = true;
             return false;
         });
         Module::KeyEvent(GLFW_KEY_SPACE, true, [this]() -> auto {
@@ -158,6 +161,8 @@ class BackgroundModule : public Module {
 private:
     static constexpr auto TAG = "BackgroundModule";
 
+    bool finish_ = false;
+
 public:
     
     const float rate_ = RectModel::Find(context()).bg_rate;
@@ -183,18 +188,19 @@ public:
         LOGI(TAG, "dtor");
     }
 
-    void Frame() override {
+    bool Frame() override {
         Change();
         glClearColor(r, g, b, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         Module::Frame();
+        return finish_;
     }
 
 private:
 
     void SetupEvent() {
         Module::KeyEvent(GLFW_KEY_ESCAPE, true, [this]() -> auto {
-            Close();
+            finish_ = true;
             return false;
         });
         Module::KeyEvent(GLFW_KEY_1, true, [this]() -> auto {
