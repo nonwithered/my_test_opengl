@@ -107,11 +107,11 @@ public:
     }
 };
 
-class ShaderProgram {
+class Shader {
 
 private:
 
-    static constexpr auto TAG = "ShaderProgram";
+    static constexpr auto TAG = "Shader";
 
     static GLuint NewId() {
         GLuint id;
@@ -119,13 +119,17 @@ private:
         return id;
     }
 
-    ShaderProgram(const ShaderProgram &) = delete;
+    Shader(const Shader &) = delete;
 
     GLuint id_ = 0;
+    
+    GLint GetUniformLocation(const std::string &location) {
+        return glGetUniformLocation(id_, location.data());
+    }
 
 public:
 
-    ShaderProgram(const VertexShader &vs_, const FragmentShader &fs_) : id_(NewId()) {
+    Shader(const VertexShader &vs_, const FragmentShader &fs_) : id_(NewId()) {
         LOGI(TAG, "ctor %u", id_);
         auto &vs = vs_;
         auto &fs = fs_;
@@ -143,11 +147,11 @@ public:
         }
     }
 
-    ShaderProgram(ShaderProgram &&that) : id_(that.id_) {
+    Shader(Shader &&that) : id_(that.id_) {
         that.id_ = 0;
     }
 
-    ~ShaderProgram() {
+    ~Shader() {
         if (id_ == 0) {
             return;
         }
@@ -160,7 +164,7 @@ public:
 
     private:
 
-        static constexpr auto TAG = "ShaderProgram.Scope";
+        static constexpr auto TAG = "Shader.Scope";
 
         Scope(const Scope &) = delete;
         Scope(Scope &&) = delete;
@@ -184,93 +188,6 @@ public:
 
     Scope Use() {
         return Scope(id_);
-    }
-    
-    GLint GetUniformLocation(const std::string &location) {
-        return glGetUniformLocation(id_, location.data());
-    }
-};
-
-class Shader {
-
-private:
-
-    static constexpr auto TAG = "Shader";
-    ShaderProgram program_;
-
-    template<typename V, int n, bool v, int m>
-    struct Uniform {
-        static constexpr auto uniform = nullptr;
-    };
-
-#define TEMPLATE_UNIFORM(V, n, T, t) \
-    template<> \
-    struct Uniform<V, n, false, 0> { \
-        const PFNGLUNIFORM##n##T##PROC uniform = glUniform##n##t; \
-    };
-
-#define TEMPLATE_UNIFORM_V(V, n, T, t) \
-    template<> \
-    struct Uniform<V, n, true, 0> { \
-        const PFNGLUNIFORM##n##T##VPROC uniform = glUniform##n##t##v; \
-    };
-
-#define TEMPLATE_UNIFORM_V_MATRIX(V, n, T, t) \
-    template<> \
-    struct Uniform<V, n, true, n> { \
-        PFNGLUNIFORMMATRIX##n##T##VPROC uniform = glUniformMatrix##n##t##v; \
-    }; 
-
-#define TEMPLATE_UNIFORM_V_MATRIX_X(V, n, T, t, m) \
-    template<> \
-    struct Uniform<V, n, true, m> { \
-        PFNGLUNIFORMMATRIX##n##X##m##T##VPROC uniform = glUniformMatrix##n##x##m##t##v; \
-    };
-
-
-#define TEMPLATE_UNIFORM_(V, T, t) \
-    TEMPLATE_UNIFORM(V, 1, T, t) \
-    TEMPLATE_UNIFORM(V, 2, T, t) \
-    TEMPLATE_UNIFORM(V, 3, T, t) \
-    TEMPLATE_UNIFORM(V, 4, T, t) \
-    TEMPLATE_UNIFORM_V(V, 1, T, t) \
-    TEMPLATE_UNIFORM_V(V, 2, T, t) \
-    TEMPLATE_UNIFORM_V(V, 3, T, t) \
-    TEMPLATE_UNIFORM_V(V, 4, T, t)
-
-#define TEMPLATE_UNIFORM_MATRIX_(V, T, t) \
-    TEMPLATE_UNIFORM_V_MATRIX(V, 2, T, t) \
-    TEMPLATE_UNIFORM_V_MATRIX(V, 3, T, t) \
-    TEMPLATE_UNIFORM_V_MATRIX(V, 4, T, t) \
-    TEMPLATE_UNIFORM_V_MATRIX_X(V, 2, T, t, 3) \
-    TEMPLATE_UNIFORM_V_MATRIX_X(V, 2, T, t, 4) \
-    TEMPLATE_UNIFORM_V_MATRIX_X(V, 3, T, t, 2) \
-    TEMPLATE_UNIFORM_V_MATRIX_X(V, 3, T, t, 4) \
-    TEMPLATE_UNIFORM_V_MATRIX_X(V, 4, T, t, 2) \
-    TEMPLATE_UNIFORM_V_MATRIX_X(V, 4, T, t, 3) \
-
-TEMPLATE_UNIFORM_(GLfloat, F, f)
-TEMPLATE_UNIFORM_(GLint, I, i)
-TEMPLATE_UNIFORM_(GLuint, UI, ui)
-TEMPLATE_UNIFORM_(GLdouble, D, d)
-
-TEMPLATE_UNIFORM_MATRIX_(GLfloat, F, f)
-TEMPLATE_UNIFORM_MATRIX_(GLdouble, D, d)
-
-#undef TEMPLATE_UNIFORM
-#undef TEMPLATE_UNIFORM_V
-#undef TEMPLATE_UNIFORM_V_MATRIX
-#undef TEMPLATE_UNIFORM_V_MATRIX_X
-#undef TEMPLATE_UNIFORM_
-#undef TEMPLATE_UNIFORM_MATRIX_
-
-public:
-
-    Shader(const Shader &) = default;
-    Shader(Shader &&) = default;
-    ~Shader() = default;
-
-    Shader(ShaderProgram program) : program_(std::move(program)) {
     }
 
     template<typename T, int n>
