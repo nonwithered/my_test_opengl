@@ -45,6 +45,8 @@ private:
 
     std::unique_ptr<Module> module_;
 
+    std::unique_ptr<ResourceManager> resource_ = std::make_unique<ResourceManager>();
+
     class Scope {
 
     private:
@@ -100,6 +102,7 @@ public:
             return;
         }
         LOGI(TAG, "dtor %s", title_.data());
+        resource_.reset();
         glfwDestroyWindow(id_);
         id_ = nullptr;
     }
@@ -162,6 +165,10 @@ public:
 
     Global &global() override {
         return global_;
+    }
+
+    ResourceManager &resource() override {
+        return resource_;
     }
 
     int width() override {

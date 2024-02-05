@@ -2,7 +2,9 @@
 
 #include "my_utils/log.h"
 
-class Actor;
+#include "my_model/my_actor.h"
+
+#include "my_manager/my_resource.h"
 
 class Global {
 
@@ -37,6 +39,8 @@ public:
     virtual ~Context() = default;
 
     virtual Global &global() = 0;
+
+    virtual ResourceManager &resource() = 0;
 
     virtual int width() = 0;
 

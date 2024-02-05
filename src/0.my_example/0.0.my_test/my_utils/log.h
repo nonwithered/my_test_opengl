@@ -4,7 +4,7 @@
 
 #define _DO_ONCE(block) do block while (false)
 
-const char *_log_time() {
+inline const char *_log_time() {
     constexpr std::size_t kSize = 32;
     thread_local static std::array<char, kSize> str{};
     auto t = std::time(nullptr);
@@ -13,7 +13,7 @@ const char *_log_time() {
     return str.data();
 }
 
-int _log_thread_num() {
+inline int _log_thread_num() {
     std::stringstream ss;
     ss << std::this_thread::get_id();
     int id;
