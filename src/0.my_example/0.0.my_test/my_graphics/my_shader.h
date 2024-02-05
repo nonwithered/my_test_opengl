@@ -1,8 +1,8 @@
 #pragma once
 
-#include "my_header/log.h"
+#include "my_utils/log.h"
 
-#include "my_resource/my_uniform.h"
+#include "my_graphics/my_uniform.h"
 
 class VertexShader {
 

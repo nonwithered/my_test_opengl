@@ -1,10 +1,10 @@
 #pragma once
 
-#include "my_header/log.h"
+#include "my_utils/log.h"
 
-#include "my_resource/my_vertex.h"
-#include "my_resource/my_shader.h"
-#include "my_resource/my_texture.h"
+#include "my_graphics/my_vertex.h"
+#include "my_graphics/my_shader.h"
+#include "my_graphics/my_texture.h"
 
 void RenderDraw(Shader &shader, VAO &vao, const std::vector<Texture *> &textures, std::function<void(UniformLocation)> draw) {
     static constexpr auto TAG = "Render";

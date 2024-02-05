@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "my_header/log.h"
+#include "my_utils/log.h"
 
 inline GLsizei SizeOf(GLenum type) {
     static constexpr auto TAG = "SizeOf";
