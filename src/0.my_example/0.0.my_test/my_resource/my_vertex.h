@@ -2,11 +2,13 @@
 
 #include "my_header/log.h"
 
-class EBO {
+#include "my_utils/my_compute.h"
+
+class ElementArrayBuffer {
 
 private:
 
-    static constexpr auto TAG = "EBO";
+    static constexpr auto TAG = "ElementArrayBuffer";
 
     static GLuint NewId() {
         GLuint id;
@@ -14,21 +16,21 @@ private:
         return id;
     }
 
-    EBO(const EBO &) = delete;
+    ElementArrayBuffer(const ElementArrayBuffer &) = delete;
 
     GLuint id_ = 0;
 
 public:
 
-    EBO() : id_(NewId()) {
+    ElementArrayBuffer() : id_(NewId()) {
         LOGI(TAG, "ctor %u", id_);
     }
 
-    EBO(EBO &&that) : id_(that.id_) {
+    ElementArrayBuffer(ElementArrayBuffer &&that) : id_(that.id_) {
         that.id_ = 0;
     }
 
-    ~EBO() {
+    ~ElementArrayBuffer() {
         if (id_ == 0) {
             return;
         }
@@ -37,40 +39,46 @@ public:
         id_ = 0;
     }
 
-    void Init(const std::vector<GLuint> &data) {
+    void Init(const void *data, GLenum type, GLsizei count) {
         LOGI(TAG, "init %u", id_);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * data.size(), data.data(), GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, SizeOf(type) * count, data, GL_STATIC_DRAW);
     }
 
     class Scope {
 
     private:
 
-        static constexpr auto TAG = "EBO.Scope";
+        static constexpr auto TAG = "ElementArrayBuffer.Scope";
         Scope(const Scope &) = delete;
         Scope(Scope &&) = delete;
 
+        GLuint id_ = 0;
+
     public:
-        Scope(EBO &owner) {
-            LOGD(TAG, "bind %u", owner.id_);
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, owner.id_);
+        Scope(GLuint id) : id_(id) {
+            LOGD(TAG, "bind %u", id_);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id_);
         }
         ~Scope() {
+            if (!id_) {
+                return;
+            }
+            id_ = 0;
             LOGD(TAG, "unbind");
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         }
     };
 
     Scope Use() {
-        return Scope(*this);
+        return Scope(id_);
     }
 };
 
-class VBO {
+class ArrayBuffer {
 
 private:
 
-    static constexpr auto TAG = "VBO";
+    static constexpr auto TAG = "ArrayBuffer";
 
     static GLuint NewId() {
         GLuint id;
@@ -78,21 +86,21 @@ private:
         return id;
     }
 
-    VBO(const VBO &) = delete;
+    ArrayBuffer(const ArrayBuffer &) = delete;
 
     GLuint id_ = 0;
 
 public:
 
-    VBO() : id_(NewId()) {
+    ArrayBuffer() : id_(NewId()) {
         LOGI(TAG, "ctor %u", id_);
     }
 
-    VBO(VBO &&that) : id_(that.id_) {
+    ArrayBuffer(ArrayBuffer &&that) : id_(that.id_) {
         that.id_ = 0;
     }
 
-    ~VBO() {
+    ~ArrayBuffer() {
         if (id_ == 0) {
             return;
         }
@@ -101,19 +109,24 @@ public:
         id_ = 0;
     }
 
-    void Init(const std::vector<GLfloat> &data, const std::vector<GLuint> &configs) {
+    void Init(const void *data, GLsizei count, const std::vector<std::pair<GLenum, GLsizei>> &attrib) {
         LOGI(TAG, "init %u", id_);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * data.size(), data.data(), GL_STATIC_DRAW);
-        GLsizei size = 0;
-        for (auto &config : configs) {
-            size += config;
+        std::vector<GLsizei> attrib_size(attrib.size());
+        for (auto i = 0; i != attrib.size(); ++i) {
+            auto [attrib_type, attrib_count] = attrib[i];
+            attrib_size[i] = (SizeOf(attrib_type) * attrib_count);
         }
+        GLsizei type_size = 0;
+        for (auto i : attrib_size) {
+            type_size += i;
+        }
+        glBufferData(GL_ARRAY_BUFFER, type_size * count, data, GL_STATIC_DRAW);
         GLsizei offset = 0;
-        for (int i = 0; i != configs.size(); ++i) {
-            auto &config = configs[i];
-            glVertexAttribPointer(i, config, GL_FLOAT, GL_FALSE, size * sizeof(GLfloat), (void *) (offset* sizeof(GLfloat)));
+        for (auto i = 0; i != attrib.size(); ++i) {
+            auto [attrib_type, attrib_count] = attrib[i];
+            glVertexAttribPointer(i, attrib_count, SizeOf(attrib_type), GL_FALSE, type_size, (const void *) offset);
             glEnableVertexAttribArray(i);
-            offset += config;
+            offset += attrib_size[i];
         }
     }
 
@@ -121,31 +134,37 @@ public:
 
     private:
 
-        static constexpr auto TAG = "VBO.Scope";
+        static constexpr auto TAG = "ArrayBuffer.Scope";
         Scope(const Scope &) = delete;
         Scope(Scope &&) = delete;
 
+        GLuint id_ = 0;
+
     public:
-        Scope(VBO &owner) {
-            LOGD(TAG, "bind %u", owner.id_);
-            glBindBuffer(GL_ARRAY_BUFFER, owner.id_);
+        Scope(GLuint id) : id_(id) {
+            LOGD(TAG, "bind %u", id_);
+            glBindBuffer(GL_ARRAY_BUFFER, id_);
         }
         ~Scope() {
+            if (!id_) {
+                return;
+            }
+            id_ = 0;
             LOGD(TAG, "unbind");
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
     };
 
     Scope Use() {
-        return Scope(*this);
+        return Scope(id_);
     }
 };
 
-class VAO {
+class VertexArray {
 
 private:
 
-    static constexpr auto TAG = "VAO";
+    static constexpr auto TAG = "VertexArray";
 
     static GLuint NewId() {
         GLuint id;
@@ -153,31 +172,36 @@ private:
         return id;
     }
 
-    VAO(const VAO &) = delete;
+    VertexArray(const VertexArray &) = delete;
 
     GLuint id_ = 0;
 
-    VBO vbo_;
-    EBO ebo_;
+    ArrayBuffer vbo_;
+    ElementArrayBuffer ebo_;
+
+    GLenum index_type_;
 
 public:
 
-    VAO(const std::vector<GLfloat> &data, const std::vector<GLuint> &configs, const std::vector<GLuint> &indices) : id_(NewId()) {
+    VertexArray(
+        const void *data, GLsizei count, const std::vector<std::pair<GLenum, GLsizei>> &attrib,
+        const void *index_data, GLenum index_type, GLsizei index_count)
+    : id_(NewId()), index_type_(index_type) {
         LOGI(TAG, "ctor %u", id_);
-        auto scope = std::make_unique<Scope>(*this);
+        auto scope = Use();
         auto vbo = vbo_.Use();
         auto ebo= ebo_.Use();
         LOGI(TAG, "init %u", id_);
-        ebo_.Init(indices);
-        vbo_.Init(data, configs);
-        scope.reset();
+        ebo_.Init(index_data, index_type, index_count);
+        vbo_.Init(data, count, attrib);
+        scope.~Scope();
     }
 
-    VAO(VAO &&that) : id_(that.id_) {
+    VertexArray(VertexArray &&that) : id_(that.id_) {
         that.id_ = 0;
     }
 
-    ~VAO() {
+    ~VertexArray() {
         if (id_ == 0) {
             return;
         }
@@ -186,26 +210,72 @@ public:
         id_ = 0;
     }
 
+    GLenum index_type() const {
+        return index_type_;
+    }
+
     class Scope {
 
     private:
 
-        static constexpr auto TAG = "VAO.Scope";
+        static constexpr auto TAG = "VertexArray.Scope";
         Scope(const Scope &) = delete;
         Scope(Scope &&) = delete;
 
+        GLuint id_ = 0;
+
     public:
-        Scope(const VAO &owner) {
-            LOGD(TAG, "bind %u", owner.id_);
-            glBindVertexArray(owner.id_);
+        Scope(GLuint id) : id_(id) {
+            LOGD(TAG, "bind %u", id_);
+            glBindVertexArray(id_);
         }
         ~Scope() {
+            if (!id_) {
+                return;
+            }
+            id_ = 0;
             LOGD(TAG, "unbind");
             glBindVertexArray(0);
         }
     };
 
-    Scope Use() const {
-        return Scope(*this);
+    Scope Use() {
+        return Scope(id_);
     }
+};
+
+class Vertex {
+
+private:
+
+    static constexpr auto TAG = "Vertex";
+
+    VertexArray vao_;
+    std::vector<std::tuple<GLenum, GLsizei, GLsizei>> elements_;
+
+public:
+    Vertex(
+        VertexArray vao,
+        std::vector<std::tuple<GLenum, GLsizei, GLsizei>> elements)
+    : vao_(std::move(vao))
+    , elements_(std::move(elements)) {
+    }
+
+    Vertex(const Vertex &) = default;
+    Vertex(Vertex &&) = default;
+    ~Vertex() = default;
+
+    void Draw() {
+        auto &vao = vao_;
+        auto scope = vao.Use();
+        GLenum index_type = vao.index_type();
+        GLsizei index_type_size = SizeOf(index_type);
+        GLsizei offset = 0;
+        for (auto &element : elements_) {
+            auto [mode, count, offset] = element;
+            glDrawElements(mode, count, index_type, (const void *) (offset * index_type_size));
+            offset += count;
+        }
+    }
+
 };

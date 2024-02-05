@@ -2,8 +2,6 @@
 
 #include "my_header/log.h"
 
-#include "my_resource/my_image.h"
-
 class Texture {
 
 private:
@@ -22,7 +20,7 @@ private:
 
 public:
 
-    Texture(const std::string &file) : id_(NewId()) {
+    Texture(const void *data, GLsizei width, GLsizei height, GLsizei type) : id_(NewId()) {
         LOGI(TAG, "ctor %u", id_);
         auto scope = Use();
         
@@ -35,19 +33,17 @@ public:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        auto image = ImageData(file);
-
         GLenum format;
-        if (image.nrChannels() == 3) {
+        if (type == 3) {
             format = GL_RGB;
-        } else if (image.nrChannels() == 4) {
+        } else if (type == 4) {
             format = GL_RGBA;
         } else {
             LOGE(TAG, "invalid image");
             throw std::exception();
         }
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.width(), image.height(), 0, format, GL_UNSIGNED_BYTE, image.data());
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     }
 

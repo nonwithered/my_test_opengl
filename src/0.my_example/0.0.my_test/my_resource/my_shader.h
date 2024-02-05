@@ -2,11 +2,11 @@
 
 #include "my_header/log.h"
 
-class VS {
+class VertexShader {
 
 private:
 
-    static constexpr auto TAG = "VS";
+    static constexpr auto TAG = "VertexShader";
 
     static GLuint NewId() {
         GLuint id;
@@ -14,13 +14,13 @@ private:
         return id;
     }
 
-    VS(const VS &) = delete;
+    VertexShader(const VertexShader &) = delete;
 
     GLuint id_ = 0;
 
 public:
 
-    VS(const std::string &src) : id_(NewId()) {
+    VertexShader(const std::string &src) : id_(NewId()) {
         LOGI(TAG, "ctor %u", id_);
         auto src_ptr = src.data();
         glShaderSource(id_, 1, &src_ptr, nullptr);
@@ -36,11 +36,11 @@ public:
         }
     }
 
-    VS(VS &&that) : id_(that.id_) {
+    VertexShader(VertexShader &&that) : id_(that.id_) {
         that.id_ = 0;
     }
 
-    virtual ~VS() {
+    ~VertexShader() {
         if (id_ == 0) {
             return;
         }
@@ -54,11 +54,11 @@ public:
     }
 };
 
-class FS {
+class FragmentShader {
 
 private:
 
-    static constexpr auto TAG = "FS";
+    static constexpr auto TAG = "FragmentShader";
 
     static GLuint NewId() {
         GLuint id;
@@ -66,13 +66,13 @@ private:
         return id;
     }
 
-    FS(const FS &) = delete;
+    FragmentShader(const FragmentShader &) = delete;
 
     GLuint id_ = 0;
 
 public:
 
-    FS(const std::string &src) : id_(NewId()) {
+    FragmentShader(const std::string &src) : id_(NewId()) {
         LOGI(TAG, "ctor %u", id_);
         auto src_ptr = src.data();
         glShaderSource(id_, 1, &src_ptr, nullptr);
@@ -88,12 +88,12 @@ public:
         }
     }
 
-    FS(FS &&that) : id_(that.id_) {
+    FragmentShader(FragmentShader &&that) : id_(that.id_) {
         that.id_ = 0;
     }
 
 
-    virtual ~FS() {
+    ~FragmentShader() {
         if (id_ == 0) {
             return;
         }
@@ -107,11 +107,11 @@ public:
     }
 };
 
-class Shader {
+class ShaderProgram {
 
 private:
 
-    static constexpr auto TAG = "Shader";
+    static constexpr auto TAG = "ShaderProgram";
 
     static GLuint NewId() {
         GLuint id;
@@ -119,20 +119,20 @@ private:
         return id;
     }
 
-    Shader(const Shader &) = delete;
+    ShaderProgram(const ShaderProgram &) = delete;
 
     GLuint id_ = 0;
 
 public:
 
-    Shader(const std::string &vs, const std::string &fs) : id_(NewId()) {
+    ShaderProgram(const VertexShader &vs_, const FragmentShader &fs_) : id_(NewId()) {
         LOGI(TAG, "ctor %u", id_);
-        auto vs_ = VS(vs);
-        auto fs_ = FS(fs);
-        glAttachShader(id_, vs_.Id());
-        glAttachShader(id_, fs_.Id());
+        auto &vs = vs_;
+        auto &fs = fs_;
+        glAttachShader(id_, vs.Id());
+        glAttachShader(id_, fs.Id());
         glLinkProgram(id_);
-        LOGI(TAG, "link %u VS %u FS %u", id_, vs_.Id(), fs_.Id());
+        LOGI(TAG, "link %u VS %u FS %u", id_, vs.Id(), fs.Id());
         GLint success;
         GLchar infoLog[512];
         glGetProgramiv(id_, GL_LINK_STATUS, &success);
@@ -143,11 +143,11 @@ public:
         }
     }
 
-    Shader(Shader &&that) : id_(that.id_) {
+    ShaderProgram(ShaderProgram &&that) : id_(that.id_) {
         that.id_ = 0;
     }
 
-    virtual ~Shader() {
+    ~ShaderProgram() {
         if (id_ == 0) {
             return;
         }
@@ -160,27 +160,131 @@ public:
 
     private:
 
-        static constexpr auto TAG = "Shader.Scope";
+        static constexpr auto TAG = "ShaderProgram.Scope";
 
         Scope(const Scope &) = delete;
         Scope(Scope &&) = delete;
 
+        GLuint id_;
+
     public:
-        Scope(Shader &owner) {
-            LOGD(TAG, "bind %u", owner.id_);
-            glUseProgram(owner.id_);
+        Scope(GLuint id) : id_(id) {
+            LOGD(TAG, "bind %u", id_);
+            glUseProgram(id_);
         }
         ~Scope() {
+            if (!id_) {
+                return;
+            }
+            id_ = 0;
             LOGD(TAG, "unbind");
             glUseProgram(0);
         }
     };
 
     Scope Use() {
-        return Scope(*this);
+        return Scope(id_);
     }
     
-    GLint GetUniformLocation(const std::string &name) {
-        return glGetUniformLocation(id_, name.data());
+    GLint GetUniformLocation(const std::string &location) {
+        return glGetUniformLocation(id_, location.data());
+    }
+};
+
+class Shader {
+
+private:
+
+    static constexpr auto TAG = "Shader";
+    ShaderProgram program_;
+
+    template<typename V, int n, bool v, int m>
+    struct Uniform {
+        static constexpr auto uniform = nullptr;
+    };
+
+#define TEMPLATE_UNIFORM(V, n, T, t) \
+    template<> \
+    struct Uniform<V, n, false, 0> { \
+        const PFNGLUNIFORM##n##T##PROC uniform = glUniform##n##t; \
+    };
+
+#define TEMPLATE_UNIFORM_V(V, n, T, t) \
+    template<> \
+    struct Uniform<V, n, true, 0> { \
+        const PFNGLUNIFORM##n##T##VPROC uniform = glUniform##n##t##v; \
+    };
+
+#define TEMPLATE_UNIFORM_V_MATRIX(V, n, T, t) \
+    template<> \
+    struct Uniform<V, n, true, n> { \
+        PFNGLUNIFORMMATRIX##n##T##VPROC uniform = glUniformMatrix##n##t##v; \
+    }; 
+
+#define TEMPLATE_UNIFORM_V_MATRIX_X(V, n, T, t, m) \
+    template<> \
+    struct Uniform<V, n, true, m> { \
+        PFNGLUNIFORMMATRIX##n##X##m##T##VPROC uniform = glUniformMatrix##n##x##m##t##v; \
+    };
+
+
+#define TEMPLATE_UNIFORM_(V, T, t) \
+    TEMPLATE_UNIFORM(V, 1, T, t) \
+    TEMPLATE_UNIFORM(V, 2, T, t) \
+    TEMPLATE_UNIFORM(V, 3, T, t) \
+    TEMPLATE_UNIFORM(V, 4, T, t) \
+    TEMPLATE_UNIFORM_V(V, 1, T, t) \
+    TEMPLATE_UNIFORM_V(V, 2, T, t) \
+    TEMPLATE_UNIFORM_V(V, 3, T, t) \
+    TEMPLATE_UNIFORM_V(V, 4, T, t)
+
+#define TEMPLATE_UNIFORM_MATRIX_(V, T, t) \
+    TEMPLATE_UNIFORM_V_MATRIX(V, 2, T, t) \
+    TEMPLATE_UNIFORM_V_MATRIX(V, 3, T, t) \
+    TEMPLATE_UNIFORM_V_MATRIX(V, 4, T, t) \
+    TEMPLATE_UNIFORM_V_MATRIX_X(V, 2, T, t, 3) \
+    TEMPLATE_UNIFORM_V_MATRIX_X(V, 2, T, t, 4) \
+    TEMPLATE_UNIFORM_V_MATRIX_X(V, 3, T, t, 2) \
+    TEMPLATE_UNIFORM_V_MATRIX_X(V, 3, T, t, 4) \
+    TEMPLATE_UNIFORM_V_MATRIX_X(V, 4, T, t, 2) \
+    TEMPLATE_UNIFORM_V_MATRIX_X(V, 4, T, t, 3) \
+
+TEMPLATE_UNIFORM_(GLfloat, F, f)
+TEMPLATE_UNIFORM_(GLint, I, i)
+TEMPLATE_UNIFORM_(GLuint, UI, ui)
+TEMPLATE_UNIFORM_(GLdouble, D, d)
+
+TEMPLATE_UNIFORM_MATRIX_(GLfloat, F, f)
+TEMPLATE_UNIFORM_MATRIX_(GLdouble, D, d)
+
+#undef TEMPLATE_UNIFORM
+#undef TEMPLATE_UNIFORM_V
+#undef TEMPLATE_UNIFORM_V_MATRIX
+#undef TEMPLATE_UNIFORM_V_MATRIX_X
+#undef TEMPLATE_UNIFORM_
+#undef TEMPLATE_UNIFORM_MATRIX_
+
+public:
+
+    Shader(const Shader &) = default;
+    Shader(Shader &&) = default;
+    ~Shader() = default;
+
+    Shader(ShaderProgram program) : program_(std::move(program)) {
+    }
+
+    template<typename T, int n>
+    void Uniform(const std::string &location, T v...) {
+        Uniform<T, n, false, 0>().uniform(program_.GetUniformLocation(location), v...);
+    }
+
+    template<typename T, int n>
+    void Uniform(const std::string &location, GLsizei count, const T *value) {
+        Uniform<T, n, true, 0>().uniform(program_.GetUniformLocation(location), count, value);
+    }
+
+    template<typename T, int n, int m>
+    void Uniform(const std::string &location, GLsizei count, GLboolean transpose, const T *value) {
+        Uniform<T, n, true, m>().uniform(program_.GetUniformLocation(location), count, transpose, value);
     }
 };

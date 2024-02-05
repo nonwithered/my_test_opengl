@@ -4,6 +4,8 @@
 
 #include "my_utils/my_color.h"
 
+#include "my_utils/my_image.h"
+
 class DrawRectangle {
 
 private:
@@ -28,13 +30,14 @@ public:
         const std::vector<GLfloat> &data,
         const std::vector<GLuint> &configs,
         const std::vector<GLuint> &indices,
-        const std::vector<std::string> &images,
+        const std::vector<std::string> &files,
         std::function<void(UniformLocation)> uniform)
     : shader_(vs, fs)
     , vao_(data, configs, indices)
     , uniform_(std::move(uniform)) {
-        for (auto &image : images) {
-            textures_.push_back(image);
+        for (auto &file : files) {
+            ImageData image(file);
+            textures_.push_back(Texture(image.data(), image.width(), image.height(), image.type()));
         }
     }
 
@@ -44,7 +47,7 @@ public:
         for (auto &texture : textures_) {
             textures.push_back(&texture);
         }
-        Render(shader_, vao_, textures, [&](UniformLocation location) {
+        RenderDraw(shader_, vao_, textures, [&](UniformLocation location) {
             if (uniform_) {
                 uniform_(location);
             }

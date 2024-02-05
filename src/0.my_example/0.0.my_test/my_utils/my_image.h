@@ -52,7 +52,7 @@ public:
         nrChannels_ = 0;
     }
 
-    void *data() const {
+    const void *data() const {
         return data_;
     }
 
@@ -64,7 +64,7 @@ public:
         return height_;
     }
 
-    GLsizei nrChannels() const {
+    GLsizei type() const {
         return nrChannels_;
     }
 

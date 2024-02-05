@@ -70,8 +70,8 @@ private:
         return Scope(*this);
     }
 
-    void Close() {
-        glfwSetWindowShouldClose(id_, true);
+    void Init() {
+        glEnable(GL_DEPTH_TEST);
     }
 
 public:
@@ -92,6 +92,7 @@ public:
             throw std::exception();
         }
         module_ = launch(*this);
+        Init();
     }
 
     ~Window() {

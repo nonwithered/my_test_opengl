@@ -8,7 +8,7 @@
 
 using UniformLocation = std::function<int(std::string)>;
 
-void Render(Shader &shader, VAO &vao, const std::vector<Texture *> &textures, std::function<void(UniformLocation)> draw) {
+void RenderDraw(Shader &shader, VAO &vao, const std::vector<Texture *> &textures, std::function<void(UniformLocation)> draw) {
     static constexpr auto TAG = "Render";
     if (!draw) {
         LOGE(TAG, "invalid draw");
@@ -27,3 +27,23 @@ void Render(Shader &shader, VAO &vao, const std::vector<Texture *> &textures, st
         return location;
     });
 }
+
+class Render {
+
+private:
+
+    static constexpr auto TAG = "Render";
+
+    std::shared_ptr<Shader> shader_;
+    
+    std::array<std::shared_ptr<Texture>, 32> textures_;
+
+public:
+    Render(const Render &) = default;
+    Render(Render &&) = default;
+
+    void Draw() {
+        
+    }
+
+};
