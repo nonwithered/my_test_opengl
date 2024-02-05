@@ -5,8 +5,12 @@
 #include "my_manager/my_cache.h"
 
 #include "my_graphics/my_vertex.h"
+#include "my_graphics/my_sampler.h"
+#include "my_graphics/my_shader.h"
 
-using Mesh = ResourceIdentify<Vertex>;
+using Mesh = typename ResourceIdentify<Vertex>;
+using Texture = typename ResourceIdentify<Sampler>;
+using Shader = typename ResourceIdentify<ShaderProgram>;
 
 class ResourceManager {
 
@@ -18,6 +22,8 @@ private:
     ResourceManager(ResourceManager &&) = delete;
 
     CacheManager<Mesh> mesh_;
+    CacheManager<Texture> texture_;
+    CacheManager<Shader> shader_;
 
 public:
 
@@ -26,5 +32,13 @@ public:
 
     CacheManager<Mesh> &mesh() {
         return mesh_;
+    }
+
+    CacheManager<Texture> &texture() {
+        return texture_;
+    }
+
+    CacheManager<Shader> &shader() {
+        return shader_;
     }
 };

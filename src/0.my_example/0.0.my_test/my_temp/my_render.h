@@ -4,7 +4,7 @@
 
 #include "my_graphics/my_vertex.h"
 #include "my_graphics/my_shader.h"
-#include "my_graphics/my_texture.h"
+#include "my_graphics/my_sampler.h"
 
 void RenderDraw(Shader &shader, VAO &vao, const std::vector<Texture *> &textures, std::function<void(UniformLocation)> draw) {
     static constexpr auto TAG = "Render";

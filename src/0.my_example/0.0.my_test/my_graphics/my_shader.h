@@ -109,11 +109,11 @@ public:
     }
 };
 
-class Shader {
+class ShaderProgram {
 
 private:
 
-    static constexpr auto TAG = "Shader";
+    static constexpr auto TAG = "ShaderProgram";
 
     static GLuint NewId() {
         GLuint id;
@@ -121,7 +121,7 @@ private:
         return id;
     }
 
-    Shader(const Shader &) = delete;
+    ShaderProgram(const ShaderProgram &) = delete;
 
     GLuint id_ = 0;
     
@@ -131,7 +131,7 @@ private:
 
 public:
 
-    Shader(const VertexShader &vs_, const FragmentShader &fs_) : id_(NewId()) {
+    ShaderProgram(const VertexShader &vs_, const FragmentShader &fs_) : id_(NewId()) {
         LOGI(TAG, "ctor %u", id_);
         auto &vs = vs_;
         auto &fs = fs_;
@@ -149,11 +149,11 @@ public:
         }
     }
 
-    Shader(Shader &&that) : id_(that.id_) {
+    ShaderProgram(ShaderProgram &&that) : id_(that.id_) {
         that.id_ = 0;
     }
 
-    ~Shader() {
+    ~ShaderProgram() {
         if (id_ == 0) {
             return;
         }
@@ -166,7 +166,7 @@ public:
 
     private:
 
-        static constexpr auto TAG = "Shader.Scope";
+        static constexpr auto TAG = "ShaderProgram.Scope";
 
         Scope(const Scope &) = delete;
         Scope(Scope &&) = delete;

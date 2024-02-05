@@ -168,7 +168,7 @@ public:
     }
 
     ResourceManager &resource() override {
-        return resource_;
+        return *resource_;
     }
 
     int width() override {

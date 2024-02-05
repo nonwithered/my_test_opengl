@@ -7,10 +7,10 @@ class ResourceIdentify {
 
 private:
     using value_type = T;
-    using self_type = ResourceIdentify<T>;
+    using self_type = typename ResourceIdentify<value_type>;
 
 public:
-    using Resource = std::shared_ptr<value_type>;
+    using Resource = typename std::shared_ptr<value_type>;
 
 private:
 
@@ -32,23 +32,5 @@ public:
 
     Resource Obtain() {
         return Resource(Create());
-    }
-
-    virtual size_t Hash() const = 0;
-
-    virtual bool Equal(const self_type &) const = 0;
-};
-
-template <typename T>
-struct std::hash<ResourceIdentify<T>> {
-    size_t operator()(const ResourceIdentify<T> &r) const noexcept {
-        return r.Hash();
-    }
-};
-
-template <typename T>
-struct std::equal_to<ResourceIdentify<T>> {
-    bool operator()(const ResourceIdentify<T> &l, const ResourceIdentify<T> &r) const {
-        return l.Equal(r);
     }
 };

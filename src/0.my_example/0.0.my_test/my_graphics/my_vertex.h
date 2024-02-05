@@ -121,7 +121,7 @@ public:
             type_size += i;
         }
         glBufferData(GL_ARRAY_BUFFER, type_size * count, data, GL_STATIC_DRAW);
-        GLsizei offset = 0;
+        GLsizeiptr offset = 0;
         for (auto i = 0; i != attrib.size(); ++i) {
             auto [attrib_type, attrib_count] = attrib[i];
             glVertexAttribPointer(i, attrib_count, SizeOf(attrib_type), GL_FALSE, type_size, (const void *) offset);
@@ -251,12 +251,12 @@ private:
     static constexpr auto TAG = "Vertex";
 
     VertexArray vao_;
-    std::vector<std::tuple<GLenum, GLsizei, GLsizei>> elements_;
+    std::vector<std::tuple<GLenum, GLsizei>> elements_;
 
 public:
     Vertex(
         VertexArray vao,
-        std::vector<std::tuple<GLenum, GLsizei, GLsizei>> elements)
+        std::vector<std::tuple<GLenum, GLsizei>> elements)
     : vao_(std::move(vao))
     , elements_(std::move(elements)) {
     }
@@ -270,9 +270,9 @@ public:
         auto scope = vao.Use();
         GLenum index_type = vao.index_type();
         GLsizei index_type_size = SizeOf(index_type);
-        GLsizei offset = 0;
+        GLsizeiptr offset = 0;
         for (auto &element : elements_) {
-            auto [mode, count, offset] = element;
+            auto [mode, count] = element;
             glDrawElements(mode, count, index_type, (const void *) (offset * index_type_size));
             offset += count;
         }

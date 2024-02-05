@@ -2,11 +2,11 @@
 
 #include "my_utils/log.h"
 
-class Texture {
+class Sampler {
 
 private:
 
-    static constexpr auto TAG = "Texture";
+    static constexpr auto TAG = "Sampler";
 
     static GLuint NewId() {
         GLuint id;
@@ -14,13 +14,13 @@ private:
         return id;
     }
 
-    Texture(const Texture &) = delete;
+    Sampler(const Sampler &) = delete;
 
     GLuint id_ = 0;
 
 public:
 
-    Texture(const void *data, GLsizei width, GLsizei height, GLsizei type) : id_(NewId()) {
+    Sampler(const void *data, GLsizei width, GLsizei height, GLsizei type) : id_(NewId()) {
         LOGI(TAG, "ctor %u", id_);
         auto scope = Use();
         
@@ -47,11 +47,11 @@ public:
         glGenerateMipmap(GL_TEXTURE_2D);
     }
 
-    Texture(Texture &&that) : id_(that.id_) {
+    Sampler(Sampler &&that) : id_(that.id_) {
         that.id_ = 0;
     }
 
-    ~Texture() {
+    ~Sampler() {
         if (id_ == 0) {
             return;
         }
@@ -64,13 +64,13 @@ public:
 
     private:
 
-        static constexpr auto TAG = "Texture.Scope";
+        static constexpr auto TAG = "Sampler.Scope";
         Scope(const Scope &) = delete;
 
-        const Texture *owner_;
+        const Sampler *owner_;
 
     public:
-        Scope(const Texture &owner) : owner_(&owner) {
+        Scope(const Sampler &owner) : owner_(&owner) {
             LOGD(TAG, "bind %u", owner.id_);
             glBindTexture(GL_TEXTURE_2D, owner.id_);
         }
