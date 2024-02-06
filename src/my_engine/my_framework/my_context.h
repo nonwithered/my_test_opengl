@@ -2,7 +2,7 @@
 
 #include "my_utils/log.h"
 
-#include "my_model/my_actor.h"
+#include "my_model/my_model.h"
 
 #include "my_manager/my_resource.h"
 
@@ -18,7 +18,7 @@ protected:
 public:
     virtual ~Global() = default;
 
-    virtual Actor &model() = 0;
+    virtual Model &model() = 0;
 
     virtual float interval() = 0;
 

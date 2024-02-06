@@ -10,9 +10,9 @@ private:
 
     Transform(Transform &&) = delete;
 
-    std::array<float, 3> translate_ = { 0.0f, 0.0f, 0.0f };
+    glm::vec3 translate_ = glm::vec3(0.0f);
     glm::mat4 rotate_ = glm::mat4(1.0f);
-    std::array<float, 3> scale_ = { 1.0f, 1.0f, 1.0f };
+    glm::vec3 scale_ = glm::vec3(1.0f);
 
 public:
 
@@ -20,9 +20,7 @@ public:
     Transform(const Transform &) = default;
 
     void Translate(float x, float y, float z) {
-        translate_[0] += x;
-        translate_[1] += y;
-        translate_[2] += z;
+        translate_ += glm::vec3(x, y, z);
     }
 
     void Rotate(float x, float y, float z, float r) {
@@ -30,22 +28,38 @@ public:
     }
 
     void Scale(float x, float y, float z) {
-        scale_[0] *= x;
-        scale_[1] *= y;
-        scale_[2] *= z;
+        scale_ *= glm::vec3(x, y, z);
+    }
+
+    void translate(glm::vec3 translate) {
+        translate_ = translate;
+    }
+
+    void rotate(glm::mat4 rotate) {
+        rotate_ = rotate;
+    }
+
+    void scale(glm::vec3 scale) {
+        scale_ = scale;
+    }
+
+    glm::vec3 translate() const {
+        return translate_;
+    }
+
+    glm::mat4 rotate() const {
+        return rotate_;
+    }
+
+    glm::vec3 scale() const {
+        return scale_;
     }
 
     glm::mat4 matrix() const {
         auto transform = glm::mat4(1.0f);
-        {
-            auto [x, y, z] = translate_;
-            transform = glm::translate(transform, glm::vec3(x, y, z));
-        }
-        transform *= transform * rotate_;
-        {
-            auto [x, y, z] = scale_;
-            transform = glm::scale(transform, glm::vec3(x, y, z));
-        }
+        transform = glm::translate(transform, translate_);
+        transform *= rotate_;
+        transform = glm::scale(transform, scale_);
         return transform;
     }
 };

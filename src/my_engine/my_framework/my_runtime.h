@@ -6,7 +6,7 @@
 
 #include "my_utils/my_counter.h"
 #include "my_utils/my_interval.h"
-#include "my_model/my_actor.h"
+#include "my_model/my_model.h"
 
 class Runtime : public Global {
 
@@ -16,10 +16,10 @@ private:
 
     bool init_gl_ = false;
 
+    std::shared_ptr<Model> model_;
+
     std::vector<std::unique_ptr<Window>> windows_;
     std::vector<std::unique_ptr<Window>> pending_windows_;
-
-    std::shared_ptr<Actor> actor_ = Actor::Make();
 
     Counter counter_ = Counter(1);
     Interval interval_ = Interval(1);
@@ -106,7 +106,9 @@ private:
 
 public:
 
-    Runtime() {
+    Runtime(std::unique_ptr<Model> model) : model_(model.release()) {
+
+        model_->self(model_);
 
         Instance(this);
 
@@ -147,8 +149,8 @@ public:
         }
     }
 
-    Actor &model() override {
-        return *actor_;
+    Model &model() override {
+        return *model_;
     }
 
     float interval() override {

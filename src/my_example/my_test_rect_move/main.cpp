@@ -17,7 +17,8 @@ void Init(Runtime &runtime) {
 }
 
 int main() {
-    Runtime runtime;
+
+    Runtime runtime(std::make_unique<Model>());
 
     // Init(runtime);
     
