@@ -192,6 +192,24 @@ public:
         return Scope(id_);
     }
 
+    class UniformLocation {
+
+    private:
+        UniformLocation(UniformLocation &&) = delete;
+
+        const GLint location_;
+
+    public:
+        UniformLocation(GLint location) : location_(location) {
+        }
+        UniformLocation(const UniformLocation &) = default;
+        ~UniformLocation() = default;
+
+        void Uniform(const UniformValue<void, 0, 0> &value) {
+            value.Uniform(location_);
+        }
+    };
+
     UniformLocation Location(const std::string &name) {
         return UniformLocation(GetUniformLocation(name));
     }

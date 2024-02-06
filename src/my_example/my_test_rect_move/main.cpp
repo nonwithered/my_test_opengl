@@ -21,7 +21,7 @@ int main() {
     Runtime runtime(std::make_unique<Model>());
 
     // Init(runtime);
-    
+
     runtime.Loop();
 
     return EXIT_SUCCESS;
