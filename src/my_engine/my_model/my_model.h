@@ -92,7 +92,7 @@ public:
         uint64_t index_ = index;
         uint64_t size_ = size();
         if (index_ >= size_) {
-            LOGE(TAG, "invalid index " PRIu64 " out of size " PRIu64, index_, size_);
+            LOGE(TAG, "invalid index %" PRIu64 " out of size %" PRIu64, index_, size_);
             throw std::exception();
         }
         return children_[index];

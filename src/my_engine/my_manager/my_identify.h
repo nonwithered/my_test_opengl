@@ -5,12 +5,11 @@
 template<typename T>
 class ResourceIdentify {
 
-private:
-    using value_type = T;
-    using self_type = typename ResourceIdentify<value_type>;
-
 public:
-    using Resource = typename std::shared_ptr<value_type>;
+    using value_type = typename T;
+
+private:
+    using self_type = typename ResourceIdentify<value_type>;
 
 private:
 
@@ -18,19 +17,21 @@ private:
 
     ResourceIdentify(self_type &&) = delete;
 
+    ResourceIdentify(const self_type &) = delete;
+
 protected:
-
-    virtual value_type *Create() const = 0;
-
-public:
 
     ResourceIdentify() = default;
 
-    ResourceIdentify(const self_type &) = default;
+public:
 
     virtual ~ResourceIdentify() = default;
 
-    Resource Obtain() {
-        return Resource(Create());
-    }
+    virtual std::unique_ptr<value_type> Obtain() const = 0;
+
+    virtual std::unique_ptr<self_type> Clone() const = 0;
+
+    virtual uint64_t Hash() const = 0;
+
+    virtual bool Equal(const self_type &) const = 0;
 };

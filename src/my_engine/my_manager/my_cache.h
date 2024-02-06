@@ -9,17 +9,19 @@ class CacheManager {
 
 private:
 
-    using Identify = T;
-    using self_type = typename CacheManager<Identify>;
-    using key_type = typename std::shared_ptr<Identify>;
-    using mapped_type = typename Identify::Resource;
+    using key_type = typename T;
+    using key_ptr = typename std::unique_ptr<key_type>;
+    using mapped_type = typename key_type::value_type;
+    using mapped_ptr = typename std::shared_ptr<mapped_type>;
+    using self_type = typename CacheManager<key_type>;
 
     static constexpr auto TAG = "CacheManager";
 
     CacheManager(const self_type &) = delete;
     CacheManager(self_type &&) = delete;
 
-    std::unordered_map<key_type, mapped_type> cache_;
+    // TODO
+    std::list<std::pair<key_ptr, mapped_ptr>> cache_;
 
 public:
 
@@ -27,24 +29,23 @@ public:
     ~CacheManager() = default;
 
     void erase(const key_type &identify) {
-        cache_.erase(identify);
+        for (auto i = cache_.begin(); i != cache_.end(); ++i) {
+            auto &p = i->first(); 
+            if (identify.Hash() == p->Hash() && identify.Equal(*p)) {
+                cache_.erase(i);
+            }
+        }
     }
 
-    mapped_type find(const key_type &identify) {
-        auto i = cache_.find(identify);
-        if (i == cache_.end()) {
-            mapped_type r = identify.Obtain()
-            cache_.insert(identify, r);
-            return r;
+    mapped_ptr find(const key_type &identify) {
+        for (auto i = cache_.begin(); i != cache_.end(); ++i) {
+            auto &p = i->first(); 
+            if (identify.Hash() == p->Hash() && identify.Equal(*p)) {
+                return i->second();
+            }
         }
-        auto [k, v] = *i;
-        if (!v) {
-            LOGW(TAG, "find contains but false");
-            v = k.Obtain();
-            *i = v;
-            return v;
-        }
-        return v;
+        cache_.emplace_front(identify.Clone(), mapped_ptr(identify.Obtain().release()));
+        return cache_.front()->second();
     }
 
 };
