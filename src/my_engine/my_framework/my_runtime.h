@@ -106,8 +106,6 @@ private:
 
 public:
 
-    void Init();
-
     Runtime() {
 
         Instance(this);

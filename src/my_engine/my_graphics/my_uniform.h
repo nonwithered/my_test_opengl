@@ -261,7 +261,7 @@ private:
 
     template<typename T, size_t n>
     std::pair<GLsizei, std::vector<const T *>> V(const std::vector<std::array<T, n>> &v) {
-        GLsizei count = v.size();
+        GLsizei count = (GLsizei) v.size();
         std::vector<const T *> value(count);
         for (auto i = 0; i != count; ++i) {
             value[i] = v[i].data();
@@ -271,7 +271,7 @@ private:
 
     template<glm::length_t C, glm::length_t R, typename T, glm::qualifier Q>
     std::pair<GLsizei, std::vector<const T *>> V(const std::vector<glm::mat<C, R, T, Q>> &v) {
-        GLsizei count = v.size();
+        GLsizei count = (GLsizei) v.size();
         std::vector<const T *> value(count);
         for (auto i = 0; i != count; ++i) {
             value[i] = glm::value_ptr(v[i]);

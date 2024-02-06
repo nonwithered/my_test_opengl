@@ -1,10 +1,10 @@
 #pragma once
 
-#include "my_temp/my_render.h"
+#include <my_utils/my_color.h>
 
-#include "my_utils/my_color.h"
+#include <my_utils/my_image.h>
 
-#include "my_utils/my_image.h"
+#include "my_render.h"
 
 class DrawRectangle {
 

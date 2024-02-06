@@ -1,8 +1,8 @@
 #pragma once
 
-#include "my_framework/my_runtime.h"
+#include <my_framework/my_runtime.h>
 
-#include "my_temp/my_rectangle.h"
+#include "my_rectangle.h"
 
 class RectModel : public Actor {
 
@@ -310,17 +310,3 @@ private:
         }());
     }
 };
-
-void Runtime::Init() {
-    
-    model() += RectModel::Make();
-
-    NewWindow(
-        "my_test",
-        800,
-        600,
-        [](Context &context) -> auto {
-            return std::make_unique<BackgroundModule>(context);
-        }
-    );
-}

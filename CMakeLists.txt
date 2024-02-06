@@ -81,11 +81,11 @@ else()
 endif(WIN32)
 
 set(CHAPTERS
-    0.my_example
+    my_example
 )
 
-set(0.my_example
-    0.0.my_test
+set(my_example
+    my_test_rect_move
 )
 
 configure_file(configuration/root_directory.h.in configuration/root_directory.h)
@@ -179,4 +179,4 @@ endforeach(GUEST_ARTICLE)
 
 include_directories(${CMAKE_SOURCE_DIR}/includes)
 
-include_directories(${CMAKE_SOURCE_DIR}/my_includes)
+include_directories(${CMAKE_SOURCE_DIR}/src/my_engine)
