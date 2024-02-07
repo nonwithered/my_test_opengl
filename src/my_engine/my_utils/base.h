@@ -13,6 +13,9 @@
 #include <thread>
 #include <chrono>
 #include <filesystem>
+#include <atomic>
+#include <mutex>
+#include <condition_variable>
 
 #include <iostream>
 #include <sstream>

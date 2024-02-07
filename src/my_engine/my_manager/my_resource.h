@@ -3,6 +3,7 @@
 #include "my_utils/log.h"
 
 #include "my_manager/my_cache.h"
+#include "my_manager/my_string_pool.h"
 
 #include "my_graphic/my_vertex.h"
 #include "my_graphic/my_sampler.h"
@@ -25,6 +26,8 @@ private:
     CacheManager<Texture> texture_;
     CacheManager<Shader> shader_;
 
+    StringPool string_pool_;
+
 public:
 
     ResourceManager() = default;
@@ -40,5 +43,9 @@ public:
 
     CacheManager<Shader> &shader() {
         return shader_;
+    }
+
+    StringPool &string_pool() {
+        return string_pool_;
     }
 };
