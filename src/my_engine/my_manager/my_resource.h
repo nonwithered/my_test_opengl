@@ -4,9 +4,9 @@
 
 #include "my_manager/my_cache.h"
 
-#include "my_graphics/my_vertex.h"
-#include "my_graphics/my_sampler.h"
-#include "my_graphics/my_shader.h"
+#include "my_graphic/my_vertex.h"
+#include "my_graphic/my_sampler.h"
+#include "my_graphic/my_shader.h"
 
 using Mesh = typename ResourceIdentify<Vertex>;
 using Texture = typename ResourceIdentify<Sampler>;

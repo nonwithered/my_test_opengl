@@ -2,7 +2,7 @@
 
 #include "my_utils/log.h"
 
-#include "my_graphics/my_uniform.h"
+#include "my_graphic/my_uniform.h"
 
 class VertexShader {
 
