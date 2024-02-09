@@ -6,7 +6,9 @@
 
 #include "my_graphic/my_transform.h"
 
-class Actor : public ModelGroup<Actor> {
+#include "my_manager/my_string_pool.h"
+
+class Actor : public NestedModel<Actor> {
 
 private:
 
@@ -20,16 +22,21 @@ private:
     glm::mat4 transform_global_ = glm::mat4();
     bool transform_global_cache_ = false;
 
+    StringPool::Identify name_ = 0;
+
 private:
     void TransformChanged() {
+        {
+            auto s = name();
+            LOGD(TAG, "TransformChanged %s", s.data());
+        }
         transform_global_cache_ = false;
         for (auto i = 0; i != size(); ++i) {
             at(i)->TransformChanged();
         }
     }
 
-protected:
-    void ParentChanged() override {
+    void OnParentChanged() override {
         TransformChanged();
     }
 
@@ -60,5 +67,13 @@ public:
             }
         }
         return transform_global_;
+    }
+
+    std::string name() const {
+        return StringPool::Instance().Restore(name_);
+    }
+
+    void name(const std::string &name) {
+        name_ = StringPool::Instance().Save(name);
     }
 };

@@ -118,6 +118,8 @@ private:
 
     static constexpr auto TAG = "RectPictureColor";
 
+public:
+
     RectPictureColor() {
         mesh(std::make_shared<ConstMesh>(RectPictureColorMeshParameter()));
         material().Shader(std::make_shared<ConstShader>(RectPictureColorShaderParameter()));
@@ -129,10 +131,8 @@ private:
         transform(transform_);
     }
 
-public:
-
     static RectPictureColor &Instance() {
-        static RectPictureColor instance_;
-        return instance_;
+        static auto instance_ = Model<RectPictureColor>::Make<>();
+        return *instance_;
     }
 };

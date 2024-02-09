@@ -4,15 +4,15 @@
 #include "RectMultiColor.h"
 #include "RectPictureColor.h"
 
-class LauncherModule : public Module {
+class TestModule : public LauncherModule {
 
 private:
 
-    static constexpr auto TAG = "LauncherModule";
+    static constexpr auto TAG = "TestModule";
     bool init_ = false;
     bool finish_ = false;
 
-    void Init() {
+    void OnCreate() override {
         if (init_) {
             return;
         }
@@ -22,24 +22,24 @@ private:
 
 public:
 
-    LauncherModule(Context &context) : Module(context) {
+    TestModule(Context &context) : LauncherModule(context) {
         KeyEvent(GLFW_KEY_ESCAPE, true, [this]() -> bool {
             finish_ = true;
             return false;
         });
     }
 
-    bool Frame() override {
-        Init();
-        glViewport(0, 0, context().width(), context().height());
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // bool Frame() override {
+    //     Init();
+    //     glViewport(0, 0, context().width(), context().height());
+    //     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    //     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        RectSingleColor::Instance().Draw(context(), StaticMeshActor::uniform_t());
-        RectMultiColor::Instance().Draw(context(), StaticMeshActor::uniform_t());
-        RectPictureColor::Instance().Draw(context(), StaticMeshActor::uniform_t());
-        return finish_;
-    }
+    //     RectSingleColor::Instance().Draw(context(), StaticMeshActor::uniform_t());
+    //     RectMultiColor::Instance().Draw(context(), StaticMeshActor::uniform_t());
+    //     RectPictureColor::Instance().Draw(context(), StaticMeshActor::uniform_t());
+    //     return finish_;
+    // }
 };
 
 int main() {
@@ -51,7 +51,7 @@ int main() {
         800,
         600,
         [](Context &context) -> auto {
-            return std::make_unique<LauncherModule>(context);
+            return std::make_unique<TestModule>(context);
         }
     );
 

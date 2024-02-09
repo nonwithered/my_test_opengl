@@ -5,6 +5,7 @@
 #include "my_model/my_model.h"
 
 #include "my_manager/my_resource_manager.h"
+#include "my_manager/my_level_manager.h"
 
 class Global {
 
@@ -19,6 +20,8 @@ public:
     virtual ~Global() = default;
 
     virtual float interval() = 0;
+
+    virtual LevelManager &level() = 0;
 
 };
 

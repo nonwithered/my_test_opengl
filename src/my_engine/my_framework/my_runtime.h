@@ -6,9 +6,10 @@
 
 #include "my_utils/my_counter.h"
 #include "my_utils/my_interval.h"
+
 #include "my_model/my_model.h"
 
-class Runtime : public Global {
+class Runtime : public Global, public LevelPresenter {
 
 private:
 
@@ -23,6 +24,8 @@ private:
     Interval interval_ = Interval(1);
 
     float interval_fraction_ = 0.0f;
+
+    LevelManager level_ = LevelManager(*this);
 
     Runtime(const Runtime &) = delete;
     Runtime(Runtime &&) = delete;
@@ -109,6 +112,12 @@ private:
         });
     }
 
+    void OnLevelStart(std::weak_ptr<Level> level) override {
+        for (auto &window : windows_) {
+            window->OnLevelStart(level);
+        }
+    }
+
 public:
 
     Runtime() {
@@ -134,7 +143,7 @@ public:
         LOGI(TAG, "dtor");
     }
 
-    void NewWindow(const std::string &title, int width, int height, std::function<std::unique_ptr<Module>(Context &)> launch) {
+    void NewWindow(const std::string &title, int width, int height, std::function<std::unique_ptr<BasicModule>(Context &)> launch) {
         LOGI(TAG, "NewWindow %s", title.data());
         if (!launch) {
             LOGE(TAG, "NewWindow invalid launch");
@@ -155,5 +164,9 @@ public:
 
     float interval() override {
         return interval_fraction_;
+    }
+
+    LevelManager &level() override {
+        return level_;
     }
 };

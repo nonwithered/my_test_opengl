@@ -82,6 +82,8 @@ private:
 
     static constexpr auto TAG = "RectMultiColor";
 
+public:
+
     RectMultiColor() {
         mesh(std::make_shared<ConstMesh>(RectMultiColorMeshParameter()));
         material().Shader(std::make_shared<ConstShader>(RectMultiColorShaderParameter()));
@@ -92,10 +94,8 @@ private:
         transform(transform_);
     }
 
-public:
-
     static RectMultiColor &Instance() {
-        static RectMultiColor instance_;
-        return instance_;
+        static auto instance_ = Model<RectMultiColor>::Make<>();
+        return *instance_;
     }
 };

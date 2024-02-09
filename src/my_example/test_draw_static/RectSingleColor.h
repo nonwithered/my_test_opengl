@@ -74,6 +74,8 @@ private:
 
     static constexpr auto TAG = "RectSingleColor";
 
+public:
+
     RectSingleColor() {
         mesh(std::make_shared<ConstMesh>(RectSingleColorMeshParameter()));
         material().Shader(std::make_shared<ConstShader>(RectSingleColorShaderParameter()));
@@ -85,10 +87,8 @@ private:
         transform(transform_);
     }
 
-public:
-
     static RectSingleColor &Instance() {
-        static RectSingleColor instance_;
-        return instance_;
+        static auto instance_ = Model<RectSingleColor>::Make<>();
+        return *instance_;
     }
 };

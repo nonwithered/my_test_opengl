@@ -4,6 +4,8 @@
 
 #include "my_framework/my_module.h"
 
+#include "my_framework/my_level_module.h"
+
 class Window : public Context {
 
 private:
@@ -24,7 +26,7 @@ private:
     int width_ = 0;
     int height_ = 0;
 
-    std::unique_ptr<Module> module_;
+    std::unique_ptr<BasicModule> module_;
 
     std::unique_ptr<ResourceManager> resource_ = std::make_unique<ResourceManager>();
 
@@ -60,7 +62,7 @@ public:
         const std::string &title,
         int width,
         int height,
-        std::function<std::unique_ptr<Module>(Window &)> launch)
+        std::function<std::unique_ptr<BasicModule>(Window &)> launch)
     : id_(glfwCreateWindow(width, height, title.data(), nullptr, nullptr))
     , global_(global)
     , title_(title)
@@ -184,5 +186,12 @@ public:
         std::array<double, 2> pos{};
         glfwGetCursorPos(id_, &pos[0], &pos[1]);
         return pos;
+    }
+    
+    void OnLevelStart(std::weak_ptr<Level> level) {
+        auto presenter = dynamic_cast<LauncherModule *>(module_.get());
+        if (presenter) {
+            presenter->OnLevelStart(std::move(level));
+        }
     }
 };

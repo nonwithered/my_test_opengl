@@ -3,12 +3,10 @@
 #include "my_utils/log.h"
 
 template<typename T>
-class ModelGroup;
+class NestedModel;
 
 template<typename T>
 class Model {
-
-    friend class ModelGroup<T>;
 
 private:
     using value_type = typename T;
@@ -16,8 +14,9 @@ private:
 
 public:
 
-    static std::shared_ptr<value_type> Make() {
-        auto p = std::make_shared<value_type>();
+    template<typename ...Args>
+    static std::shared_ptr<value_type> Make(Args... args) {
+        auto p = std::make_shared<value_type>(std::forward(args)...);
         p->self(p);
         return p;
     }
@@ -27,28 +26,9 @@ private:
     static constexpr auto TAG = "Model";
 
     std::weak_ptr<value_type> self_;
-    std::weak_ptr<value_type> parent_;
 
     Model(const self_type &) = delete;
     Model(self_type &&) = delete;
-
-    void parent(std::shared_ptr<value_type> p) {
-        auto p_ = parent_.lock()
-        if (p_ && p) {
-            LOGE(TAG, "invalid parent");
-            throw std::exception();
-        }
-        if (!p_ && !p) {
-            return
-        }
-        parent_ = p;
-        ParentChanged();
-
-    }
-
-protected:
-    virtual void ParentChanged() {
-    }
 
 public:
 
@@ -64,27 +44,55 @@ public:
         self_ = p;
     }
 
-    std::shared_ptr<value_type> parent() {
-        return parent_.lock();
+    std::weak_ptr<value_type> self() const {
+        return self_;
     }
+
 };
 
 template<typename T>
-class ModelGroup : public Model<T> {
+class NestedModel : public Model<T> {
 
 private:
-    using value_type = typename T;
-    using self_type = typename ModelGroup<value_type>;
 
+    static constexpr auto TAG = "NestedModel";
+
+    using value_type = typename T;
+    using self_type = typename NestedModel<value_type>;
+
+    std::weak_ptr<value_type> parent_;
     std::vector<std::shared_ptr<value_type>> children_;
 
-    ModelGroup(const self_type &) = delete;
-    ModelGroup(self_type &&) = delete;
+    NestedModel(const self_type &) = delete;
+    NestedModel(self_type &&) = delete;
+
+    void parent(std::shared_ptr<value_type> p) {
+        auto p_ = parent_.lock()
+        if (p_ && p) {
+            LOGE(TAG, "invalid parent");
+            throw std::exception();
+        }
+        if (!p_ && !p) {
+            return
+        }
+        parent_ = p;
+        OnParentChanged();
+
+    }
+
+    virtual void OnParentChanged() {
+    }
+
+protected:
+
+    std::shared_ptr<value_type> parent() {
+        return parent_.lock();
+    }
 
 public:
 
-    ModelGroup() = default;
-    ~ModelGroup() = default;
+    NestedModel() = default;
+    ~NestedModel() = default;
 
     void insert(std::shared_ptr<value_type> child) {
         child->parent(self_.lock());

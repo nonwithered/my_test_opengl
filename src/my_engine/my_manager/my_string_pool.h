@@ -25,7 +25,7 @@ private:
     std::unordered_map<id_type, value_type> pool_;
     std::unordered_map<value_type, id_type> inverse_pool_;
 
-    id_type next_ = 0;
+    id_type next_ = 1;
 
     std::lock_guard<std::mutex> Lock() {
         return std::lock_guard(mutex_);
@@ -57,6 +57,9 @@ public:
     }
 
     value_type Restore(const id_type &id) {
+        if (!id) {
+            return "";
+        }
         auto lock = Lock();
         auto i = pool_.find(id);
         if (i == pool_.end()) {
