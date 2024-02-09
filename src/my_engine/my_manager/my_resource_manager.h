@@ -4,9 +4,9 @@
 
 #include "my_manager/my_cache.h"
 
-#include "my_manager/my_mesh.h"
-#include "my_manager/my_shader.h"
-#include "my_manager/my_texture.h"
+#include "my_graphic/my_mesh.h"
+#include "my_graphic/my_shader.h"
+#include "my_graphic/my_texture.h"
 
 class ResourceManager {
 

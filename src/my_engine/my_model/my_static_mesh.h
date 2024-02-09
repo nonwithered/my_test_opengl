@@ -2,9 +2,9 @@
 
 #include "my_utils/log.h"
 
-#include "my_actor.h"
+#include "my_model/my_actor.h"
 
-#include "my_model/my_material.h"
+#include "my_graphic/my_material.h"
 
 class StaticMeshActor : public Actor {
 
