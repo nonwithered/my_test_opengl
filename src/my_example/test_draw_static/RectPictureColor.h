@@ -130,9 +130,4 @@ public:
         transform_.scale() = glm::vec3(0.5f);
         transform(transform_);
     }
-
-    static RectPictureColor &Instance() {
-        static auto instance_ = Model<RectPictureColor>::Make<>();
-        return *instance_;
-    }
 };

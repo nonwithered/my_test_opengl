@@ -9,7 +9,7 @@
 
 #include "my_model/my_model.h"
 
-class Runtime : public Global, public LevelPresenter {
+class Runtime : public Global {
 
 private:
 
@@ -25,7 +25,7 @@ private:
 
     float interval_fraction_ = 0.0f;
 
-    LevelManager level_ = LevelManager(*this);
+    LevelManager level_ = LevelManager();
 
     Runtime(const Runtime &) = delete;
     Runtime(Runtime &&) = delete;
@@ -110,12 +110,6 @@ private:
             runtime.Find(window).MouseButtonCallback(button, action, mods);
             runtime.PerformFrame();
         });
-    }
-
-    void OnLevelStart(std::weak_ptr<Level> level) override {
-        for (auto &window : windows_) {
-            window->OnLevelStart(level);
-        }
     }
 
 public:

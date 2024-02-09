@@ -86,9 +86,4 @@ public:
         transform_.scale() = glm::vec3(0.5f);
         transform(transform_);
     }
-
-    static RectSingleColor &Instance() {
-        static auto instance_ = Model<RectSingleColor>::Make<>();
-        return *instance_;
-    }
 };

@@ -4,29 +4,53 @@
 #include "RectMultiColor.h"
 #include "RectPictureColor.h"
 
-class TestModule : public LauncherModule {
+static constexpr auto TAG = "test_draw_rect";
+
+class TestLevel : public Level {
+
+public:
+    TestLevel() : Level(::TAG) {
+    }
 
 private:
 
-    static constexpr auto TAG = "TestModule";
-    bool init_ = false;
-    bool finish_ = false;
+    void OnCreate() override {
+        actor().insert(Model<RectSingleColor>::Make());
+        actor().insert(Model<RectMultiColor>::Make());
+        actor().insert(Model<RectPictureColor>::Make());
+    }
+
+};
+
+class TextLevelModule : public LevelModule {
+
+private:
+
+public:
+
+    TextLevelModule(Context &context, std::weak_ptr<Level> level) : LevelModule(context, std::move(level)) {
+        Module::KeyEvent(GLFW_KEY_ESCAPE, true, [this]() -> bool {
+            this->level()->Finish();
+            return false;
+        });
+    }
+
+};
+
+class TestLauncherModule : public LauncherModule {
+
+private:
 
     void OnCreate() override {
-        if (init_) {
-            return;
-        }
-        init_ = true;
         glEnable(GL_DEPTH_TEST);
+        auto level = Model<TestLevel>::Make();
+        context().global().level().StartLevel(level);
+        NewModule(std::make_unique<TextLevelModule>(context(), level));
     }
 
 public:
 
-    TestModule(Context &context) : LauncherModule(context) {
-        KeyEvent(GLFW_KEY_ESCAPE, true, [this]() -> bool {
-            finish_ = true;
-            return false;
-        });
+    TestLauncherModule(Context &context) : LauncherModule(context) {
     }
 
     // bool Frame() override {
@@ -51,7 +75,7 @@ int main() {
         800,
         600,
         [](Context &context) -> auto {
-            return std::make_unique<TestModule>(context);
+            return std::make_unique<TestLauncherModule>(context);
         }
     );
 

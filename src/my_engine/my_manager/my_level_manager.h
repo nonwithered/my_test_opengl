@@ -4,22 +4,6 @@
 
 #include "my_model/my_level.h"
 
-class LevelPresenter {
-
-    friend class LevelManager;
-
-private:
-    LevelPresenter(const LevelPresenter &) = delete;
-    LevelPresenter(LevelPresenter &&) = delete;
-
-    virtual void OnLevelStart(std::weak_ptr<Level>) = 0;
-
-protected:
-    LevelPresenter() = default;
-    virtual ~LevelPresenter() = default;
-
-};
-
 class LevelManager : public LevelCleaner {
 
 private:
@@ -30,8 +14,6 @@ private:
     LevelManager(LevelManager &&) = delete;
 
     std::vector<std::shared_ptr<Level>> level_;
-
-    LevelPresenter &presenter_;
 
     void OnLevelFinish(std::weak_ptr<Level> level) override {
         auto p = level.lock();
@@ -50,7 +32,7 @@ private:
     }
 
 public:
-    LevelManager(LevelPresenter &presenter): presenter_(presenter) {
+    LevelManager() {
         LOGI(TAG, "ctor");
     }
 
@@ -71,9 +53,7 @@ public:
             }
         }
         level->cleaner_ = this;
-        std::weak_ptr<Level> weak = level;
         level_.push_back(std::move(level));
-        presenter_.OnLevelStart(weak);
     }
 
     bool empty() const {

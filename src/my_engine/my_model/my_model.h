@@ -30,22 +30,26 @@ private:
     Model(const self_type &) = delete;
     Model(self_type &&) = delete;
 
+    virtual void OnCreate() {
+    }
+
 public:
 
     Model() = default;
 
     virtual ~Model() = default;
 
+    std::weak_ptr<value_type> self() const {
+        return self_;
+    }
+
     void self(const std::shared_ptr<value_type> &p) {
-        if (p.get() != this) {
+        if (p.get() != this || self_.lock()) {
             LOGE(TAG, "invalid self");
             throw std::exception();
         }
         self_ = p;
-    }
-
-    std::weak_ptr<value_type> self() const {
-        return self_;
+        OnCreate();
     }
 
 };
@@ -67,13 +71,13 @@ private:
     NestedModel(self_type &&) = delete;
 
     void parent(std::shared_ptr<value_type> p) {
-        auto p_ = parent_.lock()
+        auto p_ = parent_.lock();
         if (p_ && p) {
             LOGE(TAG, "invalid parent");
             throw std::exception();
         }
         if (!p_ && !p) {
-            return
+            return;
         }
         parent_ = p;
         OnParentChanged();
@@ -95,7 +99,7 @@ public:
     ~NestedModel() = default;
 
     void insert(std::shared_ptr<value_type> child) {
-        child->parent(self_.lock());
+        child->parent(self().lock());
         children_.push_back(std::move(child));
     }
 

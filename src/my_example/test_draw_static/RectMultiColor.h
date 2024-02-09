@@ -93,9 +93,4 @@ public:
         transform_.scale() = glm::vec3(0.5f);
         transform(transform_);
     }
-
-    static RectMultiColor &Instance() {
-        static auto instance_ = Model<RectMultiColor>::Make<>();
-        return *instance_;
-    }
 };

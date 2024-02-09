@@ -187,11 +187,4 @@ public:
         glfwGetCursorPos(id_, &pos[0], &pos[1]);
         return pos;
     }
-    
-    void OnLevelStart(std::weak_ptr<Level> level) {
-        auto presenter = dynamic_cast<LauncherModule *>(module_.get());
-        if (presenter) {
-            presenter->OnLevelStart(std::move(level));
-        }
-    }
 };
