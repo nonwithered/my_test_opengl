@@ -124,8 +124,8 @@ private:
         material().Texture(0, std::make_shared<ConstTexture>(RectPictureColorTextureParameter()));
 
         auto transform_ = transform();
-        transform_.translate(glm::vec3(-0.5f, -0.5f, 0));
-        transform_.scale(glm::vec3(0.5f));
+        transform_.translate() = glm::vec3(-0.5f, -0.5f, 0);
+        transform_.scale() = glm::vec3(0.5f);
         transform(transform_);
     }
 

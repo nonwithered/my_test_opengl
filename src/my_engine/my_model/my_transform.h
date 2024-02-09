@@ -25,34 +25,34 @@ public:
         new (this) Transform(that);
     }
 
-    void translate(glm::vec3 translate) {
-        translate_ = translate;
-    }
-
-    void rotate(glm::vec3 rotate) {
-        rotate_ = rotate;
-    }
-
-    void scale(glm::vec3 scale) {
-        scale_ = scale;
-    }
-
-    glm::vec3 translate() const {
+    const glm::vec3 &translate() const {
         return translate_;
     }
 
-    glm::vec3 rotate() const {
+    const glm::vec3 &rotate() const {
         return rotate_;
     }
 
-    glm::vec3 scale() const {
+    const glm::vec3 &scale() const {
+        return scale_;
+    }
+
+    glm::vec3 &translate() {
+        return translate_;
+    }
+
+    glm::vec3 &rotate() {
+        return rotate_;
+    }
+
+    glm::vec3 &scale() {
         return scale_;
     }
 
     glm::mat4 matrix() const {
         glm::mat4 transform(1.0f);
         transform = glm::translate(transform, translate_);
-        if (rotate_ != direction_default()) {
+        if (glm::normalize(rotate_) != direction_default()) {
             auto [angle, axis] = direction_to_rotate(rotate_);
             transform = glm::rotate(transform, angle, axis);
         }

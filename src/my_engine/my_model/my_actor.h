@@ -43,7 +43,7 @@ public:
         return transform_;
     }
 
-    void transform(Transform transform) {
+    void transform(const Transform &transform) {
         transform_ = transform;
         TransformChanged();
     }
