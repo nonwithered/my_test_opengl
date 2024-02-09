@@ -27,6 +27,7 @@ public:
 
     bool Frame() override {
         glViewport(0, 0, context().width(), context().height());
+        // glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         RectSingleColor::Instance().Draw(context(), std::unordered_map<std::string, std::unique_ptr<Uniform_t>>());

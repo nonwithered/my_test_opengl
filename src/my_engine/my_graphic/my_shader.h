@@ -28,6 +28,7 @@ public:
         glShaderSource(id_, 1, &src_ptr, nullptr);
         glCompileShader(id_);
         LOGI(TAG, "compile %u", id_);
+        LOGD(TAG, "compile %u %s", id_, src_ptr);
         GLint success;
         GLchar infoLog[512];
         glGetShaderiv(id_, GL_COMPILE_STATUS, &success);
@@ -80,6 +81,7 @@ public:
         glShaderSource(id_, 1, &src_ptr, nullptr);
         glCompileShader(id_);
         LOGI(TAG, "compile %u", id_);
+        LOGD(TAG, "compile %u %s", id_, src_ptr);
         GLint success;
         GLchar infoLog[512];
         glGetShaderiv(id_, GL_COMPILE_STATUS, &success);

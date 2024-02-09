@@ -94,6 +94,7 @@ public:
         LOGD(TAG, "PerformFrame %s", title_.data());
         auto guard = Use();
         if (!module_->PerformFrame()) {
+        LOGD(TAG, "SwapBuffers %s", title_.data());
             glfwSwapBuffers(id_);
             return false;
         } else {
