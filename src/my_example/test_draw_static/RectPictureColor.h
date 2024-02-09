@@ -51,9 +51,11 @@ layout (location = 1) in vec2 aTexCoord;
 
 out vec2 TexCoord;
 
+uniform mat4 model;
+
 void main()
 {
-	gl_Position = vec4(aPos, 1.0);
+	gl_Position = model * vec4(aPos, 1.0);
 	TexCoord = vec2(aTexCoord.x, aTexCoord.y);
 }
     )";
@@ -87,7 +89,7 @@ inline const ConstTexture::Parameter &RectPictureColorTextureParameter() {
     static const GLint internalformat = nrChannels == 3 ? GL_RGB : nrChannels == 4 ? GL_RGBA : throw std::exception();
     static const GLint border = 0;
     static const GLenum format = internalformat;
-    static const GLenum type = TypeOf<GLuint>();
+    static const GLenum type = TypeOf<GLubyte>();
     static const void *const pixels = data;
     static const auto params = []() -> auto {
         std::unordered_map<GLenum, std::unique_ptr<Sampler::Parameter>> params_;
