@@ -76,9 +76,8 @@ private:
     RectSingleColor() {
         mesh(std::make_shared<ConstMesh>(RectSingleColorMeshParameter()));
         material().Shader(std::make_shared<ConstShader>(RectSingleColorShaderParameter()));
-        auto color = GetColorVec4(0xffff0000);
-        material().Uniform("ourColor", Uniform4f(glm::fvec4(color[0], color[1], color[2], color[3])));
-        
+        material().Uniform("ourColor", Uniform4f(GetColorVec4(0xffff0000)));
+
         auto transform_ = transform();
         transform_.translate(glm::vec3(-0.5f, 0.5f, 0));
         transform_.rotate(glm::vec3(0.0f, 0.5f, 0));

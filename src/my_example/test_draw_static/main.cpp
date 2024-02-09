@@ -33,10 +33,7 @@ public:
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        std::unordered_map<std::string, std::unique_ptr<Uniform_t>> uniform;
-        uniform.emplace("model", UniformMatrix4fv::Make(false, std::vector<glm::mat4> { RectSingleColor::Instance().transform_global() }));
-
-        RectSingleColor::Instance().Draw(context(), uniform);
+        RectSingleColor::Instance().Draw(context(), StaticMeshActor::uniform_t());
         return finish_;
     }
 };

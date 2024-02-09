@@ -275,6 +275,18 @@ public:
     UniformValue(const vector_type &value) : value_(value) {
     }
 
+    UniformValue(value_type v0) : value_(v0) {
+    }
+
+    UniformValue(value_type v0, value_type v1) : value_(v0, v1) {
+    }
+
+    UniformValue(value_type v0, value_type v1, value_type v2) : value_(v0, v1, v2) {
+    }
+
+    UniformValue(value_type v0, value_type v1, value_type v2, value_type v3) : value_(v0, v1, v2, v3) {
+    }
+
     UniformValue(const self_type &) = default;
 
     ~UniformValue() final = default;
@@ -288,8 +300,25 @@ public:
     }
 
 public:
+
     static std::unique_ptr<self_type> Make(const vector_type &value) {
         return std::make_unique<self_type>(value);
+    }
+
+    static std::unique_ptr<self_type> Make(value_type v0) {
+        return std::make_unique<self_type>(v0);
+    }
+
+    static std::unique_ptr<self_type> Make(value_type v0, value_type v1) {
+        return std::make_unique<self_type>(v0, v1);
+    }
+
+    static std::unique_ptr<self_type> Make(value_type v0, value_type v1, value_type v2) {
+        return std::make_unique<self_type>(v0, v1, v2);
+    }
+
+    static std::unique_ptr<self_type> Make(value_type v0, value_type v1, value_type v2, value_type v3) {
+        return std::make_unique<self_type>(v0, v1, v2, v3);
     }
 };
 
@@ -310,6 +339,9 @@ public:
     UniformValue(const vector_type &value) : value_(value) {
     }
 
+    UniformValue(const std::initializer_list<value_type> &value) : value_(value) {
+    }
+
     UniformValue(const self_type &) = default;
 
     ~UniformValue() final = default;
@@ -323,7 +355,12 @@ public:
     }
 
 public:
+
     static std::unique_ptr<self_type> Make(const vector_type &value) {
+        return std::make_unique<self_type>(value);
+    }
+
+    static std::unique_ptr<self_type> Make(const std::initializer_list<value_type> &value) {
         return std::make_unique<self_type>(value);
     }
 };
@@ -346,6 +383,9 @@ public:
     UniformValue(bool transpose, const vector_type &value) : transpose_(transpose), value_(value) {
     }
 
+    UniformValue(bool transpose, const std::initializer_list<value_type> &value) : transpose_(transpose), value_(value) {
+    }
+
     UniformValue(const self_type &) = default;
 
     ~UniformValue() final = default;
@@ -359,7 +399,12 @@ public:
     }
 
 public:
+
     static std::unique_ptr<self_type> Make(bool transpose, const vector_type &value) {
+        return std::make_unique<self_type>(transpose, value);
+    }
+
+    static std::unique_ptr<self_type> Make(bool transpose, const std::initializer_list<value_type> &value) {
         return std::make_unique<self_type>(transpose, value);
     }
 };

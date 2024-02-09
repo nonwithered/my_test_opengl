@@ -8,6 +8,13 @@
 
 class StaticMeshActor : public Actor {
 
+public: 
+
+    using uniform_t = typename std::unordered_map<std::string, std::unique_ptr<Uniform_t>>;
+
+    static constexpr auto uniform_model = "model";
+    static constexpr auto uniform_view = "view";
+
 private:
 
     static constexpr auto TAG = "StaticMeshActor";
@@ -29,11 +36,12 @@ public:
         return material_;
     }
 
-    void Draw(Context &context, const std::unordered_map<std::string, std::unique_ptr<Uniform_t>> &uniform) {
+    void Draw(Context &context, uniform_t uniform) {
         if (!mesh_) {
             LOGD(TAG, "Draw mesh empty");
             return;
         }
+        uniform.emplace(uniform_model, UniformMatrix4fv::Make(false, { transform_global() }));
         auto material = material_.Use(context, uniform);
         if (!material) {
             LOGD(TAG, "Draw mesh material");
