@@ -38,6 +38,22 @@ public:
     TextLevelModule(std::weak_ptr<Level> level) : LevelModule(std::move(level)) {
     }
 
+private:
+
+    bool OnFrame() override {
+        glViewport(0, 0, context().width(), context().height());
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        for (auto i = 0; i != level()->actor().size(); ++i) {
+            auto actor = level()->actor().at(i);
+            auto static_mesh_actor = dynamic_cast<StaticMeshActor *>(actor.get());
+            if (static_mesh_actor) {
+                static_mesh_actor->Draw(context(), StaticMeshActor::uniform_t());
+            }
+        }
+        return BasicModule::Frame();
+    }
+
 };
 
 class TestLauncherModule : public LauncherModule {
@@ -54,18 +70,6 @@ private:
 public:
 
     TestLauncherModule() = default;
-
-    // bool Frame() override {
-    //     Init();
-    //     glViewport(0, 0, context().width(), context().height());
-    //     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    //     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    //     RectSingleColor::Instance().Draw(context(), StaticMeshActor::uniform_t());
-    //     RectMultiColor::Instance().Draw(context(), StaticMeshActor::uniform_t());
-    //     RectPictureColor::Instance().Draw(context(), StaticMeshActor::uniform_t());
-    //     return finish_;
-    // }
 };
 
 int main() {
@@ -73,7 +77,7 @@ int main() {
     Runtime runtime;
 
     runtime.NewWindow(
-        "test_draw_rect",
+        TAG,
         800,
         600,
         [](Context &context) -> auto {

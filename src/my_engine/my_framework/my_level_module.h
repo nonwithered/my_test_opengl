@@ -71,18 +71,34 @@ protected:
             create_ = true;
             OnCreate();
         }
-        return BasicModule::Frame();
+        return OnFrame();
     }
+
     bool KeyEvent(int key, bool press) final {
         if (!level()) {
             return true;
         }
-        return BasicModule::KeyEvent(key, press);
+        return OnKeyEvent(key, press);
     }
+
     bool MouseButtonEvent(int button, bool press) final {
         if (!level()) {
             return true;
         }
+        return OnMouseButtonEvent(button, press);
+    }
+
+private:
+
+    virtual bool OnFrame() {
+        return BasicModule::Frame();
+    }
+
+    virtual bool OnKeyEvent(int key, bool press) {
+        return BasicModule::KeyEvent(key, press);
+    }
+
+    virtual bool OnMouseButtonEvent(int button, bool press) {
         return BasicModule::MouseButtonEvent(button, press);
     }
 };
