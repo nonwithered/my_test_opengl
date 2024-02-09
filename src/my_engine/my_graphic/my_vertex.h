@@ -127,7 +127,7 @@ public:
         GLsizeiptr offset = 0;
         for (auto i = 0; i != attrib.size(); ++i) {
             auto [attrib_type, attrib_count] = attrib[i];
-            glVertexAttribPointer(i, attrib_count, SizeOf(attrib_type), GL_FALSE, type_size, (const void *) offset);
+            glVertexAttribPointer(i, attrib_count, attrib_type, GL_FALSE, type_size, (const void *) offset);
             glEnableVertexAttribArray(i);
             offset += attrib_size[i];
         }

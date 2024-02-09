@@ -8,15 +8,15 @@
 
 inline const ConstMesh::Parameter &RectSingleColorMeshParameter() {
     static const std::array<GLfloat, 12> data = {
-        1.0f,   1.0f, 0.0f,  // top right
-        1.0f,  -1.0f, 0.0f,  // bottom right
-        -1.0f, -1.0f, 0.0f,  // bottom left
-        -1.0f,  1.0f, 0.0f,   // top left 
+         0.5f,  0.5f, 0.0f,  // top right
+         0.5f, -0.5f, 0.0f,  // bottom right
+        -0.5f, -0.5f, 0.0f,  // bottom left
+        -0.5f,  0.5f, 0.0f   // top left
     };
     static const std::vector<std::pair<GLenum, GLsizei>> attrib = {
         std::make_pair(TypeOf<GLfloat>(), 3),
     };
-    static const std::array<GLint, 6> index_data = {
+    static const std::array<GLuint, 6> index_data = {
         0, 1, 3,  // first Triangle
         1, 2, 3,  // second Triangle
     };
@@ -28,7 +28,7 @@ inline const ConstMesh::Parameter &RectSingleColorMeshParameter() {
         4,
         attrib,
         index_data.data(),
-        TypeOf<GLint>(),
+        TypeOf<GLuint>(),
         6,
         elements,
     };
