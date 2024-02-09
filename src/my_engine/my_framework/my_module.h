@@ -4,13 +4,15 @@
 
 class Module {
 
+    friend class Window;
+
 private:
     static constexpr auto TAG = "Module";
 
     Module(const Module &) = delete;
     Module(Module &&) = delete;
 
-    Context &context_;
+    Context *context_ = nullptr;
 
     std::vector<std::unique_ptr<Module>> pending_children_;
     std::vector<std::unique_ptr<Module>> children_;
@@ -22,11 +24,10 @@ private:
     std::unordered_map<int, std::function<bool()>> mouse_button_event_release_;
 
 protected:
-    Module(Context &context): context_(context) {
-    }
+    Module() = default;
 
     Context &context() {
-        return context_;
+        return *context_;
     }
 
     virtual bool Frame() {
@@ -90,6 +91,7 @@ public:
 
     void NewModule(std::unique_ptr<Module> module) {
         LOGI(TAG, "NewModule");
+        module->context_ = context_;
         pending_children_.push_back(std::move(module));
     }
 

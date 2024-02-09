@@ -10,8 +10,7 @@ class BasicModule : public Module {
     static constexpr auto TAG = "BasicModule";
 
 private:
-    BasicModule(Context &context) : Module(context) {
-    }
+    BasicModule() = default;
 
 };
 
@@ -25,12 +24,10 @@ private:
 
     bool create_ = false;
 
-    virtual void OnCreate() {
-    }
+    virtual void OnCreate() = 0;
 
 protected:
-    LauncherModule(Context &context) : BasicModule(context) {
-    }
+    LauncherModule() = default;
 
     bool Frame() final {
         if (!create_) {
@@ -54,12 +51,11 @@ private:
 
     bool create_ = false;
 
-    virtual void OnCreate() {
-    }
+    virtual void OnCreate() = 0;
 
 protected:
-    LevelModule(Context &context, std::weak_ptr<Level> level)
-    : BasicModule(context)
+    LevelModule(std::weak_ptr<Level> level)
+    : BasicModule()
     , level_(std::move(level)) {
     }
 

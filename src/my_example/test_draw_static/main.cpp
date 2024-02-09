@@ -26,13 +26,16 @@ class TextLevelModule : public LevelModule {
 
 private:
 
-public:
-
-    TextLevelModule(Context &context, std::weak_ptr<Level> level) : LevelModule(context, std::move(level)) {
+    void OnCreate() override {
         Module::KeyEvent(GLFW_KEY_ESCAPE, true, [this]() -> bool {
             this->level()->Finish();
             return false;
         });
+    }
+
+public:
+
+    TextLevelModule(std::weak_ptr<Level> level) : LevelModule(std::move(level)) {
     }
 
 };
@@ -45,13 +48,12 @@ private:
         glEnable(GL_DEPTH_TEST);
         auto level = Model<TestLevel>::Make();
         context().global().level().StartLevel(level);
-        NewModule(std::make_unique<TextLevelModule>(context(), level));
+        NewModule(std::make_unique<TextLevelModule>(level));
     }
 
 public:
 
-    TestLauncherModule(Context &context) : LauncherModule(context) {
-    }
+    TestLauncherModule() = default;
 
     // bool Frame() override {
     //     Init();
@@ -75,7 +77,7 @@ int main() {
         800,
         600,
         [](Context &context) -> auto {
-            return std::make_unique<TestLauncherModule>(context);
+            return std::make_unique<TestLauncherModule>();
         }
     );
 

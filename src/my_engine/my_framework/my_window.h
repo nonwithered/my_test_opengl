@@ -78,6 +78,7 @@ public:
             throw std::exception();
         }
         module_ = launch(*this);
+        module_->context_ = this;
     }
 
     ~Window() {
