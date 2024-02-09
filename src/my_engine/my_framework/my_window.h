@@ -10,25 +10,6 @@ private:
 
     static constexpr auto TAG = "Window";
 
-public:
-    static void *Callback(void *k, void *v = nullptr) {
-        static std::unordered_map<void *, void *> m;
-        if (k == nullptr) {
-            LOGE(TAG, "invalid key");
-            throw std::exception();
-        }
-        auto i = m.find(k);
-        if (v != nullptr && i == m.end()) {
-            m[k] = v;
-            return nullptr;
-        }
-        if (v == nullptr && i != m.end()) {
-            return i->second;
-        }
-        LOGE(TAG, "Callback invalid %p %p", k, v);
-        throw std::exception();
-    }
-
 private:
 
     Window(const Window &) = delete;
@@ -73,12 +54,18 @@ private:
     }
 
     void Init() {
+        // glfwSwapInterval(0);
         glEnable(GL_DEPTH_TEST);
     }
 
 public:
 
-    Window(Global &global, const std::string &title, int width, int height, std::function<std::unique_ptr<Module>(Window &)> launch)
+    Window(
+        Global &global,
+        const std::string &title,
+        int width,
+        int height,
+        std::function<std::unique_ptr<Module>(Window &)> launch)
     : id_(glfwCreateWindow(width, height, title.data(), nullptr, nullptr))
     , global_(global)
     , title_(title)

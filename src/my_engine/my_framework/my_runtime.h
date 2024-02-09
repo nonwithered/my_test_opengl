@@ -107,7 +107,6 @@ private:
             runtime.Find(window).MouseButtonCallback(button, action, mods);
             runtime.PerformFrame();
         });
-        // glfwSwapInterval(0);
     }
 
 public:
