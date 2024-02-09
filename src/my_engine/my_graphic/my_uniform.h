@@ -39,23 +39,19 @@ public:
     }
 
     void operator()(GLint location, const std::vector<glm::fvec1> &v) {
-        auto [count, value] = V(v);
-        glUniform1fv(location, count, (const GLfloat *) value.data());
+        glUniform1fv(location, v.size(), (const GLfloat *) v.data());
     }
 
     void operator()(GLint location, const std::vector<glm::fvec2> &v) {
-        auto [count, value] = V(v);
-        glUniform2fv(location, count, (const GLfloat *) value.data());
+        glUniform2fv(location, v.size(), (const GLfloat *) v.data());
     }
 
     void operator()(GLint location, const std::vector<glm::fvec3> &v) {
-        auto [count, value] = V(v);
-        glUniform3fv(location, count, (const GLfloat *) value.data());
+        glUniform3fv(location, v.size(), (const GLfloat *) v.data());
     }
 
     void operator()(GLint location, const std::vector<glm::fvec4> &v) {
-        auto [count, value] = V(v);
-        glUniform4fv(location, count, (const GLfloat *) value.data());
+        glUniform4fv(location, v.size(), (const GLfloat *) v.data());
     }
 
     // GLint
@@ -77,23 +73,19 @@ public:
     }
 
     void operator()(GLint location, const std::vector<glm::ivec1> &v) {
-        auto [count, value] = V(v);
-        glUniform1iv(location, count, (const GLint *) value.data());
+        glUniform1iv(location, v.size(), (const GLint *) v.data());
     }
 
     void operator()(GLint location, const std::vector<glm::ivec2> &v) {
-        auto [count, value] = V(v);
-        glUniform2iv(location, count, (const GLint *) value.data());
+        glUniform2iv(location, v.size(), (const GLint *) v.data());
     }
 
     void operator()(GLint location, const std::vector<glm::ivec3> &v) {
-        auto [count, value] = V(v);
-        glUniform3iv(location, count, (const GLint *) value.data());
+        glUniform3iv(location, v.size(), (const GLint *) v.data());
     }
 
     void operator()(GLint location, const std::vector<glm::ivec4> &v) {
-        auto [count, value] = V(v);
-        glUniform4iv(location, count, (const GLint *) value.data());
+        glUniform4iv(location, v.size(), (const GLint *) v.data());
     }
 
     // GLdouble
@@ -115,23 +107,19 @@ public:
     }
 
     void operator()(GLint location, const std::vector<glm::dvec1> &v) {
-        auto [count, value] = V(v);
-        glUniform1dv(location, count, (const GLdouble *) value.data());
+        glUniform1dv(location, v.size(), (const GLdouble *) v.data());
     }
 
     void operator()(GLint location, const std::vector<glm::dvec2> &v) {
-        auto [count, value] = V(v);
-        glUniform2dv(location, count, (const GLdouble *) value.data());
+        glUniform2dv(location, v.size(), (const GLdouble *) v.data());
     }
 
     void operator()(GLint location, const std::vector<glm::dvec3> &v) {
-        auto [count, value] = V(v);
-        glUniform3dv(location, count, (const GLdouble *) value.data());
+        glUniform3dv(location, v.size(), (const GLdouble *) v.data());
     }
 
     void operator()(GLint location, const std::vector<glm::dvec4> &v) {
-        auto [count, value] = V(v);
-        glUniform4dv(location, count, (const GLdouble *) value.data());
+        glUniform4dv(location, v.size(), (const GLdouble *) v.data());
     }
 
     // GLuint
@@ -153,139 +141,95 @@ public:
     }
 
     void operator()(GLint location, const std::vector<glm::uvec1> &v) {
-        auto [count, value] = V(v);
-        glUniform1uiv(location, count, (const GLuint *) value.data());
+        glUniform1uiv(location, v.size(), (const GLuint *) v.data());
     }
 
     void operator()(GLint location, const std::vector<glm::uvec2> &v) {
-        auto [count, value] = V(v);
-        glUniform2uiv(location, count, (const GLuint *) value.data());
+        glUniform2uiv(location, v.size(), (const GLuint *) v.data());
     }
 
     void operator()(GLint location, const std::vector<glm::uvec3> &v) {
-        auto [count, value] = V(v);
-        glUniform3uiv(location, count, (const GLuint *) value.data());
+        glUniform3uiv(location, v.size(), (const GLuint *) v.data());
     }
 
     void operator()(GLint location, const std::vector<glm::uvec4> &v) {
-        auto [count, value] = V(v);
-        glUniform4uiv(location, count, (const GLuint *) value.data());
+        glUniform4uiv(location, v.size(), (const GLuint *) v.data());
     }
 
     // fmat
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::fmat2x2> &v) {
-        auto [count, value] = V(v);
-        glUniformMatrix2fv(location, count, transpose, (const GLfloat *) value.data());
+        glUniformMatrix2fv(location, v.size(), transpose, (const GLfloat *) v.data());
     }
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::fmat2x3> &v) {
-        auto [count, value] = V(v);
-        glUniformMatrix2x3fv(location, count, transpose, (const GLfloat *) value.data());
+        glUniformMatrix2x3fv(location, v.size(), transpose, (const GLfloat *) v.data());
     }
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::fmat2x4> &v) {
-        auto [count, value] = V(v);
-        glUniformMatrix2x4fv(location, count, transpose, (const GLfloat *) value.data());
+        glUniformMatrix2x4fv(location, v.size(), transpose, (const GLfloat *) v.data());
     }
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::fmat3x2> &v) {
-        auto [count, value] = V(v);
-        glUniformMatrix3x2fv(location, count, transpose, (const GLfloat *) value.data());
+        glUniformMatrix3x2fv(location, v.size(), transpose, (const GLfloat *) v.data());
     }
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::fmat3x3> &v) {
-        auto [count, value] = V(v);
-        glUniformMatrix3fv(location, count, transpose, (const GLfloat *) value.data());
+        glUniformMatrix3fv(location, v.size(), transpose, (const GLfloat *) v.data());
     }
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::fmat3x4> &v) {
-        auto [count, value] = V(v);
-        glUniformMatrix3x4fv(location, count, transpose, (const GLfloat *) value.data());
+        glUniformMatrix3x4fv(location, v.size(), transpose, (const GLfloat *) v.data());
     }
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::fmat4x2> &v) {
-        auto [count, value] = V(v);
-        glUniformMatrix4x2fv(location, count, transpose, (const GLfloat *) value.data());
+        glUniformMatrix4x2fv(location, v.size(), transpose, (const GLfloat *) v.data());
     }
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::fmat4x3> &v) {
-        auto [count, value] = V(v);
-        glUniformMatrix4x3fv(location, count, transpose, (const GLfloat *) value.data());
+        glUniformMatrix4x3fv(location, v.size(), transpose, (const GLfloat *) v.data());
     }
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::fmat4x4> &v) {
-        auto [count, value] = V(v);
-        glUniformMatrix4fv(location, count, transpose, (const GLfloat *) value.data());
+        glUniformMatrix4fv(location, v.size(), transpose, (const GLfloat *) v.data());
     }
 
     // dmat
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::dmat2x2> &v) {
-        auto [count, value] = V(v);
-        glUniformMatrix2dv(location, count, transpose, (const GLdouble *) value.data());
+        glUniformMatrix2dv(location, v.size(), transpose, (const GLdouble *) v.data());
     }
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::dmat2x3> &v) {
-        auto [count, value] = V(v);
-        glUniformMatrix2x3dv(location, count, transpose, (const GLdouble *) value.data());
+        glUniformMatrix2x3dv(location, v.size(), transpose, (const GLdouble *) v.data());
     }
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::dmat2x4> &v) {
-        auto [count, value] = V(v);
-        glUniformMatrix2x4dv(location, count, transpose, (const GLdouble *) value.data());
+        glUniformMatrix2x4dv(location, v.size(), transpose, (const GLdouble *) v.data());
     }
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::dmat3x2> &v) {
-        auto [count, value] = V(v);
-        glUniformMatrix3x2dv(location, count, transpose, (const GLdouble *) value.data());
+        glUniformMatrix3x2dv(location, v.size(), transpose, (const GLdouble *) v.data());
     }
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::dmat3x3> &v) {
-        auto [count, value] = V(v);
-        glUniformMatrix3dv(location, count, transpose, (const GLdouble *) value.data());
+        glUniformMatrix3dv(location, v.size(), transpose, (const GLdouble *) v.data());
     }
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::dmat3x4> &v) {
-        auto [count, value] = V(v);
-        glUniformMatrix3x4dv(location, count, transpose, (const GLdouble *) value.data());
+        glUniformMatrix3x4dv(location, v.size(), transpose, (const GLdouble *) v.data());
     }
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::dmat4x2> &v) {
-        auto [count, value] = V(v);
-        glUniformMatrix4x2dv(location, count, transpose, (const GLdouble *) value.data());
+        glUniformMatrix4x2dv(location, v.size(), transpose, (const GLdouble *) v.data());
     }
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::dmat4x3> &v) {
-        auto [count, value] = V(v);
-        glUniformMatrix4x3dv(location, count, transpose, (const GLdouble *) value.data());
+        glUniformMatrix4x3dv(location, v.size(), transpose, (const GLdouble *) v.data());
     }
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::dmat4x4> &v) {
-        auto [count, value] = V(v);
-        glUniformMatrix4dv(location, count, transpose, (const GLdouble *) value.data());
-    }
-
-private:
-
-    template<glm::length_t L, typename T, glm::qualifier Q>
-    static std::pair<GLsizei, std::vector<const T *>> V(const std::vector<glm::vec<L, T, Q>> &v) {
-        GLsizei count = (GLsizei) v.size();
-        std::vector<const T *> value(count);
-        for (auto i = 0; i != count; ++i) {
-            value[i] = glm::value_ptr(v[i]);
-        }
-        return std::pair(count, std::move(value));
-    }
-
-    template<glm::length_t C, glm::length_t R, typename T, glm::qualifier Q>
-    static std::pair<GLsizei, std::vector<const T *>> V(const std::vector<glm::mat<C, R, T, Q>> &v) {
-        GLsizei count = (GLsizei) v.size();
-        std::vector<const T *> value(count);
-        for (auto i = 0; i != count; ++i) {
-            value[i] = glm::value_ptr(v[i]);
-        }
-        return std::pair(count, std::move(value));
+        glUniformMatrix4dv(location, v.size(), transpose, (const GLdouble *) v.data());
     }
 
 };
@@ -394,7 +338,7 @@ public:
     ~UniformValue() final = default;
 
     void Uniform(GLint location) const final {
-        UniformOperator()(location, transpose_, value_);
+        UniformOperator()(location, transpose_ ? GL_TRUE : GL_FALSE, value_);
     }
 
     Uniform_t &Clone() const final {

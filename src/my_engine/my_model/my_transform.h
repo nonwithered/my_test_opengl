@@ -52,7 +52,7 @@ public:
     glm::mat4 matrix() const {
         glm::mat4 transform(1.0f);
         transform = glm::translate(transform, translate_);
-        {
+        if (rotate_ != direction_default()) {
             auto [angle, axis] = direction_to_rotate(rotate_);
             transform = glm::rotate(transform, angle, axis);
         }

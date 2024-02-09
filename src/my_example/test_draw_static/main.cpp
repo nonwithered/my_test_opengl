@@ -41,8 +41,7 @@ public:
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         std::unordered_map<std::string, std::unique_ptr<Uniform_t>> uniform;
-        uniform.emplace("model", new UniformMatrix4fv(std::vector<glm::mat4> { glm::mat4(1.0f) }, false));
-        // uniform.emplace("model", new UniformMatrix4fv(std::vector<glm::mat4> { RectSingleColor::Instance().transform_global() }, false));
+        uniform.emplace("model", new UniformMatrix4fv(std::vector<glm::mat4> { RectSingleColor::Instance().transform_global() }, false));
 
         RectSingleColor::Instance().Draw(context(), uniform);
         return finish_;
