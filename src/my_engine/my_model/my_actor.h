@@ -6,16 +6,20 @@
 
 #include "my_model/my_transform.h"
 
-class Actor : public GroupModel {
+class Actor : public ModelGroup<Actor> {
 
 private:
 
     static constexpr auto TAG = "Actor";
 
-    Transform transform_;
-
     Actor(const Actor &) = delete;
     Actor(Actor &&) = delete;
+
+    Transform transform_;
+
+    // TODO
+    glm::mat4 absolute_transform_matrix_cache_ = glm::mat4();
+    bool absolute_transform_matrix_cached_ = false;
 
 public:
 
@@ -23,11 +27,12 @@ public:
 
     ~Actor() = default;
 
-    Transform &transform() {
+    const Transform &transform() const {
         return transform_;
     }
 
-    const Transform &transform() const {
-        return transform_;
+    void transform(Transform transform) {
+        transform_ = transform;
+        absolute_transform_matrix_cached_ = false;
     }
 };

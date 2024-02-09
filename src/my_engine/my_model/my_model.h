@@ -2,15 +2,22 @@
 
 #include "my_utils/log.h"
 
+template<typename T>
+class ModelGroup;
+
+template<typename T>
 class Model {
 
-    friend class GroupModel;
+    friend class ModelGroup<T>;
+
+private:
+    using value_type = typename T;
+    using self_type = typename Model<value_type>;
 
 public:
 
-    template<typename T>
-    static std::shared_ptr<T> Make() {
-        auto p = std::make_shared<T>();
+    static std::shared_ptr<value_type> Make() {
+        auto p = std::make_shared<value_type>();
         p->self(p);
         return p;
     }
@@ -19,13 +26,13 @@ private:
 
     static constexpr auto TAG = "Model";
 
-    std::weak_ptr<Model> self_;
-    std::weak_ptr<Model> parent_;
+    std::weak_ptr<value_type> self_;
+    std::weak_ptr<value_type> parent_;
 
-    Model(const Model &) = delete;
-    Model(Model &&) = delete;
+    Model(const self_type &) = delete;
+    Model(self_type &&) = delete;
 
-    void parent(std::shared_ptr<Model> p) {
+    void parent(std::shared_ptr<value_type> p) {
         if (parent_.lock() && p) {
             LOGE(TAG, "invalid parent");
             throw std::exception();
@@ -39,7 +46,7 @@ public:
 
     virtual ~Model() = default;
 
-    void self(const std::shared_ptr<Model> &p) {
+    void self(const std::shared_ptr<value_type> &p) {
         if (p.get() != this) {
             LOGE(TAG, "invalid self");
             throw std::exception();
@@ -47,31 +54,34 @@ public:
         self_ = p;
     }
 
-    std::shared_ptr<Model> parent() {
+    std::shared_ptr<value_type> parent() {
         return parent_.lock();
     }
 };
 
-class GroupModel : public Model {
+template<typename T>
+class ModelGroup : public Model<T> {
 
 private:
+    using value_type = typename T;
+    using self_type = typename ModelGroup<value_type>;
 
-    std::vector<std::shared_ptr<Model>> children_;
+    std::vector<std::shared_ptr<value_type>> children_;
 
-    GroupModel(const GroupModel &) = delete;
-    GroupModel(GroupModel &&) = delete;
+    ModelGroup(const self_type &) = delete;
+    ModelGroup(self_type &&) = delete;
 
 public:
 
-    GroupModel() = default;
-    ~GroupModel() = default;
+    ModelGroup() = default;
+    ~ModelGroup() = default;
 
-    void insert(std::shared_ptr<Model> child) {
+    void insert(std::shared_ptr<value_type> child) {
         child->parent(self_.lock());
         children_.push_back(std::move(child));
     }
 
-    void erase(std::shared_ptr<Model> child) {
+    void erase(std::shared_ptr<value_type> child) {
         if (!child) {
             LOGW(TAG,"erase child but nullptr");
             return;
@@ -88,7 +98,7 @@ public:
         return children_.size();
     }
 
-    std::shared_ptr<Model> at(size_t index) {
+    std::shared_ptr<value_type> at(size_t index) {
         uint64_t index_ = index;
         uint64_t size_ = size();
         if (index_ >= size_) {

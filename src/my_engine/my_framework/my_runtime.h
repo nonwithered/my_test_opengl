@@ -16,8 +16,6 @@ private:
 
     bool init_gl_ = false;
 
-    std::shared_ptr<Model> model_;
-
     std::vector<std::unique_ptr<Window>> windows_;
     std::vector<std::unique_ptr<Window>> pending_windows_;
 
@@ -114,9 +112,7 @@ private:
 
 public:
 
-    Runtime(std::unique_ptr<Model> model) : model_(model.release()) {
-
-        model_->self(model_);
+    Runtime() {
 
         Instance(this);
 
@@ -156,10 +152,6 @@ public:
         while (!PerformFrame()) {
             glfwPollEvents();
         }
-    }
-
-    Model &model() override {
-        return *model_;
     }
 
     float interval() override {

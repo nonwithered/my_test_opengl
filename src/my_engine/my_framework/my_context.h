@@ -4,7 +4,7 @@
 
 #include "my_model/my_model.h"
 
-#include "my_manager/my_resource.h"
+#include "my_manager/my_resource_manager.h"
 
 class Global {
 
@@ -17,8 +17,6 @@ protected:
 
 public:
     virtual ~Global() = default;
-
-    virtual Model &model() = 0;
 
     virtual float interval() = 0;
 
