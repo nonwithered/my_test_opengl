@@ -18,8 +18,10 @@ public:
 
     Transform() = default;
     Transform(const Transform &) = default;
+    ~Transform() = default;
 
     void operator=(const Transform &that) {
+        this->~Transform();
         new (this) Transform(that);
     }
 

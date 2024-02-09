@@ -194,17 +194,22 @@ public:
         const void *index_data, GLenum index_type, GLsizei index_count)
     : id_(NewId()), index_type_(index_type) {
         LOGI(TAG, "ctor %u", id_);
-        auto Guard = Use();
+        auto guard = Use();
         auto vbo = vbo_.Use();
         auto ebo= ebo_.Use();
         LOGI(TAG, "init %u", id_);
         ebo_.Init(index_data, index_type, index_count);
         vbo_.Init(data, count, attrib);
-        Guard.~Guard();
+        guard.~Guard();
     }
 
-    VertexArray(VertexArray &&that) : id_(that.id_) {
+    VertexArray(VertexArray &&that)
+    : id_(that.id_)
+    , vbo_(std::move(that.vbo_))
+    , ebo_(std::move(that.ebo_))
+    , index_type_(that.index_type_) {
         that.id_ = 0;
+        that.index_type_ = 0;
     }
 
     ~VertexArray() {
@@ -260,14 +265,14 @@ private:
     static constexpr auto TAG = "Vertex";
 
     VertexArray vao_;
-    std::vector<std::tuple<GLenum, GLsizei>> elements_;
+    std::vector<std::pair<GLenum, GLsizei>> elements_;
 
 public:
     Vertex(
         VertexArray vao,
-        std::vector<std::tuple<GLenum, GLsizei>> elements)
+        const std::vector<std::pair<GLenum, GLsizei>> &elements)
     : vao_(std::move(vao))
-    , elements_(std::move(elements)) {
+    , elements_(elements) {
     }
 
     Vertex(const Vertex &) = default;
@@ -276,7 +281,7 @@ public:
 
     void Draw() {
         auto &vao = vao_;
-        auto Guard = vao.Use();
+        auto guard = vao.Use();
         GLenum index_type = vao.index_type();
         GLsizei index_type_size = SizeOf(index_type);
         GLsizeiptr offset = 0;

@@ -4,6 +4,10 @@
 
 class UniformOperator {
 
+private:
+
+    static constexpr auto TAG = "UniformOperator";
+
 public:
     
     UniformOperator() = default;
@@ -331,7 +335,6 @@ public:
     ~UniformValue() final = default;
 
     void Uniform(GLint location) const final {
-        LOGE("TEST", "%d %f %f %f", location, value_[0], value_[1], value_[2]);
         UniformOperator()(location, value_);
     }
 

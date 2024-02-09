@@ -53,11 +53,6 @@ private:
         return Guard(*this);
     }
 
-    void Init() {
-        // glfwSwapInterval(0);
-        glEnable(GL_DEPTH_TEST);
-    }
-
 public:
 
     Window(
@@ -81,7 +76,6 @@ public:
             throw std::exception();
         }
         module_ = launch(*this);
-        Init();
     }
 
     ~Window() {

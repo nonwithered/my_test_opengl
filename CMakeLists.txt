@@ -85,7 +85,7 @@ set(CHAPTERS
 )
 
 set(my_example
-    my_test_rect_move
+    test_draw_rect
 )
 
 configure_file(configuration/root_directory.h.in configuration/root_directory.h)

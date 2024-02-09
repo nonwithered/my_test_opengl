@@ -30,7 +30,7 @@ public:
 
     void erase(const key_type &identify) {
         for (auto i = cache_.begin(); i != cache_.end(); ++i) {
-            auto &p = i->first(); 
+            auto &p = i->first; 
             if (identify.Hash() == p->Hash() && identify.Equal(*p)) {
                 cache_.erase(i);
             }
@@ -39,13 +39,13 @@ public:
 
     mapped_ptr find(const key_type &identify) {
         for (auto i = cache_.begin(); i != cache_.end(); ++i) {
-            auto &p = i->first(); 
+            auto &p = i->first; 
             if (identify.Hash() == p->Hash() && identify.Equal(*p)) {
                 return i->second;
             }
         }
         cache_.emplace_front(identify.Clone(), mapped_ptr(identify.Obtain().release()));
-        return cache_.front()->second;
+        return cache_.front().second;
     }
 
 };

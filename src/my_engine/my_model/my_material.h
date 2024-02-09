@@ -4,7 +4,7 @@
 
 #include "my_utils/my_defer.h"
 
-#include "my_manager/my_resource.h"
+#include "my_manager/my_resource_manager.h"
 #include "my_manager/my_string_pool.h"
 
 #include "my_framework/my_context.h"
@@ -24,8 +24,19 @@ private:
 public:
 
     Material() = default;
-    Material(const Material &) = default;
+
     ~Material() = default;
+
+    Material(const Material &that) : shader_(that.shader_), texture_(that.texture_) {
+        for (auto &[k, v] : that.uniform_) {
+            uniform_.emplace(k, std::unique_ptr<Uniform_t>(&v->Clone()));
+        }
+    }
+
+    void operator=(const Material &that) {
+        this->~Material();
+        new (this) Material(that);
+    }
 
     void Shader(std::shared_ptr<Shader> shader) {
         shader_ = std::move(shader);
@@ -72,20 +83,17 @@ public:
         Guard(ShaderProgram::Guard shader = ShaderProgram::Guard(), std::vector<Sampler::Guard> texture = std::vector<Sampler::Guard>())
         : shader_(std::move(shader))
         , texture_(std::move(texture)) {
-            LOGD(TAG, "bind");
         }
 
     public:
-        ~Guard() {
-            LOGD(TAG, "unbind");
-        }
+        ~Guard() = default;
 
         operator bool() const {
             return shader_.operator bool();
         }
     };
 
-    Guard Use(Context &context, const std::unordered_map<std::string, std::unique_ptr<Uniform_t>> &uniform_map) {
+    Guard Use(Context &context, const std::unordered_map<std::string, std::unique_ptr<Uniform_t>> &uniform) {
         if (!shader_) {
             return Guard();
         }
@@ -98,12 +106,12 @@ public:
             }
             texture_guard.push_back(context.resource().texture().find(*texture)->Use());
         }
-        for (auto &[name, uniform] : uniform_map) {
-            shader.Location(name).Uniform(*uniform);
+        for (auto &[name, uniform_v] : uniform) {
+            shader.Location(name).Uniform(*uniform_v);
         }
-        for (auto &[name_, uniform] : uniform_) {
+        for (auto &[name_, uniform_v] : uniform_) {
             auto name = StringPool::Instance().Restore(name_);
-            shader.Location(name).Uniform(*uniform);
+            shader.Location(name).Uniform(*uniform_v);
         }
         return Guard(std::move(shader_guard), std::move(texture_guard));
     }

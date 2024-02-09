@@ -8,37 +8,17 @@ public:
     using Identify = typename uint64_t;
 
     static StringPool &Instance() {
-        return *Instance(nullptr);
+        static StringPool instance_;
+        return instance_;
     }
 
 private:
 
     static constexpr auto TAG = "StringPool";
 
-    static StringPool *Instance(StringPool *p) {
-        static StringPool *instance_ = nullptr;
-        if (p != nullptr && instance_ == nullptr) {
-            instance_ = p;
-            return nullptr;
-        }
-        if (p == nullptr && instance_ != nullptr) {
-            return instance_;
-        }
-        if (p == instance_) {
-            instance_ = nullptr;
-            return nullptr;
-        }
-        LOGE(TAG, "Instance invalid %p %p", p, instance_);
-        throw std::exception();
-
-    }
-
     using id_type = typename Identify;
     using value_type = typename std::string;
 
-    StringPool() = default;
-    StringPool(const StringPool &) = delete;
-    StringPool(StringPool &&) = delete;
 
     std::mutex mutex_;
 
@@ -51,8 +31,16 @@ private:
         return std::lock_guard(mutex_);
     }
 
+    StringPool() {
+        LOGI(TAG, "ctor");
+    }
+    StringPool(const StringPool &) = delete;
+    StringPool(StringPool &&) = delete;
+
 public:
-    ~StringPool() = default;
+    ~StringPool() {
+        LOGI(TAG, "dtor");
+    }
 
     id_type Save(const value_type &name) {
         auto lock = Lock();

@@ -15,6 +15,51 @@ inline GLsizei SizeOf(GLenum type) {
         case GL_FLOAT: return sizeof(GLfloat);
         case GL_DOUBLE: return sizeof(GLdouble);
     }
-    LOGE(TAG, "SizeOf invalid type");
+    LOGE(TAG, "SizeOf invalid %" PRIx64, (uint64_t) type);
     throw std::exception();
+}
+
+template<typename T>
+inline constexpr GLenum TypeOf() {
+    static_assert(false, "TypeOf invalid");
+}
+
+template<>
+inline constexpr GLenum TypeOf<GLbyte>() {
+    return GL_BYTE;
+}
+
+template<>
+inline constexpr GLenum TypeOf<GLubyte>() {
+    return GL_UNSIGNED_BYTE;
+}
+
+template<>
+inline constexpr GLenum TypeOf<GLshort>() {
+    return GL_SHORT;
+}
+
+template<>
+inline constexpr GLenum TypeOf<GLushort>() {
+    return GL_UNSIGNED_SHORT;
+}
+
+template<>
+inline constexpr GLenum TypeOf<GLint>() {
+    return GL_INT;
+}
+
+template<>
+inline constexpr GLenum TypeOf<GLuint>() {
+    return GL_UNSIGNED_INT;
+}
+
+template<>
+inline constexpr GLenum TypeOf<GLfloat>() {
+    return GL_FLOAT;
+}
+
+template<>
+inline constexpr GLenum TypeOf<GLdouble>() {
+    return GL_DOUBLE;
 }

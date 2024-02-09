@@ -22,6 +22,8 @@ private:
     std::unordered_map<int, std::function<bool()>> mouse_button_event_release_;
 
 protected:
+    Module(Context &context): context_(context) {
+    }
 
     Context &context() {
         return context_;
@@ -83,8 +85,6 @@ protected:
     }
 
 public:
-    Module(Context &context): context_(context) {
-    }
 
     virtual ~Module() = default;
 

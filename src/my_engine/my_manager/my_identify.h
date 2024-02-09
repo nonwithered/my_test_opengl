@@ -8,7 +8,7 @@ class ResourceIdentify {
 public:
     using value_type = typename T;
 
-private:
+public:
     using self_type = typename ResourceIdentify<value_type>;
 
 private:
