@@ -5,6 +5,8 @@
 class LauncherModule : public Module {
 
 private:
+
+    static constexpr auto TAG = "LauncherModule";
     bool init_ = false;
     bool finish_ = false;
 
@@ -14,6 +16,13 @@ private:
         }
         init_ = true;
         glEnable(GL_DEPTH_TEST);
+
+        {
+            auto transform = RectSingleColor::Instance().transform();
+            transform.translate(glm::vec3(-0.5f, 0.5f, 0));
+            transform.scale(glm::vec3(0.5f));
+            RectSingleColor::Instance().transform(transform);
+        }
     }
 
 public:
@@ -26,11 +35,16 @@ public:
     }
 
     bool Frame() override {
+        Init();
         glViewport(0, 0, context().width(), context().height());
-        // glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        RectSingleColor::Instance().Draw(context(), std::unordered_map<std::string, std::unique_ptr<Uniform_t>>());
+
+        std::unordered_map<std::string, std::unique_ptr<Uniform_t>> uniform;
+        uniform.emplace("model", new UniformMatrix4fv(std::vector<glm::mat4> { glm::mat4(1.0f) }, false));
+        // uniform.emplace("model", new UniformMatrix4fv(std::vector<glm::mat4> { RectSingleColor::Instance().transform_global() }, false));
+
+        RectSingleColor::Instance().Draw(context(), uniform);
         return finish_;
     }
 };

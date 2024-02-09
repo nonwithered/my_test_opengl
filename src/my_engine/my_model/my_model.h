@@ -33,11 +33,21 @@ private:
     Model(self_type &&) = delete;
 
     void parent(std::shared_ptr<value_type> p) {
-        if (parent_.lock() && p) {
+        auto p_ = parent_.lock()
+        if (p_ && p) {
             LOGE(TAG, "invalid parent");
             throw std::exception();
         }
+        if (!p_ && !p) {
+            return
+        }
         parent_ = p;
+        ParentChanged();
+
+    }
+
+protected:
+    virtual void ParentChanged() {
     }
 
 public:
@@ -88,6 +98,7 @@ public:
         }
         for (auto i = children_.begin(); i != children_.end(); ) {
             if (*i == child) {
+                child->parent(nullptr);
                 children_.erase(i);
                 return;
             }

@@ -8,10 +8,10 @@
 
 inline const ConstMesh::Parameter &RectSingleColorMeshParameter() {
     static const std::array<GLfloat, 12> data = {
-         0.5f,  0.5f, 0.0f,  // top right
-         0.5f, -0.5f, 0.0f,  // bottom right
-        -0.5f, -0.5f, 0.0f,  // bottom left
-        -0.5f,  0.5f, 0.0f   // top left
+         1.0f,  1.0f, 0.0f,  // top right
+         1.0f, -1.0f, 0.0f,  // bottom right
+        -1.0f, -1.0f, 0.0f,  // bottom left
+        -1.0f,  1.0f, 0.0f   // top left
     };
     static const std::vector<std::pair<GLenum, GLsizei>> attrib = {
         std::make_pair(TypeOf<GLfloat>(), 3),
@@ -38,15 +38,19 @@ inline const ConstMesh::Parameter &RectSingleColorMeshParameter() {
 inline const ConstShader::Parameter &RectSingleColorShaderParameter() {
     static const std::string vs = R"(
 #version 330 core
+
 layout (location = 0) in vec3 aPos;
+
+uniform mat4 model;
 
 void main()
 {
-    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+    gl_Position = model * vec4(aPos.x, aPos.y, aPos.z, 1.0);
 }
     )";
     static const std::string fs = R"(
 #version 330 core
+
 out vec4 FragColor;
 
 uniform vec4 ourColor;
@@ -72,7 +76,7 @@ private:
     RectSingleColor() {
         mesh(std::make_shared<ConstMesh>(RectSingleColorMeshParameter()));
         material().Shader(std::make_shared<ConstShader>(RectSingleColorShaderParameter()));
-        auto color = GetColorVec4(0xffffffff);
+        auto color = GetColorVec4(0xffff0000);
         material().Uniform("ourColor", Uniform4f(glm::fvec4(color[0], color[1], color[2], color[3])));
     }
 
