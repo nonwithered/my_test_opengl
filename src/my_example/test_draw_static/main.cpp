@@ -1,6 +1,7 @@
 #include <my_framework/my_runtime.h>
 
 #include "RectSingleColor.h"
+#include "RectMultiColor.h"
 
 class LauncherModule : public Module {
 
@@ -34,6 +35,7 @@ public:
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         RectSingleColor::Instance().Draw(context(), StaticMeshActor::uniform_t());
+        RectMultiColor::Instance().Draw(context(), StaticMeshActor::uniform_t());
         return finish_;
     }
 };

@@ -7,7 +7,8 @@
 #include <my_utils/my_color.h>
 
 inline const ConstMesh::Parameter &RectSingleColorMeshParameter() {
-    static const std::array<GLfloat, 12> data = {
+    static const GLfloat data[] = {
+        // positions
          1.0f,  1.0f, 0.0f,  // top right
          1.0f, -1.0f, 0.0f,  // bottom right
         -1.0f, -1.0f, 0.0f,  // bottom left
@@ -16,7 +17,7 @@ inline const ConstMesh::Parameter &RectSingleColorMeshParameter() {
     static const std::vector<std::pair<GLenum, GLsizei>> attrib = {
         std::make_pair(TypeOf<GLfloat>(), 3),
     };
-    static const std::array<GLuint, 6> index_data = {
+    static const GLuint index_data[] = {
         0, 1, 3,  // first Triangle
         1, 2, 3,  // second Triangle
     };
@@ -24,10 +25,10 @@ inline const ConstMesh::Parameter &RectSingleColorMeshParameter() {
         std::make_pair(GL_TRIANGLES, 6),
     };
     static const ConstMesh::Parameter parameter = {
-        data.data(),
+        data,
         4,
         attrib,
-        index_data.data(),
+        index_data,
         TypeOf<GLuint>(),
         6,
         elements,
