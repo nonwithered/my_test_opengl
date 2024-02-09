@@ -39,19 +39,19 @@ public:
     }
 
     void operator()(GLint location, const std::vector<glm::fvec1> &v) {
-        glUniform1fv(location, v.size(), (const GLfloat *) v.data());
+        glUniform1fv(location, (GLsizei) v.size(), (const GLfloat *) v.data());
     }
 
     void operator()(GLint location, const std::vector<glm::fvec2> &v) {
-        glUniform2fv(location, v.size(), (const GLfloat *) v.data());
+        glUniform2fv(location, (GLsizei) v.size(), (const GLfloat *) v.data());
     }
 
     void operator()(GLint location, const std::vector<glm::fvec3> &v) {
-        glUniform3fv(location, v.size(), (const GLfloat *) v.data());
+        glUniform3fv(location, (GLsizei) v.size(), (const GLfloat *) v.data());
     }
 
     void operator()(GLint location, const std::vector<glm::fvec4> &v) {
-        glUniform4fv(location, v.size(), (const GLfloat *) v.data());
+        glUniform4fv(location, (GLsizei) v.size(), (const GLfloat *) v.data());
     }
 
     // GLint
@@ -73,19 +73,19 @@ public:
     }
 
     void operator()(GLint location, const std::vector<glm::ivec1> &v) {
-        glUniform1iv(location, v.size(), (const GLint *) v.data());
+        glUniform1iv(location, (GLsizei) v.size(), (const GLint *) v.data());
     }
 
     void operator()(GLint location, const std::vector<glm::ivec2> &v) {
-        glUniform2iv(location, v.size(), (const GLint *) v.data());
+        glUniform2iv(location, (GLsizei) v.size(), (const GLint *) v.data());
     }
 
     void operator()(GLint location, const std::vector<glm::ivec3> &v) {
-        glUniform3iv(location, v.size(), (const GLint *) v.data());
+        glUniform3iv(location, (GLsizei) v.size(), (const GLint *) v.data());
     }
 
     void operator()(GLint location, const std::vector<glm::ivec4> &v) {
-        glUniform4iv(location, v.size(), (const GLint *) v.data());
+        glUniform4iv(location, (GLsizei) v.size(), (const GLint *) v.data());
     }
 
     // GLdouble
@@ -107,19 +107,19 @@ public:
     }
 
     void operator()(GLint location, const std::vector<glm::dvec1> &v) {
-        glUniform1dv(location, v.size(), (const GLdouble *) v.data());
+        glUniform1dv(location, (GLsizei) v.size(), (const GLdouble *) v.data());
     }
 
     void operator()(GLint location, const std::vector<glm::dvec2> &v) {
-        glUniform2dv(location, v.size(), (const GLdouble *) v.data());
+        glUniform2dv(location, (GLsizei) v.size(), (const GLdouble *) v.data());
     }
 
     void operator()(GLint location, const std::vector<glm::dvec3> &v) {
-        glUniform3dv(location, v.size(), (const GLdouble *) v.data());
+        glUniform3dv(location, (GLsizei) v.size(), (const GLdouble *) v.data());
     }
 
     void operator()(GLint location, const std::vector<glm::dvec4> &v) {
-        glUniform4dv(location, v.size(), (const GLdouble *) v.data());
+        glUniform4dv(location, (GLsizei) v.size(), (const GLdouble *) v.data());
     }
 
     // GLuint
@@ -141,95 +141,95 @@ public:
     }
 
     void operator()(GLint location, const std::vector<glm::uvec1> &v) {
-        glUniform1uiv(location, v.size(), (const GLuint *) v.data());
+        glUniform1uiv(location, (GLsizei) v.size(), (const GLuint *) v.data());
     }
 
     void operator()(GLint location, const std::vector<glm::uvec2> &v) {
-        glUniform2uiv(location, v.size(), (const GLuint *) v.data());
+        glUniform2uiv(location, (GLsizei) v.size(), (const GLuint *) v.data());
     }
 
     void operator()(GLint location, const std::vector<glm::uvec3> &v) {
-        glUniform3uiv(location, v.size(), (const GLuint *) v.data());
+        glUniform3uiv(location, (GLsizei) v.size(), (const GLuint *) v.data());
     }
 
     void operator()(GLint location, const std::vector<glm::uvec4> &v) {
-        glUniform4uiv(location, v.size(), (const GLuint *) v.data());
+        glUniform4uiv(location, (GLsizei) v.size(), (const GLuint *) v.data());
     }
 
     // fmat
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::fmat2x2> &v) {
-        glUniformMatrix2fv(location, v.size(), transpose, (const GLfloat *) v.data());
+        glUniformMatrix2fv(location, (GLsizei) v.size(), transpose, (const GLfloat *) v.data());
     }
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::fmat2x3> &v) {
-        glUniformMatrix2x3fv(location, v.size(), transpose, (const GLfloat *) v.data());
+        glUniformMatrix2x3fv(location, (GLsizei) v.size(), transpose, (const GLfloat *) v.data());
     }
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::fmat2x4> &v) {
-        glUniformMatrix2x4fv(location, v.size(), transpose, (const GLfloat *) v.data());
+        glUniformMatrix2x4fv(location, (GLsizei) v.size(), transpose, (const GLfloat *) v.data());
     }
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::fmat3x2> &v) {
-        glUniformMatrix3x2fv(location, v.size(), transpose, (const GLfloat *) v.data());
+        glUniformMatrix3x2fv(location, (GLsizei) v.size(), transpose, (const GLfloat *) v.data());
     }
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::fmat3x3> &v) {
-        glUniformMatrix3fv(location, v.size(), transpose, (const GLfloat *) v.data());
+        glUniformMatrix3fv(location, (GLsizei) v.size(), transpose, (const GLfloat *) v.data());
     }
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::fmat3x4> &v) {
-        glUniformMatrix3x4fv(location, v.size(), transpose, (const GLfloat *) v.data());
+        glUniformMatrix3x4fv(location, (GLsizei) v.size(), transpose, (const GLfloat *) v.data());
     }
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::fmat4x2> &v) {
-        glUniformMatrix4x2fv(location, v.size(), transpose, (const GLfloat *) v.data());
+        glUniformMatrix4x2fv(location, (GLsizei) v.size(), transpose, (const GLfloat *) v.data());
     }
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::fmat4x3> &v) {
-        glUniformMatrix4x3fv(location, v.size(), transpose, (const GLfloat *) v.data());
+        glUniformMatrix4x3fv(location, (GLsizei) v.size(), transpose, (const GLfloat *) v.data());
     }
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::fmat4x4> &v) {
-        glUniformMatrix4fv(location, v.size(), transpose, (const GLfloat *) v.data());
+        glUniformMatrix4fv(location, (GLsizei) v.size(), transpose, (const GLfloat *) v.data());
     }
 
     // dmat
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::dmat2x2> &v) {
-        glUniformMatrix2dv(location, v.size(), transpose, (const GLdouble *) v.data());
+        glUniformMatrix2dv(location, (GLsizei) v.size(), transpose, (const GLdouble *) v.data());
     }
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::dmat2x3> &v) {
-        glUniformMatrix2x3dv(location, v.size(), transpose, (const GLdouble *) v.data());
+        glUniformMatrix2x3dv(location, (GLsizei) v.size(), transpose, (const GLdouble *) v.data());
     }
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::dmat2x4> &v) {
-        glUniformMatrix2x4dv(location, v.size(), transpose, (const GLdouble *) v.data());
+        glUniformMatrix2x4dv(location, (GLsizei) v.size(), transpose, (const GLdouble *) v.data());
     }
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::dmat3x2> &v) {
-        glUniformMatrix3x2dv(location, v.size(), transpose, (const GLdouble *) v.data());
+        glUniformMatrix3x2dv(location, (GLsizei) v.size(), transpose, (const GLdouble *) v.data());
     }
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::dmat3x3> &v) {
-        glUniformMatrix3dv(location, v.size(), transpose, (const GLdouble *) v.data());
+        glUniformMatrix3dv(location, (GLsizei) v.size(), transpose, (const GLdouble *) v.data());
     }
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::dmat3x4> &v) {
-        glUniformMatrix3x4dv(location, v.size(), transpose, (const GLdouble *) v.data());
+        glUniformMatrix3x4dv(location, (GLsizei) v.size(), transpose, (const GLdouble *) v.data());
     }
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::dmat4x2> &v) {
-        glUniformMatrix4x2dv(location, v.size(), transpose, (const GLdouble *) v.data());
+        glUniformMatrix4x2dv(location, (GLsizei) v.size(), transpose, (const GLdouble *) v.data());
     }
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::dmat4x3> &v) {
-        glUniformMatrix4x3dv(location, v.size(), transpose, (const GLdouble *) v.data());
+        glUniformMatrix4x3dv(location, (GLsizei) v.size(), transpose, (const GLdouble *) v.data());
     }
 
     void operator()(GLint location, GLboolean transpose, const std::vector<glm::dmat4x4> &v) {
-        glUniformMatrix4dv(location, v.size(), transpose, (const GLdouble *) v.data());
+        glUniformMatrix4dv(location, (GLsizei) v.size(), transpose, (const GLdouble *) v.data());
     }
 
 };
@@ -262,16 +262,17 @@ template<typename T, glm::length_t L>
 class UniformValue<T, L, 0> : public UniformValue<void, 0, 0> {
 
 private:
-    using value_type = typename glm::vec<L, T, glm::defaultp>;
+    using value_type = typename T;
+    using vector_type = typename glm::vec<L, T, glm::defaultp>;
     using self_type = typename UniformValue<T, L, 0>;
 
     UniformValue(self_type &&) = delete;
 
-    const value_type value_;
+    const vector_type value_;
 
 public:
 
-    UniformValue(const value_type &value) : value_(value) {
+    UniformValue(const vector_type &value) : value_(value) {
     }
 
     UniformValue(const self_type &) = default;
@@ -284,6 +285,11 @@ public:
 
     Uniform_t &Clone() const final {
         return *new self_type(value_);
+    }
+
+public:
+    static std::unique_ptr<self_type> Make(const vector_type &value) {
+        return std::make_unique<self_type>(value);
     }
 };
 
@@ -291,16 +297,17 @@ template<typename T, glm::length_t L>
 class UniformValue<T, L, 1> : public UniformValue<void, 0, 0> {
 
 private:
-    using value_type = typename std::vector<glm::vec<L, T, glm::defaultp>>;
+    using value_type = typename glm::vec<L, T, glm::defaultp>;
+    using vector_type = typename std::vector<value_type>;
     using self_type = typename UniformValue<T, L, 1>;
 
     UniformValue(self_type &&) = delete;
 
-    const value_type value_;
+    const vector_type value_;
 
 public:
 
-    UniformValue(const value_type &value) : value_(value) {
+    UniformValue(const vector_type &value) : value_(value) {
     }
 
     UniformValue(const self_type &) = default;
@@ -314,23 +321,29 @@ public:
     Uniform_t &Clone() const final {
         return *new self_type(value_);
     }
+
+public:
+    static std::unique_ptr<self_type> Make(const vector_type &value) {
+        return std::make_unique<self_type>(value);
+    }
 };
 
 template<typename T, glm::length_t C, glm::length_t R>
 class UniformValue : public UniformValue<void, 0, 0> {
 
 private:
-    using value_type = typename std::vector<glm::mat<C, R, T, glm::defaultp>>;
+    using value_type = typename glm::mat<C, R, T, glm::defaultp>;
+    using vector_type = typename std::vector<value_type>;
     using self_type = typename UniformValue<T, C, R>;
 
     UniformValue(self_type &&) = delete;
 
-    const value_type value_;
     const bool transpose_;
+    const vector_type value_;
 
 public:
 
-    UniformValue(const value_type &value, bool transpose) : value_(value), transpose_(transpose) {
+    UniformValue(bool transpose, const vector_type &value) : transpose_(transpose), value_(value) {
     }
 
     UniformValue(const self_type &) = default;
@@ -342,7 +355,12 @@ public:
     }
 
     Uniform_t &Clone() const final {
-        return *new self_type(value_, transpose_);
+        return *new self_type(transpose_, value_);
+    }
+
+public:
+    static std::unique_ptr<self_type> Make(bool transpose, const vector_type &value) {
+        return std::make_unique<self_type>(transpose, value);
     }
 };
 

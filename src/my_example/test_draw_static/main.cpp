@@ -16,13 +16,6 @@ private:
         }
         init_ = true;
         glEnable(GL_DEPTH_TEST);
-
-        {
-            auto transform = RectSingleColor::Instance().transform();
-            transform.translate(glm::vec3(-0.5f, 0.5f, 0));
-            transform.scale(glm::vec3(0.5f));
-            RectSingleColor::Instance().transform(transform);
-        }
     }
 
 public:
@@ -41,7 +34,7 @@ public:
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         std::unordered_map<std::string, std::unique_ptr<Uniform_t>> uniform;
-        uniform.emplace("model", new UniformMatrix4fv(std::vector<glm::mat4> { RectSingleColor::Instance().transform_global() }, false));
+        uniform.emplace("model", UniformMatrix4fv::Make(false, std::vector<glm::mat4> { RectSingleColor::Instance().transform_global() }));
 
         RectSingleColor::Instance().Draw(context(), uniform);
         return finish_;
