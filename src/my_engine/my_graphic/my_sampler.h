@@ -15,11 +15,6 @@ public:
 
         virtual void Tex(GLenum target, GLenum pname) const = 0;
 
-        virtual void GetTex(GLenum target, GLenum pname) {
-            LOGE(TAG, "GetTex unsupport");
-            throw std::exception();
-        }
-
     protected:
         Parameter() = default;
         Parameter(const Parameter &) = default;
@@ -33,10 +28,18 @@ public:
 
     private:
         using value_type = GLfloat;
+        using self_type = Parameterf;
 
+    public:
+        static std::unique_ptr<Parameter> Make(value_type value) {
+            return std::make_unique<self_type>(value);
+        }
+
+    private:
         value_type value_;
 
         void Tex(GLenum target, GLenum pname) const override {
+            LOGD(TAG, "glTexParameterf %" PRIx64 " %" PRIx64 " %f", (uint64_t) target, (uint64_t) pname, value_);
             glTexParameterf(target, pname, value_);
         }
 
@@ -49,12 +52,23 @@ public:
 
     class Parameteri : public Parameter {
 
+        friend class Sampler;
+
     private:
         using value_type = GLint;
+        using self_type = Parameteri;
+
+    public:
+        static std::unique_ptr<Parameter> Make(value_type value) {
+            return std::make_unique<self_type>(value);
+        }
+
+    private:
 
         value_type value_;
 
         void Tex(GLenum target, GLenum pname) const override {
+            LOGD(TAG, "glTexParameteri %" PRIx64 " %" PRIx64 " %" PRIx64, (uint64_t) target, (uint64_t) pname, (uint64_t) value_);
             glTexParameteri(target, pname, value_);
         }
 
@@ -70,20 +84,32 @@ public:
     private:
         using value_type = GLfloat;
         using vector_type = std::vector<value_type>;
+        using self_type = Parameterfv;
 
-        vector_type &value_;
-
-        void Tex(GLenum target, GLenum pname) const override {
-            glTexParameterfv(target, pname, value_.data());
+    public:
+        static std::unique_ptr<Parameter> Make(vector_type value) {
+            return std::make_unique<self_type>(value);
         }
 
-        void GetTex(GLenum target, GLenum pname) override {
-            glGetTexParameterfv(target, pname, value_.data());
+        static std::unique_ptr<Parameter> Make(std::initializer_list<value_type> value) {
+            return std::make_unique<self_type>(value);
+        }
+
+    private:
+
+        vector_type value_;
+
+        void Tex(GLenum target, GLenum pname) const override {
+            LOGD(TAG, "glTexParameterfv %" PRIx64 " %" PRIx64 " %p", (uint64_t) target, (uint64_t) pname, value_.data());
+            glTexParameterfv(target, pname, value_.data());
         }
 
     public:
 
-        Parameterfv(vector_type &value) : value_(value) {
+        Parameterfv(const vector_type &value) : value_(value) {
+        }
+
+        Parameterfv(std::initializer_list<value_type> value) : value_(value) {
         }
 
     };
@@ -93,20 +119,32 @@ public:
     private:
         using value_type = GLint;
         using vector_type = std::vector<value_type>;
+        using self_type = Parameteriv;
 
-        vector_type &value_;
-
-        void Tex(GLenum target, GLenum pname) const override {
-            glTexParameteriv(target, pname, value_.data());
+    public:
+        static std::unique_ptr<Parameter> Make(vector_type value) {
+            return std::make_unique<self_type>(value);
         }
 
-        void GetTex(GLenum target, GLenum pname) override {
-            glGetTexParameteriv(target, pname, value_.data());
+        static std::unique_ptr<Parameter> Make(std::initializer_list<value_type> value) {
+            return std::make_unique<self_type>(value);
+        }
+
+    private:
+
+        vector_type value_;
+
+        void Tex(GLenum target, GLenum pname) const override {
+            LOGD(TAG, "glTexParameteriv %" PRIx64 " %" PRIx64 " %p", (uint64_t) target, (uint64_t) pname, value_.data());
+            glTexParameteriv(target, pname, value_.data());
         }
 
     public:
 
-        Parameteriv(vector_type &value) : value_(value) {
+        Parameteriv(const vector_type &value) : value_(value) {
+        }
+
+        Parameteriv(std::initializer_list<value_type> value) : value_(value) {
         }
 
     };
@@ -138,6 +176,7 @@ public:
         const std::unordered_map<GLenum, std::unique_ptr<Parameter>> &parameter
     ) {
         LOGI(TAG, "ctor %u", id_);
+        auto guard = Use();
         switch (size.size()) {
             case 1: {
                 target_ = GL_TEXTURE_1D;
@@ -163,12 +202,14 @@ public:
         switch (target_) {
             case GL_TEXTURE_1D: {
                 auto width = size[0];
+                LOGD(TAG, "1D %x %d %x %d %x %x %p %d", target_, level, internalformat, border, format, type, pixels, width);
                 glTexImage1D(target_, level, internalformat, width, border, format, type, pixels);
                 break;
             }
             case GL_TEXTURE_2D: {
                 auto width = size[0];
                 auto height = size[1];
+                LOGD(TAG, "2D %x %d %x %d %x %x %p %d %d", target_, level, internalformat, border, format, type, pixels, width, height);
                 glTexImage2D(target_, level, internalformat, width, height, border, format, type, pixels);
                 break;
             }
@@ -176,8 +217,29 @@ public:
                 auto width = size[0];
                 auto height = size[1];
                 auto depth = size[2];
+                LOGD(TAG, "3D %x %d %x %d %x %x %p %d %d %d", target_, level, internalformat, border, format, type, pixels, width, height, depth);
                 glTexImage3D(target_, level, internalformat, width, height, depth, border, format, type, pixels);
                 break;
+            }
+        }
+
+        for (auto &[pname, param] : parameter) {
+            switch (pname) {
+                case GL_TEXTURE_MIN_FILTER:
+                case GL_TEXTURE_MAG_FILTER: {
+                    Parameteri *param_ = dynamic_cast<Parameteri *>(param.get());
+                    if (param_) {
+                        switch (param_->value_) {
+                            case GL_NEAREST_MIPMAP_NEAREST:
+                            case GL_LINEAR_MIPMAP_NEAREST:
+                            case GL_NEAREST_MIPMAP_LINEAR:
+                            case GL_LINEAR_MIPMAP_LINEAR: {
+                                LOGD(TAG, "glGenerateMipmap");
+                                glGenerateMipmap(target_);
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -198,12 +260,12 @@ public:
 
     void GetTexParameterfv(GLenum pname, std::vector<GLfloat> &params) {
         Parameterfv parameter(params);
-        ((Parameter &) parameter).GetTex(target_, pname);
+        glGetTexParameterfv(target_, pname, params.data());
     }
 
     void GetTexParameteriv(GLenum pname, std::vector<GLint> &params) {
         Parameteriv parameter(params);
-        ((Parameter &) parameter).GetTex(target_, pname);
+        glGetTexParameteriv(target_, pname, params.data());
     }
 
     class Guard {

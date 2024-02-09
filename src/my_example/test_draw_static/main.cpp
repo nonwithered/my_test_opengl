@@ -2,6 +2,7 @@
 
 #include "RectSingleColor.h"
 #include "RectMultiColor.h"
+#include "RectPictureColor.h"
 
 class LauncherModule : public Module {
 
@@ -36,6 +37,7 @@ public:
 
         RectSingleColor::Instance().Draw(context(), StaticMeshActor::uniform_t());
         RectMultiColor::Instance().Draw(context(), StaticMeshActor::uniform_t());
+        RectPictureColor::Instance().Draw(context(), StaticMeshActor::uniform_t());
         return finish_;
     }
 };

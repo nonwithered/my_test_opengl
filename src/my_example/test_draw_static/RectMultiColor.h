@@ -45,17 +45,17 @@ inline const ConstShader::Parameter &RectMultiColorShaderParameter() {
     static const std::string vs = R"(
 #version 330 core
 
-layout (location = 0) in vec3 aPos;   // 位置变量的属性位置值为 0 
-layout (location = 1) in vec4 aColor; // 颜色变量的属性位置值为 1
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec4 aColor;
 
-out vec4 ourColor; // 向片段着色器输出一个颜色
+out vec4 ourColor;
 
 uniform mat4 model;
 
 void main()
 {
     gl_Position = model * vec4(aPos, 1.0);
-    ourColor = aColor; // 将ourColor设置为我们从顶点数据那里得到的输入颜色
+    ourColor = aColor;
 }
     )";
     static const std::string fs = R"(
@@ -85,11 +85,9 @@ private:
     RectMultiColor() {
         mesh(std::make_shared<ConstMesh>(RectMultiColorMeshParameter()));
         material().Shader(std::make_shared<ConstShader>(RectMultiColorShaderParameter()));
-        material().Uniform("ourColor", Uniform4f(GetColorVec4(0xffff0000)));
 
         auto transform_ = transform();
         transform_.translate(glm::vec3(0.5f, 0.5f, 0));
-        transform_.rotate(glm::vec3(0.0f, 0.5f, 0));
         transform_.scale(glm::vec3(0.5f));
         transform(transform_);
     }

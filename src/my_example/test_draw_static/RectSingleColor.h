@@ -81,7 +81,6 @@ private:
 
         auto transform_ = transform();
         transform_.translate(glm::vec3(-0.5f, 0.5f, 0));
-        transform_.rotate(glm::vec3(0.0f, 0.5f, 0));
         transform_.scale(glm::vec3(0.5f));
         transform(transform_);
     }
