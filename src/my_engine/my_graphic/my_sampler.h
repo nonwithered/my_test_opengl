@@ -22,7 +22,7 @@ public:
 
     Sampler(const void *data, GLsizei width, GLsizei height, GLsizei type) : id_(NewId()) {
         LOGI(TAG, "ctor %u", id_);
-        auto scope = Use();
+        auto Guard = Use();
         
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -60,35 +60,40 @@ public:
         id_ = 0;
     }
 
-    class Scope {
+    class Guard {
+
+        friend class Sampler;
 
     private:
 
-        static constexpr auto TAG = "Sampler.Scope";
-        Scope(const Scope &) = delete;
+        static constexpr auto TAG = "Sampler.Guard";
+        Guard(const Guard &) = delete;
 
-        const Sampler *owner_;
+        GLuint id_;
+
+        Guard(GLuint id) : id_(id) {
+            LOGD(TAG, "bind %u", id_);
+            glBindTexture(GL_TEXTURE_2D, id_);
+        }
 
     public:
-        Scope(const Sampler &owner) : owner_(&owner) {
-            LOGD(TAG, "bind %u", owner.id_);
-            glBindTexture(GL_TEXTURE_2D, owner.id_);
+
+        Guard(Guard &&that) : id_(that.id_) {
+            id_ = 0;
         }
-        Scope(Scope &&that) : owner_(that.owner_) {
-            that.owner_ = nullptr;
-        }
-        ~Scope() {
-            if (owner_ == nullptr) {
+
+        ~Guard() {
+            if (id_ == 0) {
                 return;
             }
             LOGD(TAG, "unbind");
             glBindTexture(GL_TEXTURE_2D, 0);
-            owner_ = nullptr;
+            id_ = 0;
         }
     };
 
-    Scope Use() const {
-        return Scope(*this);
+    Guard Use() const {
+        return Guard(id_);
     }
 
 };

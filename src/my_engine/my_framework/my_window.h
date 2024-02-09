@@ -47,29 +47,29 @@ private:
 
     std::unique_ptr<ResourceManager> resource_ = std::make_unique<ResourceManager>();
 
-    class Scope {
+    class Guard {
 
     private:
 
-        static constexpr auto TAG = "Window.Scope";
+        static constexpr auto TAG = "Window.Guard";
 
     private:
-        Scope(const Scope &) = delete;
-        Scope(Scope &&) = delete;
+        Guard(const Guard &) = delete;
+        Guard(Guard &&) = delete;
 
     public:
-        Scope(Window &owner) {
+        Guard(Window &owner) {
             LOGD(TAG, "bind %p", owner.id_);
             glfwMakeContextCurrent(owner.id_);
         }
-        ~Scope() {
+        ~Guard() {
             LOGD(TAG, "unbind");
             glfwMakeContextCurrent(nullptr);
         }
     };
 
-    Scope Use() {
-        return Scope(*this);
+    Guard Use() {
+        return Guard(*this);
     }
 
     void Init() {
@@ -88,7 +88,7 @@ public:
         if (id_ == nullptr) {
             throw std::exception();
         }
-        auto scope = Use();
+        auto guard = Use();
         if (!launch) {
             LOGW(TAG, "invalid launch");
             throw std::exception();
@@ -102,14 +102,16 @@ public:
             return;
         }
         LOGI(TAG, "dtor %s", title_.data());
+        auto guard = Use();
         resource_.reset();
+        guard.~Guard();
         glfwDestroyWindow(id_);
         id_ = nullptr;
     }
 
     bool PerformFrame() {
         LOGD(TAG, "PerformFrame %s", title_.data());
-        auto scope = Use();
+        auto guard = Use();
         if (!module_->PerformFrame()) {
             glfwSwapBuffers(id_);
             return false;
@@ -140,7 +142,7 @@ public:
         bool press = action == GLFW_PRESS;
         LOGI(TAG, "PerformKeyEvent %s %d %d", title_.data(), key, press);
         {
-            auto scope = Use();
+            auto guard = Use();
             module_->PerformKeyEvent(key, press);
         }
     }
@@ -153,7 +155,7 @@ public:
         bool press = action == GLFW_PRESS;
         LOGI(TAG, "PerformMouseButtonEvent %s %d %d", title_.data(), button, press);
         {
-            auto scope = Use();
+            auto guard = Use();
             module_->PerformMouseButtonEvent(button, press);
         }
 

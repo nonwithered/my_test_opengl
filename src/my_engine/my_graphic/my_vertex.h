@@ -44,22 +44,25 @@ public:
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, SizeOf(type) * count, data, GL_STATIC_DRAW);
     }
 
-    class Scope {
+    class Guard {
+
+        friend class ElementArrayBuffer;
 
     private:
 
-        static constexpr auto TAG = "ElementArrayBuffer.Scope";
-        Scope(const Scope &) = delete;
-        Scope(Scope &&) = delete;
+        static constexpr auto TAG = "ElementArrayBuffer.Guard";
+        Guard(const Guard &) = delete;
+        Guard(Guard &&) = delete;
 
         GLuint id_ = 0;
 
-    public:
-        Scope(GLuint id) : id_(id) {
+        Guard(GLuint id) : id_(id) {
             LOGD(TAG, "bind %u", id_);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id_);
         }
-        ~Scope() {
+
+    public:
+        ~Guard() {
             if (!id_) {
                 return;
             }
@@ -69,8 +72,8 @@ public:
         }
     };
 
-    Scope Use() {
-        return Scope(id_);
+    Guard Use() {
+        return Guard(id_);
     }
 };
 
@@ -130,22 +133,25 @@ public:
         }
     }
 
-    class Scope {
+    class Guard {
+
+        friend class ArrayBuffer;
 
     private:
 
-        static constexpr auto TAG = "ArrayBuffer.Scope";
-        Scope(const Scope &) = delete;
-        Scope(Scope &&) = delete;
+        static constexpr auto TAG = "ArrayBuffer.Guard";
+        Guard(const Guard &) = delete;
+        Guard(Guard &&) = delete;
 
         GLuint id_ = 0;
 
-    public:
-        Scope(GLuint id) : id_(id) {
+        Guard(GLuint id) : id_(id) {
             LOGD(TAG, "bind %u", id_);
             glBindBuffer(GL_ARRAY_BUFFER, id_);
         }
-        ~Scope() {
+
+    public:
+        ~Guard() {
             if (!id_) {
                 return;
             }
@@ -155,8 +161,8 @@ public:
         }
     };
 
-    Scope Use() {
-        return Scope(id_);
+    Guard Use() {
+        return Guard(id_);
     }
 };
 
@@ -188,13 +194,13 @@ public:
         const void *index_data, GLenum index_type, GLsizei index_count)
     : id_(NewId()), index_type_(index_type) {
         LOGI(TAG, "ctor %u", id_);
-        auto scope = Use();
+        auto Guard = Use();
         auto vbo = vbo_.Use();
         auto ebo= ebo_.Use();
         LOGI(TAG, "init %u", id_);
         ebo_.Init(index_data, index_type, index_count);
         vbo_.Init(data, count, attrib);
-        scope.~Scope();
+        Guard.~Guard();
     }
 
     VertexArray(VertexArray &&that) : id_(that.id_) {
@@ -214,22 +220,25 @@ public:
         return index_type_;
     }
 
-    class Scope {
+    class Guard {
+
+        friend class VertexArray;
 
     private:
 
-        static constexpr auto TAG = "VertexArray.Scope";
-        Scope(const Scope &) = delete;
-        Scope(Scope &&) = delete;
+        static constexpr auto TAG = "VertexArray.Guard";
+        Guard(const Guard &) = delete;
+        Guard(Guard &&) = delete;
 
         GLuint id_ = 0;
 
-    public:
-        Scope(GLuint id) : id_(id) {
+        Guard(GLuint id) : id_(id) {
             LOGD(TAG, "bind %u", id_);
             glBindVertexArray(id_);
         }
-        ~Scope() {
+
+    public:
+        ~Guard() {
             if (!id_) {
                 return;
             }
@@ -239,8 +248,8 @@ public:
         }
     };
 
-    Scope Use() {
-        return Scope(id_);
+    Guard Use() {
+        return Guard(id_);
     }
 };
 
@@ -267,7 +276,7 @@ public:
 
     void Draw() {
         auto &vao = vao_;
-        auto scope = vao.Use();
+        auto Guard = vao.Use();
         GLenum index_type = vao.index_type();
         GLsizei index_type_size = SizeOf(index_type);
         GLsizeiptr offset = 0;

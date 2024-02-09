@@ -29,7 +29,11 @@ private:
     Runtime(const Runtime &) = delete;
     Runtime(Runtime &&) = delete;
 
-    static Runtime *Instance(Runtime *p = nullptr) {
+    static Runtime &Instance() {
+        return *Instance(nullptr);
+    }
+
+    static Runtime *Instance(Runtime *p) {
         static Runtime *instance_ = nullptr;
         if (p != nullptr && instance_ == nullptr) {
             instance_ = p;
@@ -37,6 +41,10 @@ private:
         }
         if (p == nullptr && instance_ != nullptr) {
             return instance_;
+        }
+        if (p == instance_) {
+            instance_ = nullptr;
+            return nullptr;
         }
         LOGE(TAG, "Instance invalid %p %p", p, instance_);
         throw std::exception();
@@ -87,17 +95,17 @@ private:
             }
         }
         glfwSetFramebufferSizeCallback(w.id(), [](GLFWwindow *window, int width, int height) {
-            auto &runtime = *Instance();
+            auto &runtime = Instance();
             runtime.Find(window).FramebufferSizeCallback(width, height);
             runtime.PerformFrame();
         });
         glfwSetKeyCallback(w.id(), [](GLFWwindow *window, int key, int scancode, int action, int mods) {
-            auto &runtime = *Instance();
+            auto &runtime = Instance();
             runtime.Find(window).KeyCallback(key, scancode, action, mods);
             runtime.PerformFrame();
         });
         glfwSetMouseButtonCallback(w.id(), [](GLFWwindow *window, int button, int action, int mods) {
-            auto &runtime = *Instance();
+            auto &runtime = Instance();
             runtime.Find(window).MouseButtonCallback(button, action, mods);
             runtime.PerformFrame();
         });
@@ -127,6 +135,7 @@ public:
 
     ~Runtime() {
         glfwTerminate();
+        Instance(this);
         LOGI(TAG, "dtor");
     }
 

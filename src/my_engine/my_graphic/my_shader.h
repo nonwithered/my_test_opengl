@@ -162,23 +162,33 @@ public:
         id_ = 0;
     }
 
-    class Scope {
+    class Guard {
+
+        friend class ShaderProgram;
 
     private:
 
-        static constexpr auto TAG = "ShaderProgram.Scope";
+        static constexpr auto TAG = "ShaderProgram.Guard";
 
-        Scope(const Scope &) = delete;
-        Scope(Scope &&) = delete;
+        Guard(const Guard &) = delete;
 
         GLuint id_;
 
-    public:
-        Scope(GLuint id) : id_(id) {
+        Guard(GLuint id) : id_(id) {
             LOGD(TAG, "bind %u", id_);
             glUseProgram(id_);
         }
-        ~Scope() {
+
+    public:
+
+        Guard() : id_(0) {
+        }
+        
+        Guard(Guard &&that) : id_(that.id_) {
+            that.id_ = 0;
+        }
+
+        ~Guard() {
             if (!id_) {
                 return;
             }
@@ -186,10 +196,14 @@ public:
             LOGD(TAG, "unbind");
             glUseProgram(0);
         }
+
+        operator bool() const {
+            return id_ != 0;
+        }
     };
 
-    Scope Use() {
-        return Scope(id_);
+    Guard Use() {
+        return Guard(id_);
     }
 
     class UniformLocation {
@@ -205,7 +219,7 @@ public:
         UniformLocation(const UniformLocation &) = default;
         ~UniformLocation() = default;
 
-        void Uniform(const UniformValue<void, 0, 0> &value) {
+        void Uniform(const Uniform_t &value) {
             value.Uniform(location_);
         }
     };

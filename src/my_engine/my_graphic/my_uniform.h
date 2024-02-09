@@ -305,7 +305,10 @@ protected:
 public:
     virtual ~UniformValue() = default;
     virtual void Uniform(GLint location) const = 0;
+    virtual self_type &Clone() const = 0;
 };
+
+using Uniform_t = typename UniformValue<void, 0, 0>;
 
 template<typename T, glm::length_t L>
 class UniformValue<T, L, 0> : public UniformValue<void, 0, 0> {
@@ -330,6 +333,10 @@ public:
     void Uniform(GLint location) const final {
         LOGE("TEST", "%d %f %f %f", location, value_[0], value_[1], value_[2]);
         UniformOperator()(location, value_);
+    }
+
+    Uniform_t &Clone() const final {
+        return *new self_type(value_);
     }
 };
 
@@ -356,6 +363,10 @@ public:
     void Uniform(GLint location) const final {
         UniformOperator()(location, value_);
     }
+
+    Uniform_t &Clone() const final {
+        return *new self_type(value_);
+    }
 };
 
 template<typename T, glm::length_t C, glm::length_t R>
@@ -381,6 +392,10 @@ public:
 
     void Uniform(GLint location) const final {
         UniformOperator()(location, transpose_, value_);
+    }
+
+    Uniform_t &Clone() const final {
+        return *new self_type(value_, transpose_);
     }
 };
 

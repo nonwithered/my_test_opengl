@@ -5,14 +5,39 @@
 class StringPool {
 
 public:
-    using id_type = typename uint64_t;
-    using value_type = typename std::string;
+    using Identify = typename uint64_t;
+
+    static StringPool &Instance() {
+        return *Instance(nullptr);
+    }
 
 private:
 
     static constexpr auto TAG = "StringPool";
 
-    StringPool(const StringPool &) = default;
+    static StringPool *Instance(StringPool *p) {
+        static StringPool *instance_ = nullptr;
+        if (p != nullptr && instance_ == nullptr) {
+            instance_ = p;
+            return nullptr;
+        }
+        if (p == nullptr && instance_ != nullptr) {
+            return instance_;
+        }
+        if (p == instance_) {
+            instance_ = nullptr;
+            return nullptr;
+        }
+        LOGE(TAG, "Instance invalid %p %p", p, instance_);
+        throw std::exception();
+
+    }
+
+    using id_type = typename Identify;
+    using value_type = typename std::string;
+
+    StringPool() = default;
+    StringPool(const StringPool &) = delete;
     StringPool(StringPool &&) = delete;
 
     std::mutex mutex_;
@@ -22,17 +47,15 @@ private:
 
     id_type next_ = 0;
 
-    std::lock_guard<std::mutex> Guard() {
+    std::lock_guard<std::mutex> Lock() {
         return std::lock_guard(mutex_);
     }
 
 public:
-
-    StringPool() = default;
     ~StringPool() = default;
 
     id_type Save(const value_type &name) {
-        auto guard_ = Guard();
+        auto lock = Lock();
         auto [i, b] = inverse_pool_.emplace(name, next_);
         if (b) {
             ++next_;
@@ -46,10 +69,10 @@ public:
     }
 
     value_type Restore(const id_type &id) {
-        auto guard_ = Guard();
+        auto lock = Lock();
         auto i = pool_.find(id);
         if (i == pool_.end()) {
-            LOGE(TAG, "restore fail %" PRIu64, (uint64_t) id);
+            LOGE(TAG, "restore fail %" PRIu64, id);
             throw std::exception();
         }
         return i->second;
