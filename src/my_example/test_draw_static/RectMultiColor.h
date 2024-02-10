@@ -2,7 +2,7 @@
 
 #include <my_framework/my_runtime.h>
 
-#include <my_model/my_static_mesh.h>
+#include <my_model/my_mesh_actor.h>
 
 #include <my_utils/my_color.h>
 
@@ -78,7 +78,7 @@ void main()
     return parameter;
 }
 
-class RectMultiColor : public StaticMeshActor {
+class RectMultiColor : public MeshActor {
 
 private:
 

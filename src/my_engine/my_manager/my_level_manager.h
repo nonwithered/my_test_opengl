@@ -64,7 +64,7 @@ public:
 
     template<typename T, typename ...Args>
     void StartLevel(Args... args) {
-        auto level = Model<T>::Make(std::forward(args)...);
+        auto level = Model<T>::Make(std::forward<Args>(args)...);
         if (!level) {
             LOGE(TAG, "StartLevel nullptr");
             throw std::exception();

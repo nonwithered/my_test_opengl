@@ -42,7 +42,7 @@ protected:
     }
 
 public:
-    TestLevel() : Level(::TAG) {
+    TestLevel(const std::string &name) : Level(name) {
     }
 
 };
@@ -62,26 +62,20 @@ protected:
 
 class TestDrawModule : public ScopeModule<CameraActor> {
 
-private:
-
-    std::weak_ptr<Level> level_;
-
-    std::shared_ptr<Level> level() {
-        return level_.lock();
-    }
-
 protected:
 
     bool OnFrame() override {
+        auto level = data()->LookUp<LevelActor>(::TAG)->level();
+
         auto uniform = UniformParameter();
 
         data()->LookAt(uniform);
 
-        for (auto i = 0; i != level()->actor().size(); ++i) {
-            auto actor = level()->actor().at(i);
-            auto static_mesh_actor = dynamic_cast<StaticMeshActor *>(actor.get());
-            if (static_mesh_actor) {
-                static_mesh_actor->Draw(context(), uniform);
+        for (auto i = 0; i != level->actor().size(); ++i) {
+            auto actor = level->actor().at(i);
+            auto mesh_actor = dynamic_cast<MeshActor *>(actor.get());
+            if (mesh_actor) {
+                mesh_actor->Draw(context(), uniform);
             }
         }
         return ScopeModule::OnFrame();
@@ -89,9 +83,8 @@ protected:
 
 public:
 
-    TestDrawModule(std::weak_ptr<CameraActor> camera, std::weak_ptr<Level> level)
-    : ScopeModule(std::move(camera))
-    , level_(level) {
+    TestDrawModule(std::weak_ptr<CameraActor> p)
+    : ScopeModule(std::move(p)) {
     }
 };
 
@@ -111,12 +104,12 @@ protected:
 
         auto camera = Model<TestCamera>::Make();
         data()->actor().insert(camera);
-        NewModule<TestDrawModule>(camera, data());
+        NewModule<TestDrawModule>(camera);
     }
 
 public:
 
-    TestLevelModule(std::weak_ptr<Level> level): ScopeModule(std::move(level)) {
+    TestLevelModule(std::weak_ptr<Level> p): ScopeModule(std::move(p)) {
     }
 
 };
@@ -128,7 +121,7 @@ protected:
     void OnCreate() override {
         LauncherModule::OnCreate();
         glEnable(GL_DEPTH_TEST);
-        context().global().level().StartLevel<TestLevel>();
+        context().global().level().StartLevel<TestLevel>(std::string(::TAG));
     }
 
 public:

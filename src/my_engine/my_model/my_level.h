@@ -22,6 +22,21 @@ public:
 
 };
 
+class Level;
+
+class LevelActor : public Actor {
+
+    friend class Level;
+
+private:
+    std::weak_ptr<Level> level_;
+
+public:
+    std::shared_ptr<Level> level() {
+        return level_.lock();
+    }
+};
+
 class Level : public Model<Level> {
 
     friend class LevelManager;
@@ -35,11 +50,19 @@ private:
 
     const std::string name_ = 0;
 
-    Actor actor_;
+    std::shared_ptr<LevelActor> actor_ = Model<LevelActor>::Make();
 
     bool finish_ = false;
 
     LevelCleaner *cleaner_ = nullptr;
+
+protected:
+
+    void OnCreate() override {
+        LOGI(TAG, "OnCreate %s", name_.data());
+        actor_->level_ = self();
+        actor_->name(name());
+    }
 
 public:
 
@@ -56,8 +79,8 @@ public:
         return name_;
     }
 
-    Actor &actor() {
-        return actor_;
+    LevelActor &actor() {
+        return *actor_;
     }
 
     void Finish() {

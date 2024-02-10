@@ -2,7 +2,7 @@
 
 #include <my_framework/my_runtime.h>
 
-#include <my_model/my_static_mesh.h>
+#include <my_model/my_mesh_actor.h>
 
 #include <my_utils/my_color.h>
 
@@ -114,7 +114,7 @@ inline const ConstTexture::Parameter &RectPictureColorTextureParameter() {
     return parameter;
 }
 
-class RectPictureColor : public StaticMeshActor {
+class RectPictureColor : public MeshActor {
 
 private:
 

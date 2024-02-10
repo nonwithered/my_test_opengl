@@ -133,4 +133,13 @@ public:
         return children_[index];
     }
 
+    std::shared_ptr<value_type> find(std::function<bool(const value_type &)> block) {
+        for (auto i = 0; i != size(); ++i) {
+            auto &child = at(i);
+            if (block(*child)) {
+                return child;
+            }
+        }
+        return nullptr;
+    }
 };

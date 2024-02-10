@@ -2,6 +2,8 @@
 
 #include "my_utils/log.h"
 
+#include "my_utils/my_cast.h"
+
 #include "my_model/my_model.h"
 
 #include "my_graphic/my_transform.h"
@@ -93,5 +95,30 @@ public:
 
     void name(const std::string &name) {
         name_ = StringPool::Instance().Save(name);
+    }
+
+    template<typename T>
+    std::shared_ptr<T> Find(const std::string &name = "") {
+        for (auto i = 0; i != size(); ++i) {
+            auto p = at(i);
+            auto t = TypeCast<T>(p.get());
+            if (t && (name.empty() || p->name() == name)) {
+                return std::dynamic_pointer_cast<T>(t->self().lock());
+            }
+        }
+        return nullptr;
+    }
+
+    template<typename T>
+    std::shared_ptr<T> LookUp(const std::string &name = "") {
+        auto p = parent();
+        while (p) {
+            auto t = TypeCast<T>(p.get());
+            if (t && (name.empty() || p->name() == name)) {
+                return std::dynamic_pointer_cast<T>(t->self().lock());
+            }
+            p = p->parent();
+        }
+        return nullptr;
     }
 };
