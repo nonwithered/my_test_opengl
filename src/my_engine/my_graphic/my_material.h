@@ -93,7 +93,7 @@ public:
         }
     };
 
-    Guard Use(Context &context, const std::unordered_map<std::string, std::unique_ptr<Uniform_t>> &uniform) {
+    Guard Use(Context &context, const UniformParameter &uniform) {
         if (!shader_) {
             return Guard();
         }

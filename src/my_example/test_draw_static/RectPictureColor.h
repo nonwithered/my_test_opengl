@@ -52,10 +52,12 @@ layout (location = 1) in vec2 aTexCoord;
 out vec2 TexCoord;
 
 uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
 
 void main()
 {
-	gl_Position = model * vec4(aPos, 1.0);
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
 	TexCoord = vec2(aTexCoord.x, aTexCoord.y);
 }
     )";
@@ -118,9 +120,9 @@ private:
 
     static constexpr auto TAG = "RectPictureColor";
 
-public:
+protected:
 
-    RectPictureColor() {
+    void OnCreate() override {
         mesh(std::make_shared<ConstMesh>(RectPictureColorMeshParameter()));
         material().Shader(std::make_shared<ConstShader>(RectPictureColorShaderParameter()));
         material().Texture(0, std::make_shared<ConstTexture>(RectPictureColorTextureParameter()));

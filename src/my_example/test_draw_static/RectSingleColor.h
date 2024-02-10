@@ -43,10 +43,12 @@ inline const ConstShader::Parameter &RectSingleColorShaderParameter() {
 layout (location = 0) in vec3 aPos;
 
 uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
 
 void main()
 {
-    gl_Position = model * vec4(aPos, 1.0);
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
 }
     )";
     static const std::string fs = R"(
@@ -74,9 +76,9 @@ private:
 
     static constexpr auto TAG = "RectSingleColor";
 
-public:
+protected:
 
-    RectSingleColor() {
+    void OnCreate() override {
         mesh(std::make_shared<ConstMesh>(RectSingleColorMeshParameter()));
         material().Shader(std::make_shared<ConstShader>(RectSingleColorShaderParameter()));
         material().Uniform("ourColor", Uniform4f(GetColorVec4(0xffff0000)));

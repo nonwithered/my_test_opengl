@@ -258,7 +258,7 @@ public:
 
 using Uniform_t = typename UniformValue<void, 0, 0>;
 
-using UniformParameter = typename std::unordered_map<std::string, std::unique_ptr<Uniform_t>>;
+using UniformParameter = typename std::unordered_map<std::string, std::shared_ptr<Uniform_t>>;
 
 template<typename T, glm::length_t L>
 class UniformValue<T, L, 0> : public Uniform_t {
