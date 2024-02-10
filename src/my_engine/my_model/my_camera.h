@@ -48,4 +48,12 @@ public:
         uniform.emplace(uniform_view, UniformMatrix4fv::Make(false, { transform_view() }));
         uniform.emplace(uniform_projection, UniformMatrix4fv::Make(false, { transform_projection() }));
     }
+
+    glm::vec3 direction_up() const {
+        return direction_up_;
+    }
+
+    void direction_up(const glm::vec3 &direction_up) {
+        direction_up_ = direction_up;
+    }
 };

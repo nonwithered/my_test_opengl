@@ -22,6 +22,8 @@ protected:
         transform_.rotate() = glm::vec3(0.0f, 0.0f, -1.0f);
         transform_.scale() = glm::vec3(0.5f);
         transform(transform_);
+
+        direction_up(glm::vec3(0.0f, 1.0f, 0.0f));
     }
 
     glm::mat4 transform_projection() override {
