@@ -57,7 +57,6 @@ private:
     }
 
 protected:
-    Module() = default;
 
     Context &context() {
         return *context_;
@@ -123,6 +122,7 @@ protected:
 
 public:
 
+    Module() = default;
     virtual ~Module() = default;
 
     template<typename T, typename ...Args>

@@ -25,8 +25,6 @@ public:
 
 };
 
-class Module;
-
 class Context {
 
 private:
@@ -48,8 +46,6 @@ public:
     virtual const std::string &title() = 0;
 
     virtual ResourceManager &resource() = 0;
-
-    virtual Module &module() = 0;
 
     virtual bool GetKey(int key) = 0;
 

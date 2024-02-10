@@ -12,8 +12,6 @@ private:
 
 protected:
 
-    LiveModule() = default;
-
     void Create() final {
         if (!alive()) {
             LOGW(TAG, "Create but not alive");
@@ -59,4 +57,9 @@ protected:
         return Module::MouseButtonEvent(button, press);
     }
 
+public:
+
+    LiveModule() = default;
+
+    ~LiveModule() = default;
 };

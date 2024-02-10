@@ -175,10 +175,6 @@ public:
         return *resource_;
     }
 
-    Module &module() override {
-        return *module_;
-    }
-
     bool GetKey(int key) override {
         return glfwGetKey(id_, GLFW_KEY_ESCAPE) == GLFW_PRESS;
     }

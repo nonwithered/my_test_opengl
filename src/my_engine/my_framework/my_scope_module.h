@@ -17,10 +17,13 @@ private:
 
 protected:
 
-    ScopeModule(std::weak_ptr<T> data) : LiveModule(), data_(std::move(data)) {
-    }
-
     std::shared_ptr<T> data() {
         return data_.lock();
     }
+
+public:
+    ScopeModule(std::weak_ptr<T> data) : LiveModule(), data_(std::move(data)) {
+    }
+
+    ~ScopeModule() = default;
 };

@@ -23,24 +23,24 @@ public:
 
 };
 
-class TextLevelModule : public ScopeModule<Level> {
+class TestBackgroundModule : public Module {
 
-private:
+protected:
 
-    void OnCreate() override {
-        ScopeModule::OnCreate();
-        ListenKeyEvent(GLFW_KEY_ESCAPE, true, [this]() -> bool {
-            data()->Finish();
-            return false;
-        });
+    bool Frame() override {
+        glViewport(0, 0, context().width(), context().height());
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        return Module::Frame();
     }
+
+};
+
+class TestDrawModule : public ScopeModule<Level> {
 
 protected:
 
     bool OnFrame() override {
-        glViewport(0, 0, context().width(), context().height());
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         for (auto i = 0; i != data()->actor().size(); ++i) {
             auto actor = data()->actor().at(i);
             auto static_mesh_actor = dynamic_cast<StaticMeshActor *>(actor.get());
@@ -53,7 +53,29 @@ protected:
 
 public:
 
-    TextLevelModule(std::weak_ptr<Level> level) : ScopeModule(std::move(level)) {
+    TestDrawModule(std::weak_ptr<Level> level) : ScopeModule(std::move(level)) {
+    }
+};
+
+class TestLevelModule : public ScopeModule<Level> {
+
+private:
+
+    void OnCreate() override {
+        ScopeModule::OnCreate();
+
+        NewModule<TestBackgroundModule>();
+        NewModule<TestDrawModule>(data());
+
+        ListenKeyEvent(GLFW_KEY_ESCAPE, true, [this]() -> bool {
+            data()->Finish();
+            return false;
+        });
+    }
+
+public:
+
+    TestLevelModule(std::weak_ptr<Level> level) : ScopeModule(std::move(level)) {
     }
 
 };
@@ -70,10 +92,8 @@ protected:
 
 public:
 
-    TestLauncherModule() = default;
-
     void OnLevelStart(std::weak_ptr<Level> level) override {
-        NewModule<TextLevelModule>(level);
+        NewModule<TestLevelModule>(level);
     }
 };
 

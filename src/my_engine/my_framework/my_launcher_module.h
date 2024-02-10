@@ -15,13 +15,6 @@ private:
     }
 
 protected:
-    LauncherModule() : LiveModule() {
-        LOGI(TAG, "ctor");
-    }
-
-    ~LauncherModule() {
-        LOGI(TAG, "dtor");
-    }
 
     void OnCreate() override {
         init_ = true;
@@ -29,6 +22,14 @@ protected:
     }
 
 public:
+
+    LauncherModule() : LiveModule() {
+        LOGI(TAG, "ctor");
+    }
+
+    ~LauncherModule() {
+        LOGI(TAG, "dtor");
+    }
 
     void OnLevelStart(std::weak_ptr<Level>) override {
     }
