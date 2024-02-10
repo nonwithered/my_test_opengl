@@ -1,5 +1,5 @@
 #include <my_framework/my_runtime.h>
-#include <my_model/my_camera.h>
+#include <my_model/my_camera_actor.h>
 
 #include "RectSingleColor.h"
 #include "RectMultiColor.h"
