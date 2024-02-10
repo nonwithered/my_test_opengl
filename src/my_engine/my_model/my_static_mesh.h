@@ -8,12 +8,9 @@
 
 class StaticMeshActor : public Actor {
 
-public: 
-
-    using uniform_t = typename std::unordered_map<std::string, std::unique_ptr<Uniform_t>>;
+public:
 
     static constexpr auto uniform_model = "model";
-    static constexpr auto uniform_view = "view";
 
 private:
 
@@ -36,7 +33,7 @@ public:
         return material_;
     }
 
-    void Draw(Context &context, uniform_t uniform) {
+    void Draw(Context &context, UniformParameter uniform) {
         if (!mesh_) {
             LOGD(TAG, "Draw mesh empty");
             return;

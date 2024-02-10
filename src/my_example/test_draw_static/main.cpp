@@ -45,7 +45,7 @@ protected:
             auto actor = data()->actor().at(i);
             auto static_mesh_actor = dynamic_cast<StaticMeshActor *>(actor.get());
             if (static_mesh_actor) {
-                static_mesh_actor->Draw(context(), StaticMeshActor::uniform_t());
+                static_mesh_actor->Draw(context(), UniformParameter());
             }
         }
         return ScopeModule::OnFrame();

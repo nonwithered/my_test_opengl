@@ -19,10 +19,13 @@ private:
 
     Transform transform_;
 
+    StringPool::Identify name_ = 0;
+
     glm::mat4 transform_global_ = glm::mat4();
     bool transform_global_cache_ = false;
 
-    StringPool::Identify name_ = 0;
+    glm::mat4 rotate_global_ = glm::mat4();
+    bool rotate_global_cache_ = false;
 
 private:
     void TransformChanged() {
@@ -31,6 +34,7 @@ private:
             LOGD(TAG, "TransformChanged %s", s.data());
         }
         transform_global_cache_ = false;
+        rotate_global_cache_ = false;
         for (auto i = 0; i != size(); ++i) {
             at(i)->TransformChanged();
         }
@@ -55,11 +59,11 @@ public:
         TransformChanged();
     }
 
-    const glm::mat4 &transform_global() {
+    glm::mat4 transform_global() {
         if (!transform_global_cache_) {
             transform_global_cache_ = true;
-            auto parent_ = parent();
             auto transform_local_ = transform_.matrix();
+            auto parent_ = parent();
             if (!parent_) {
                 transform_global_ = transform_local_;
             } else {
@@ -67,6 +71,28 @@ public:
             }
         }
         return transform_global_;
+    }
+
+    glm::mat4 rotate_global() {
+        if (!rotate_global_cache_) {
+            rotate_global_cache_ = true;
+            auto rotate_local_ = transform_.rotate_transform(glm::mat4(1.0f));
+            auto parent_ = parent();
+            if (!parent_) {
+                rotate_global_ = rotate_local_;
+            } else {
+                rotate_global_ = parent_->rotate_global() * rotate_local_;
+            }
+        }
+        return rotate_global_;
+    }
+
+    glm::vec3 position_global() {
+        return transform_global() * glm::vec4(Transform::position_default(), 1.0f);
+    }
+
+    glm::vec3 direction_global() {
+        return rotate_global() * glm::vec4(Transform::direction_default(), 1.0f);
     }
 
     std::string name() const {

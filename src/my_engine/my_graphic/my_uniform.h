@@ -258,8 +258,10 @@ public:
 
 using Uniform_t = typename UniformValue<void, 0, 0>;
 
+using UniformParameter = typename std::unordered_map<std::string, std::unique_ptr<Uniform_t>>;
+
 template<typename T, glm::length_t L>
-class UniformValue<T, L, 0> : public UniformValue<void, 0, 0> {
+class UniformValue<T, L, 0> : public Uniform_t {
 
 private:
     using value_type = typename T;
@@ -323,7 +325,7 @@ public:
 };
 
 template<typename T, glm::length_t L>
-class UniformValue<T, L, 1> : public UniformValue<void, 0, 0> {
+class UniformValue<T, L, 1> : public Uniform_t {
 
 private:
     using value_type = typename glm::vec<L, T, glm::defaultp>;
@@ -366,7 +368,7 @@ public:
 };
 
 template<typename T, glm::length_t C, glm::length_t R>
-class UniformValue : public UniformValue<void, 0, 0> {
+class UniformValue : public Uniform_t {
 
 private:
     using value_type = typename glm::mat<C, R, T, glm::defaultp>;
