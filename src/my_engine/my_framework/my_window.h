@@ -4,8 +4,6 @@
 
 #include "my_framework/my_module.h"
 
-#include "my_framework/my_level_module.h"
-
 class Window : public Context {
 
 private:
@@ -26,7 +24,7 @@ private:
     int width_ = 0;
     int height_ = 0;
 
-    std::unique_ptr<BasicModule> module_;
+    std::unique_ptr<Module> module_;
 
     std::unique_ptr<ResourceManager> resource_ = std::make_unique<ResourceManager>();
 
@@ -62,7 +60,7 @@ public:
         const std::string &title,
         int width,
         int height,
-        std::function<std::unique_ptr<BasicModule>(Window &)> launch)
+        std::function<std::unique_ptr<Module>(Window &)> module)
     : id_(glfwCreateWindow(width, height, title.data(), nullptr, nullptr))
     , global_(global)
     , title_(title)
@@ -73,11 +71,11 @@ public:
             throw std::exception();
         }
         auto guard = Use();
-        if (!launch) {
-            LOGW(TAG, "invalid launch");
+        if (!module) {
+            LOGW(TAG, "invalid module");
             throw std::exception();
         }
-        module_ = launch(*this);
+        module_ = module(*this);
         module_->context_ = this;
     }
 
@@ -97,7 +95,7 @@ public:
         LOGD(TAG, "PerformFrame %s", title_.data());
         auto guard = Use();
         if (!module_->PerformFrame()) {
-        LOGD(TAG, "SwapBuffers %s", title_.data());
+            LOGD(TAG, "SwapBuffers %s", title_.data());
             glfwSwapBuffers(id_);
             return false;
         } else {

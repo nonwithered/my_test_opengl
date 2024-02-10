@@ -30,6 +30,8 @@ private:
     Model(const self_type &) = delete;
     Model(self_type &&) = delete;
 
+protected:
+
     virtual void OnCreate() {
     }
 

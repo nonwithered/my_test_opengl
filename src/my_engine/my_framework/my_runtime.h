@@ -4,6 +4,9 @@
 
 #include "my_framework/my_window.h"
 
+#include "my_framework/my_launcher_module.h"
+#include "my_framework/my_scope_module.h"
+
 #include "my_utils/my_counter.h"
 #include "my_utils/my_interval.h"
 
@@ -137,15 +140,15 @@ public:
         LOGI(TAG, "dtor");
     }
 
-    void NewWindow(const std::string &title, int width, int height, std::function<std::unique_ptr<BasicModule>(Context &)> launch) {
+    void NewWindow(const std::string &title, int width, int height, std::function<std::unique_ptr<LiveModule>(Context &)> module) {
         LOGI(TAG, "NewWindow %s", title.data());
-        if (!launch) {
-            LOGE(TAG, "NewWindow invalid launch");
+        if (!module) {
+            LOGE(TAG, "NewWindow invalid module");
             throw std::exception();
         }
-        auto window = std::make_unique<Window>(*this, title, width, height, [this, &launch](Window &w) {
+        auto window = std::make_unique<Window>(*this, title, width, height, [this, &module](Window &w) {
             SetupWindow(w);
-            return launch(w);
+            return module(w);
         });
         pending_windows_.push_back(std::move(window));
     }

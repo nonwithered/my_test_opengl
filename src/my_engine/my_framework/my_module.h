@@ -23,83 +23,17 @@ private:
     std::unordered_map<int, std::function<bool()>> mouse_button_event_press_;
     std::unordered_map<int, std::function<bool()>> mouse_button_event_release_;
 
-protected:
-    Module() = default;
-
-    Context &context() {
-        return *context_;
-    }
-
-    virtual bool Frame() {
-        for (auto i = children_.begin(); i != children_.end(); ) {
-            auto &module = *i;
-            if (!module->PerformFrame()) {
-                ++i;
-            } else {
-                LOGI(TAG, "close module");
-                i = children_.erase(i);
-            }
-        }
-        return false;
-    }
-
-    virtual bool KeyEvent(int key, bool press) {
-        auto &events = press ? key_event_press_ : key_event_release_;
-        auto i = events.find(key);
-        if (i != events.end()) {
-            auto &event = i->second;
-            if (event && event()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    void KeyEvent(int key, bool press, std::function<bool()> event) {
-        auto &events = press ? key_event_press_ : key_event_release_;
-        if (event) {
-            events[key] = std::move(event);
-        } else {
-            events.erase(key);
-        }
-    }
-
-    virtual bool MouseButtonEvent(int button, bool press) {
-        auto &events = press ? mouse_button_event_press_ : mouse_button_event_release_;
-        auto i = events.find(button);
-        if (i != events.end()) {
-            auto &event = i->second;
-            if (event && event()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    void MouseButtonEvent(int button, bool press, std::function<bool()> event) {
-        auto &events = press ? mouse_button_event_press_ : mouse_button_event_release_;
-        if (event) {
-            events[button] = std::move(event);
-        } else {
-            events.erase(button);
-        }
-    }
-
-public:
-
-    virtual ~Module() = default;
-
-    void NewModule(std::unique_ptr<Module> module) {
-        LOGI(TAG, "NewModule");
-        module->context_ = context_;
-        pending_children_.push_back(std::move(module));
-    }
+    bool init_ = false;
 
     bool PerformFrame() {
         for (auto i = pending_children_.begin(); i != pending_children_.end(); ) {
             auto &module = *i;
             children_.push_back(std::move(module));
             i = pending_children_.erase(i);
+        }
+        if (!init_) {
+            init_ = true;
+            Create();
         }
         return Frame();
     }
@@ -120,5 +54,80 @@ public:
         for (auto &module : children_) {
             module->PerformMouseButtonEvent(type, press);
         }
+    }
+
+protected:
+    Module() = default;
+
+    Context &context() {
+        return *context_;
+    }
+
+    void ListenKeyEvent(int key, bool press, std::function<bool()> event) {
+        auto &events = press ? key_event_press_ : key_event_release_;
+        if (event) {
+            events[key] = std::move(event);
+        } else {
+            events.erase(key);
+        }
+    }
+
+    void ListenMouseButtonEvent(int button, bool press, std::function<bool()> event) {
+        auto &events = press ? mouse_button_event_press_ : mouse_button_event_release_;
+        if (event) {
+            events[button] = std::move(event);
+        } else {
+            events.erase(button);
+        }
+    }
+
+
+    virtual bool KeyEvent(int key, bool press) {
+        auto &events = press ? key_event_press_ : key_event_release_;
+        auto i = events.find(key);
+        if (i != events.end()) {
+            auto &event = i->second;
+            if (event && event()) {
+                return true;
+            }
+        }
+        return false;
+    }
+    virtual bool MouseButtonEvent(int button, bool press) {
+        auto &events = press ? mouse_button_event_press_ : mouse_button_event_release_;
+        auto i = events.find(button);
+        if (i != events.end()) {
+            auto &event = i->second;
+            if (event && event()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    virtual bool Frame() {
+        for (auto i = children_.begin(); i != children_.end(); ) {
+            auto &module = *i;
+            if (!module->PerformFrame()) {
+                ++i;
+            } else {
+                LOGI(TAG, "close module");
+                i = children_.erase(i);
+            }
+        }
+        return false;
+    }
+
+    virtual void Create() {
+    }
+
+public:
+
+    virtual ~Module() = default;
+
+    void NewModule(std::unique_ptr<Module> module) {
+        LOGI(TAG, "NewModule");
+        module->context_ = context_;
+        pending_children_.push_back(std::move(module));
     }
 };
