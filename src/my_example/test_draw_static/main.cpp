@@ -8,17 +8,17 @@ static constexpr auto TAG = "test_draw_rect";
 
 class TestLevel : public Level {
 
-public:
-    TestLevel() : Level(::TAG) {
-    }
-
-private:
+protected:
 
     void OnCreate() override {
         Level::OnCreate();
         actor().insert(Model<RectSingleColor>::Make());
         actor().insert(Model<RectMultiColor>::Make());
         actor().insert(Model<RectPictureColor>::Make());
+    }
+
+public:
+    TestLevel() : Level(::TAG) {
     }
 
 };
@@ -35,12 +35,7 @@ private:
         });
     }
 
-public:
-
-    TextLevelModule(std::weak_ptr<Level> level) : ScopeModule(std::move(level)) {
-    }
-
-private:
+protected:
 
     bool OnFrame() override {
         glViewport(0, 0, context().width(), context().height());
@@ -56,23 +51,30 @@ private:
         return ScopeModule::OnFrame();
     }
 
+public:
+
+    TextLevelModule(std::weak_ptr<Level> level) : ScopeModule(std::move(level)) {
+    }
+
 };
 
 class TestLauncherModule : public LauncherModule {
 
-private:
+protected:
 
     void OnCreate() override {
         LauncherModule::OnCreate();
         glEnable(GL_DEPTH_TEST);
-        auto level = Model<TestLevel>::Make();
-        context().global().level().StartLevel(level);
-        NewModule<TextLevelModule>(std::weak_ptr<Level>(level));
+        context().global().level().StartLevel<TestLevel>();
     }
 
 public:
 
     TestLauncherModule() = default;
+
+    void OnLevelStart(std::weak_ptr<Level> level) override {
+        NewModule<TextLevelModule>(level);
+    }
 };
 
 int main() {

@@ -12,7 +12,7 @@
 
 #include "my_model/my_model.h"
 
-class Runtime : public Global {
+class Runtime : public Global, public LevelPresenter {
 
 private:
 
@@ -28,7 +28,7 @@ private:
 
     float interval_fraction_ = 0.0f;
 
-    LevelManager level_ = LevelManager();
+    LevelManager level_ = LevelManager(*this);
 
     Runtime(const Runtime &) = delete;
     Runtime(Runtime &&) = delete;
@@ -153,6 +153,12 @@ public:
     void Loop() {
         while (!PerformFrame()) {
             glfwPollEvents();
+        }
+    }
+
+    void OnLevelStart(std::weak_ptr<Level> level) final {
+        for (auto &window : windows_) {
+            window->OnLevelStart(level);
         }
     }
 

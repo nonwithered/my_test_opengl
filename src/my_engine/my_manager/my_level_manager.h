@@ -4,6 +4,22 @@
 
 #include "my_model/my_level.h"
 
+class LevelPresenter {
+
+private:
+    LevelPresenter(const LevelPresenter &) = delete;
+    LevelPresenter(LevelPresenter &&) = delete;
+
+protected:
+    LevelPresenter() = default;
+
+public:
+    virtual ~LevelPresenter() = default;
+
+    virtual void OnLevelStart(std::weak_ptr<Level>) = 0;
+
+};
+
 class LevelManager : public LevelCleaner {
 
 private:
@@ -14,6 +30,8 @@ private:
     LevelManager(LevelManager &&) = delete;
 
     std::vector<std::shared_ptr<Level>> level_;
+
+    LevelPresenter &presenter_;
 
     void OnLevelFinish(std::weak_ptr<Level> level) override {
         auto p = level.lock();
@@ -31,8 +49,12 @@ private:
         }
     }
 
+    void OnLevelStart(std::weak_ptr<Level> level) {
+        presenter_.OnLevelStart(std::move(level));
+    }
+
 public:
-    LevelManager() {
+    LevelManager(LevelPresenter &presenter) : presenter_(presenter) {
         LOGI(TAG, "ctor");
     }
 
@@ -40,12 +62,14 @@ public:
         LOGI(TAG, "dtor");
     }
 
-    void StartLevel(std::shared_ptr<Level> level) {
+    template<typename T, typename ...Args>
+    void StartLevel(Args... args) {
+        auto level = Model<T>::Make(std::forward(args)...);
         if (!level) {
             LOGE(TAG, "StartLevel nullptr");
             throw std::exception();
         }
-        LOGI(TAG, "StartLevel %s", level->name().data());
+        LOGI(TAG, "StartLevel %s %s", level->name().data(), typeid(T).name());
         for (auto &i : level_) {
             if (i == level) {
                 LOGW(TAG, "StartLevel duplicate");
@@ -53,7 +77,9 @@ public:
             }
         }
         level->cleaner_ = this;
+        std::weak_ptr<Level> weak = level;
         level_.push_back(std::move(level));
+        OnLevelStart(weak);
     }
 
     bool empty() const {

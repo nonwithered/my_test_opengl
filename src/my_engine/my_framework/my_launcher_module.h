@@ -2,7 +2,7 @@
 
 #include "my_framework/my_live_module.h"
 
-class LauncherModule: public LiveModule {
+class LauncherModule: public LiveModule, public LevelPresenter {
 
 private:
 
@@ -26,6 +26,11 @@ protected:
     void OnCreate() override {
         init_ = true;
         return LiveModule::OnCreate();
+    }
+
+public:
+
+    void OnLevelStart(std::weak_ptr<Level>) override {
     }
 
 };

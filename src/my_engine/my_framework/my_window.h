@@ -148,6 +148,13 @@ public:
         return id_;
     }
 
+    void OnLevelStart(std::weak_ptr<Level> level) {
+        auto presenter = dynamic_cast<LevelPresenter *>(module_.get());
+        if (presenter) {
+            presenter->OnLevelStart(std::move(level));
+        }
+    }
+
     Global &global() override {
         return global_;
     }
