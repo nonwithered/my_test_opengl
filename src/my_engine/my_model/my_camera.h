@@ -17,21 +17,17 @@ private:
 
     static constexpr auto TAG = "CameraActor";
 
-    glm::vec3 direction_up_ = Transform::direction_up_default();
-
     glm::mat4 transform_view() {
-        auto direction = direction_global();
-        if (Transform::parallel(direction, direction_up_)) {
-            {
-                auto s = name();
-                LOGD(TAG, "Gimbal Lock %s", s.data());
-            }
-            throw std::exception();
-        }
+        auto rotate_matrix = rotate_global();
+        glm::vec3 direction = rotate_matrix * glm::vec4(Transform::direction_default(), 1.0f);
         auto eye = position_global();
         auto center = eye + direction;
-        auto up = direction_up_;
+        glm::vec3 up = rotate_matrix * glm::vec4(Transform::direction_up_default(), 1.0f);
         return glm::lookAt(eye, center, up);
+    }
+
+    glm::vec3 position_global() {
+        return transform_global() * glm::vec4(Transform::position_default(), 1.0f);
     }
 
 protected:
@@ -47,13 +43,5 @@ public:
     void LookAt(UniformParameter &uniform) {
         uniform.emplace(uniform_view, UniformMatrix4fv::Make(false, { transform_view() }));
         uniform.emplace(uniform_projection, UniformMatrix4fv::Make(false, { transform_projection() }));
-    }
-
-    glm::vec3 direction_up() const {
-        return direction_up_;
-    }
-
-    void direction_up(const glm::vec3 &direction_up) {
-        direction_up_ = direction_up;
     }
 };

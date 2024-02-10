@@ -87,14 +87,6 @@ public:
         return rotate_global_;
     }
 
-    glm::vec3 position_global() {
-        return transform_global() * glm::vec4(Transform::position_default(), 1.0f);
-    }
-
-    glm::vec3 direction_global() {
-        return rotate_global() * glm::vec4(Transform::direction_default(), 1.0f);
-    }
-
     std::string name() const {
         return StringPool::Instance().Restore(name_);
     }

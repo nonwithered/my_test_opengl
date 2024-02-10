@@ -75,12 +75,7 @@ public:
 
 private:
 
-    static std::pair<float, glm::vec3> direction_to_rotate(const glm::vec3 &direction_) {
-        auto direction = glm::normalize(direction_);
-        auto axis = glm::normalize(glm::cross(direction_default(), direction));
-        auto angle = glm::angle(direction_default(), direction);
-        return std::make_pair(angle, axis);
-    }
+    static constexpr auto PARALLEL_ANGLE = 1.0f / 360;
 
 public:
 
@@ -100,6 +95,15 @@ public:
     }
 
     static bool parallel(const glm::vec3 &lhs, const glm::vec3 &rhs) {
-        return glm::normalize(lhs) == glm::normalize(rhs);
+        auto angle = std::abs(glm::degrees(glm::angle(lhs, rhs)));
+        auto mod = std::fmod(angle, 180.0f);
+        return mod < PARALLEL_ANGLE;
+    }
+
+    static std::pair<float, glm::vec3> direction_to_rotate(const glm::vec3 &direction_) {
+        auto direction = glm::normalize(direction_);
+        auto axis = glm::normalize(glm::cross(direction_default(), direction));
+        auto angle = glm::angle(direction_default(), direction);
+        return std::make_pair(angle, axis);
     }
 };
