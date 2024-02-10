@@ -54,7 +54,7 @@ public:
     }
 
     bool Equal(const Mesh &that) const override {
-        auto *that_ = dynamic_cast<const ConstMesh *>(&that);
+        auto *that_ = TypeCast<ConstMesh>(&that);
         return that_ != nullptr && &parameter_ == &that_->parameter_;
     }
 

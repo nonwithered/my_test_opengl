@@ -66,11 +66,8 @@ protected:
 
     bool OnFrame() override {
         auto level = data()->LookUp<LevelActor>(::TAG)->level();
-
         auto uniform = UniformParameter();
-
         data()->LookAt(uniform);
-
         for (auto i = 0; i != level->actor().size(); ++i) {
             auto actor = level->actor().at(i);
             auto mesh_actor = dynamic_cast<MeshActor *>(actor.get());

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "my_utils/base.h"
+#include "my_utils/my_cast.h"
 
 #define _DO_ONCE(block) do block while (false)
 

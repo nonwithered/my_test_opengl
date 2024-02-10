@@ -59,7 +59,7 @@ public:
     }
 
     bool Equal(const Texture &that) const override {
-        auto *that_ = dynamic_cast<const ConstTexture *>(&that);
+        auto *that_ = TypeCast<ConstTexture>(&that);
         return that_ != nullptr && &parameter_ == &that_->parameter_;
     }
 

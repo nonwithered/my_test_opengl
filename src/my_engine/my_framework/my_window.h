@@ -149,7 +149,7 @@ public:
     }
 
     void OnLevelStart(std::weak_ptr<Level> level) {
-        auto presenter = dynamic_cast<LevelPresenter *>(module_.get());
+        auto presenter = TypeCast<LevelPresenter>(module_.get());
         if (presenter) {
             presenter->OnLevelStart(std::move(level));
         }

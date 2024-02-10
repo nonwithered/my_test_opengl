@@ -227,7 +227,7 @@ public:
             switch (pname) {
                 case GL_TEXTURE_MIN_FILTER:
                 case GL_TEXTURE_MAG_FILTER: {
-                    Parameteri *param_ = dynamic_cast<Parameteri *>(param.get());
+                    Parameteri *param_ = TypeCast<Parameteri>(param.get());
                     if (param_) {
                         switch (param_->value_) {
                             case GL_NEAREST_MIPMAP_NEAREST:

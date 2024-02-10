@@ -43,7 +43,7 @@ public:
     }
 
     bool Equal(const Shader &that) const override {
-        auto *that_ = dynamic_cast<const ConstShader *>(&that);
+        auto *that_ = TypeCast<ConstShader>(&that);
         return that_ != nullptr && &parameter_ == &that_->parameter_;
     }
 
