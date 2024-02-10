@@ -127,7 +127,7 @@ public:
 
     template<typename T, typename ...Args>
     void NewModule(Args... args) {
-        LOGI(TAG, "NewModule");
+        LOGI(TAG, "NewModule %s", typeid(T).name());
         auto module = std::make_unique<T>(std::forward<Args>(args)...);
         module->context_ = context_;
         pending_children_.push_back(std::move(module));

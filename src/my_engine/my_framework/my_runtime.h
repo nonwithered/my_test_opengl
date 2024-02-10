@@ -142,7 +142,7 @@ public:
 
     template<typename T, typename ...Args>
     void NewWindow(const std::string &title, int width, int height, Args... args) {
-        LOGI(TAG, "NewWindow %s", title.data());
+        LOGI(TAG, "NewWindow %s %s", title.data(), typeid(T).name());
         auto window = std::make_unique<Window>(*this, title, width, height, [this, &args...](Window &w) {
             SetupWindow(w);
             return std::make_unique<T>(std::forward(args)...);

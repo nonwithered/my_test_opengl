@@ -41,13 +41,13 @@ public:
 
     virtual Global &global() = 0;
 
-    virtual ResourceManager &resource() = 0;
-
     virtual int width() = 0;
 
     virtual int height() = 0;
 
     virtual const std::string &title() = 0;
+
+    virtual ResourceManager &resource() = 0;
 
     virtual Module &module() = 0;
 

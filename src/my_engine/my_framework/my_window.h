@@ -152,10 +152,6 @@ public:
         return global_;
     }
 
-    ResourceManager &resource() override {
-        return *resource_;
-    }
-
     int width() override {
         return width_;
     }
@@ -166,6 +162,10 @@ public:
 
     const std::string &title() override {
         return title_;
+    }
+
+    ResourceManager &resource() override {
+        return *resource_;
     }
 
     Module &module() override {
