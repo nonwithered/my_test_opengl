@@ -49,7 +49,7 @@ public:
 
     virtual const std::string &title() = 0;
 
-    virtual void NewModule(std::unique_ptr<Module> create) = 0;
+    virtual Module &module() = 0;
 
     virtual bool GetKey(int key) = 0;
 

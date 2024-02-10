@@ -67,7 +67,7 @@ private:
         glEnable(GL_DEPTH_TEST);
         auto level = Model<TestLevel>::Make();
         context().global().level().StartLevel(level);
-        NewModule(std::make_unique<TextLevelModule>(level));
+        NewModule<TextLevelModule>(std::weak_ptr<Level>(level));
     }
 
 public:
@@ -79,14 +79,7 @@ int main() {
 
     Runtime runtime;
 
-    runtime.NewWindow(
-        TAG,
-        800,
-        600,
-        [](Context &context) -> auto {
-            return std::make_unique<TestLauncherModule>();
-        }
-    );
+    runtime.NewWindow<TestLauncherModule>(TAG, 800, 600);
 
     runtime.Loop();
 

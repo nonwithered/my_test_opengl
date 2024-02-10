@@ -140,15 +140,12 @@ public:
         LOGI(TAG, "dtor");
     }
 
-    void NewWindow(const std::string &title, int width, int height, std::function<std::unique_ptr<LiveModule>(Context &)> module) {
+    template<typename T, typename ...Args>
+    void NewWindow(const std::string &title, int width, int height, Args... args) {
         LOGI(TAG, "NewWindow %s", title.data());
-        if (!module) {
-            LOGE(TAG, "NewWindow invalid module");
-            throw std::exception();
-        }
-        auto window = std::make_unique<Window>(*this, title, width, height, [this, &module](Window &w) {
+        auto window = std::make_unique<Window>(*this, title, width, height, [this, &args...](Window &w) {
             SetupWindow(w);
-            return module(w);
+            return std::make_unique<T>(std::forward(args)...);
         });
         pending_windows_.push_back(std::move(window));
     }

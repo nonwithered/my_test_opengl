@@ -16,7 +16,7 @@ public:
 
     template<typename ...Args>
     static std::shared_ptr<value_type> Make(Args... args) {
-        auto p = std::make_shared<value_type>(std::forward(args)...);
+        auto p = std::make_shared<value_type>(std::forward<Args>(args)...);
         p->self(p);
         return p;
     }

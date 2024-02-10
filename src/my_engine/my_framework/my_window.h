@@ -2,7 +2,7 @@
 
 #include "my_utils/log.h"
 
-#include "my_framework/my_module.h"
+#include "my_framework/my_live_module.h"
 
 class Window : public Context {
 
@@ -24,7 +24,7 @@ private:
     int width_ = 0;
     int height_ = 0;
 
-    std::unique_ptr<Module> module_;
+    std::unique_ptr<LiveModule> module_;
 
     std::unique_ptr<ResourceManager> resource_ = std::make_unique<ResourceManager>();
 
@@ -60,7 +60,7 @@ public:
         const std::string &title,
         int width,
         int height,
-        std::function<std::unique_ptr<Module>(Window &)> module)
+        std::function<std::unique_ptr<LiveModule>(Window &)> module)
     : id_(glfwCreateWindow(width, height, title.data(), nullptr, nullptr))
     , global_(global)
     , title_(title)
@@ -168,9 +168,8 @@ public:
         return title_;
     }
 
-    void NewModule(std::unique_ptr<Module> module) override {
-        LOGI(TAG, "NewModule");
-        module_->NewModule(std::move(module));
+    Module &module() override {
+        return *module_;
     }
 
     bool GetKey(int key) override {
