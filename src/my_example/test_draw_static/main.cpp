@@ -32,32 +32,23 @@ protected:
 
 };
 
-class TestLevel : public Level {
+class TestBackgroundModule : public ScopeModule<Level> {
 
 protected:
 
-    void OnStart(Global &context) override {
-        Level::OnStart(context);
-        actor().insert(Model<RectSingleColor>::Make());
-        actor().insert(Model<RectMultiColor>::Make());
-        actor().insert(Model<RectPictureColor>::Make());
-    }
-
-public:
-    TestLevel(const std::string &name) : Level(name) {
-    }
-
-};
-
-class TestBackgroundModule : public Module {
-
-protected:
-
-    bool Frame(Context &context) override {
+    bool OnFrame(Context &context) override {
         glViewport(0, 0, context.width(), context.height());
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        return Module::Frame(context);
+        return ScopeModule::OnFrame(context);
+    }
+
+public:
+    TestBackgroundModule(std::weak_ptr<Level> p): ScopeModule(std::move(p)) {
+        ListenKeyEvent(GLFW_KEY_ESCAPE, true, [this](Context &context) -> bool {
+            data()->Finish();
+            return false;
+        });
     }
 
 };
@@ -87,22 +78,35 @@ public:
     }
 };
 
-class TestLevelModule : public ScopeModule<Level> {
+class TestController : public LocalPlayerController {
 
 public:
-
-    TestLevelModule(std::weak_ptr<Level> p): ScopeModule(std::move(p)) {
-
-        ListenKeyEvent(GLFW_KEY_ESCAPE, true, [this](Context &context) -> bool {
-            data()->Finish();
-            return false;
-        });
-
-        NewModule<TestBackgroundModule>();
+    TestController(std::weak_ptr<Level> level) : LocalPlayerController(level) {
+        module().NewModule<TestBackgroundModule>(data());
 
         auto camera = Model<TestCamera>::Make();
         data()->actor().insert(camera);
-        NewModule<TestDrawModule>(camera);
+        module().NewModule<TestDrawModule>(camera);
+    }
+};
+
+class TestLevel : public Level {
+
+protected:
+
+    void OnCreate() override {
+        Level::OnCreate();
+        actor().insert(Model<RectSingleColor>::Make());
+        actor().insert(Model<RectMultiColor>::Make());
+        actor().insert(Model<RectPictureColor>::Make());
+    }
+
+    void OnStart(Global &context, Level::vector_controller_t &controller) override {
+        controller.push_back(std::make_unique<TestController>(self()));
+    }
+
+public:
+    TestLevel(const std::string &name) : Level(name) {
     }
 
 };
@@ -114,12 +118,6 @@ protected:
     void OnCreate(Global &context) override {
         LauncherModule::OnCreate(context);
         context.level().StartLevel<TestLevel>(std::string(::TAG));
-    }
-
-public:
-
-    void OnLevelStart(std::weak_ptr<Level> level) override {
-        NewModule<TestLevelModule>(level);
     }
 };
 

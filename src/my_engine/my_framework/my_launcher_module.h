@@ -29,7 +29,4 @@ public:
         LOGI(TAG, "dtor");
     }
 
-    virtual void OnLevelStart(std::weak_ptr<Level>) {
-    }
-
 };

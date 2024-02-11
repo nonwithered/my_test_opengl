@@ -63,14 +63,13 @@ private:
     FrameMonitor(const FrameMonitor &) = delete;
     FrameMonitor(FrameMonitor &&) = delete;
 
-public:
-    virtual ~FrameMonitor() = default;
-
 protected:
 
     FrameMonitor() = default;
 
-    virtual bool Frame(Context &context) {
-        return false;
+public:
+    virtual ~FrameMonitor() = default;
+
+    virtual void Frame(Global &context) {
     }
 };

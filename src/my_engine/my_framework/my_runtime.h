@@ -12,7 +12,7 @@
 
 #include "my_model/my_model.h"
 
-class Runtime : public Global, public LevelPresenter, public WindowPresenter {
+class Runtime : public Global, public WindowPresenter {
 
 public:
 
@@ -48,7 +48,10 @@ private:
         interval_fraction_ = interval_();
         LOGD(TAG, "PerformFrame %f", interval_fraction_);
         window_.PerformFrame(*module_);
-        return ;
+        level_.PerformFrame([this](Module &module) {
+            window_.PerformFrame(module);
+        });
+        window_.SwapBuffers();
     }
 
 public:
@@ -69,10 +72,6 @@ public:
         } while (level().current());
     }
 
-    void OnLevelStart(std::weak_ptr<Level> level) final {
-        module_->OnLevelStart(level);
-    }
-
     float interval() override {
         return interval_fraction_;
     }
@@ -89,18 +88,21 @@ public:
         return *this;
     }
 
-    void FramebufferSizeCallback(Window &window, int width, int height) override {
-        window.FramebufferSizeCallback(width, height);
+    void OnFramebufferSize(Window &window, int width, int height) override {
+        window.OnFramebufferSize(width, height);
+        level_.OnFramebufferSize(window, width, height);
         PerformFrame();
     }
 
-    void KeyCallback(Window &window, int key, bool press) override {
-        window.KeyCallback(*module_, key, press);
+    void PerformKeyEvent(Window &window, int key, bool press) override {
+        window.PerformKeyEvent(*module_, key, press);
+        level_.PerformKeyEvent(window, key, press);
         PerformFrame();
     }
 
-    void MouseButtonCallback(Window &window, int button, bool press) override {
-        window.MouseButtonCallback(*module_, button, press);
+    void PerformMouseButtonEvent(Window &window, int button, bool press) override {
+        window.PerformMouseButtonEvent(*module_, button, press);
+        level_.PerformMouseButtonEvent(window, button, press);
         PerformFrame();
     }
 };

@@ -2,7 +2,7 @@
 
 #include "my_framework/my_context.h"
 
-class WindowMonitor : public FrameMonitor {
+class WindowMonitor {
 
 private:
     static constexpr auto TAG = "WindowMonitor";
@@ -53,6 +53,7 @@ protected:
         }
         return false;
     }
+
     virtual bool MouseButtonEvent(Context &context, int button, bool press) {
         auto &events = press ? mouse_button_event_press_ : mouse_button_event_release_;
         auto i = events.find(button);
@@ -65,4 +66,7 @@ protected:
         return false;
     }
 
+    virtual bool Frame(Context &context) {
+        return false;
+    }
 };

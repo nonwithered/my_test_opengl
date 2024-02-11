@@ -31,7 +31,7 @@ inline int _log_thread_num() {
 #define _LOG_LEVEL_E 4
 #define _LOG_LEVEL_A 5
 
-#define _LOG_LEVEL _LOG_LEVEL_I
+#define _LOG_LEVEL _LOG_LEVEL_D
 
 #define _LOG_IF(L, tag, msg, ...) _DO_ONCE({ if (_LOG_LEVEL_##L >= _LOG_LEVEL) _LOG(#L, tag, msg, ##__VA_ARGS__); })
 

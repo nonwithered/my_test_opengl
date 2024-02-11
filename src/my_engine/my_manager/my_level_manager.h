@@ -4,25 +4,11 @@
 
 #include "my_model/my_level.h"
 
-class LevelPresenter {
-
-private:
-    LevelPresenter(const LevelPresenter &) = delete;
-    LevelPresenter(LevelPresenter &&) = delete;
-
-protected:
-    LevelPresenter() = default;
-
-public:
-    virtual ~LevelPresenter() = default;
-
-    virtual operator Global &() = 0;
-
-    virtual void OnLevelStart(std::weak_ptr<Level>) = 0;
-
-};
+class Global;
 
 class LevelManager : public LevelCleaner {
+
+    friend class Runtime;
 
 private:
 
@@ -33,7 +19,7 @@ private:
 
     std::list<std::shared_ptr<Level>> level_;
 
-    LevelPresenter &presenter_;
+    Global &global_;
 
     void OnLevelFinish(std::weak_ptr<Level> level) override {
         auto p = level.lock();
@@ -51,12 +37,40 @@ private:
         }
     }
 
-    void OnLevelStart(std::weak_ptr<Level> level) {
-        presenter_.OnLevelStart(std::move(level));
+    void PerformFrame(std::function<void(Module &)>frame) {
+        auto level = current();
+        if (!level) {
+            return;
+        }
+        level->PerformFrame(global_, frame);
+    }
+
+    void OnFramebufferSize(Context &context, int width, int height) {
+        auto level = current();
+        if (!level) {
+            return;
+        }
+        return level->OnFramebufferSize(context, width, height);
+    }
+
+    void PerformKeyEvent(Context &context, int key, bool press) {
+        auto level = current();
+        if (!level) {
+            return;
+        }
+        return level->PerformKeyEvent(context, key, press);
+    }
+
+    void PerformMouseButtonEvent(Context &context, int button, bool press) {
+        auto level = current();
+        if (!level) {
+            return;
+        }
+        return level->PerformMouseButtonEvent(context, button, press);
     }
 
 public:
-    LevelManager(LevelPresenter &presenter) : presenter_(presenter) {
+    LevelManager(Global &global) : global_(global) {
         LOGI(TAG, "ctor");
     }
 
@@ -81,8 +95,7 @@ public:
         level->cleaner_ = this;
         std::weak_ptr<Level> weak = level;
         level_.push_front(level);
-        ((Level &) *level).OnStart((Global &) presenter_);
-        OnLevelStart(weak);
+        ((Level &) *level).PerformStart(global_);
     }
 
     std::shared_ptr<Level> current() const {

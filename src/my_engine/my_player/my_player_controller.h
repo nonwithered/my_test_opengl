@@ -2,18 +2,24 @@
 
 #include "my_utils/my_log.h"
 
-#include "my_framework/my_scope_module.h"
+#include "my_framework/my_context.h"
 
-#include "my_model/my_level.h"
+class Level;
 
-class PlayerController : ScopeModule<Level> {
+class PlayerController : public FrameMonitor {
 
 private:
 
     static constexpr auto TAG = "PlayerController";
 
+    std::weak_ptr<Level> level_;
+
 protected:
-    PlayerController(std::weak_ptr<Level> data) : ScopeModule(std::move(data)) {
+    PlayerController(std::weak_ptr<Level> level) : FrameMonitor(), level_(level) {
+    }
+
+    std::shared_ptr<Level> data() {
+        return level_.lock();
     }
 
 };

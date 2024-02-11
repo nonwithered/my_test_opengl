@@ -93,18 +93,18 @@ public:
         return id_;
     }
 
-    void FramebufferSizeCallback(int width, int height) {
-        LOGI(TAG, "FramebufferSizeCallback %s %d %d", title_.data(), width, height);
+    void OnFramebufferSize(int width, int height) {
+        LOGI(TAG, "OnFramebufferSize %s %d %d", title_.data(), width, height);
         width_ = width;
         height_ = height;
     }
 
-    void KeyCallback(Module &module, int key, bool press) {
+    void PerformKeyEvent(Module &module, int key, bool press) {
         auto guard = Use();
         module.PerformKeyEvent(*this, key, press);
     }
 
-    void MouseButtonCallback(Module &module, int button, bool press) {
+    void PerformMouseButtonEvent(Module &module, int button, bool press) {
         auto guard = Use();
         module.PerformMouseButtonEvent(*this, button, press);
     }
@@ -112,12 +112,11 @@ public:
     void PerformFrame(Module &module) {
         LOGD(TAG, "PerformFrame %s", title_.data());
         auto guard = Use();
-        if (!module.PerformFrame(*this)) {
-            LOGD(TAG, "SwapBuffers %s", title_.data());
-            glfwSwapBuffers(id_);
-        } else {
-            LOGD(TAG, "ignore SwapBuffers %s", title_.data());
-        }
+        module.PerformFrame(*this);
+    }
+
+    void SwapBuffers() {
+        glfwSwapBuffers(id_);
     }
 
     Global &global() override {
