@@ -41,13 +41,15 @@ public:
                 ++i;
             }
         }
+        bool exist = false;
         for (auto &controller : controller_) {
             auto *p = TypeCast<LocalPlayerController>(controller.get());
             if (p) {
+                exist = true;
                 frame(p->module());
             }
         }
-        return controller_.empty();
+        return !exist;
     }
 
     void PerformKeyEvent(Context &context, int key, bool press) {
