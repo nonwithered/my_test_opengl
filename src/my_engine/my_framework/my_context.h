@@ -45,7 +45,17 @@ public:
 
     virtual int height() = 0;
 
+    virtual std::array<int, 2> size() = 0;
+
+    virtual void size(int width, int height) = 0;
+
     virtual const std::string &title() = 0;
+
+    virtual void title(const std::string &) = 0;
+
+    virtual std::array<int, 2> pos() = 0;
+
+    virtual void pos(int x, int y) = 0;
 
     virtual ResourceManager &resource() = 0;
 

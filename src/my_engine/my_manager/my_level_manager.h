@@ -65,6 +65,15 @@ private:
         return level->player_.PerformMouseButtonEvent(context, button, press);
     }
 
+    void OnWindowClose(Context &context) {
+        auto level = current();
+        if (!level) {
+            return;
+        }
+        LOGI(TAG, "OnWindowClose %s", context.title().data());
+        return level->player_.OnWindowClose(context);
+    }
+
 public:
     LevelManager(Global &global) : global_(global) {
         LOGI(TAG, "ctor");

@@ -5,8 +5,6 @@
 #include "my_framework/my_module.h"
 #include "my_framework/my_window.h"
 
-#include "my_utils/my_counter.h"
-
 class WindowPresenter {
 
 private:
@@ -24,6 +22,7 @@ public:
     virtual void OnFramebufferSize(Window &window, int width, int height) = 0;
     virtual void PerformKeyEvent(Window &window, int key, bool press) = 0;
     virtual void PerformMouseButtonEvent(Window &window, int button, bool press) = 0;
+    virtual void OnWindowClose(Window &window) = 0;
 
 };
 
@@ -62,7 +61,6 @@ private:
     WindowPresenter &presenter_;
 
     bool init_ = false;
-    Counter counter_ = Counter(1);
 
     std::vector<std::unique_ptr<Window>> windows_;
     std::vector<std::unique_ptr<Window>> pending_windows_;
@@ -77,7 +75,12 @@ private:
         }
         glfwSetFramebufferSizeCallback(w.id(), [](GLFWwindow *window, int width, int height) {
             auto &manager = Instance();
-            auto &context = manager.Find(window);
+            auto *w = manager.Find(window);
+            if (!w) {
+                LOGW(TAG, "SetFramebufferSizeCallback but window not found");
+                return;
+            }
+            auto &context = *w;
             LOGD(TAG, "FramebufferSizeCallback %s %d %d", context.title().data(), width, height);
             manager.presenter_.OnFramebufferSize(context, width, height);
         });
@@ -90,7 +93,12 @@ private:
             }
             auto press = action == GLFW_PRESS;
             auto &manager = Instance();
-            auto &context = manager.Find(window);
+            auto *w = manager.Find(window);
+            if (!w) {
+                LOGW(TAG, "SetKeyCallback but window not found");
+                return;
+            }
+            auto &context = *w;
             LOGD(TAG, "KeyCallback %s %d %d %d %d", context.title().data(), key, scancode, action, mods);
             manager.presenter_.PerformKeyEvent(context, key, press);
         });
@@ -100,29 +108,26 @@ private:
             }
             auto press = action == GLFW_PRESS;
             auto &manager = Instance();
-            auto &context = manager.Find(window);
+            auto *w = manager.Find(window);
+            if (!w) {
+                LOGW(TAG, "SetMouseButtonCallback but window not found");
+                return;
+            }
+            auto &context = *w;
             LOGD(TAG, "MouseButtonCallback %s %d %d %d", context.title().data(), button, action, mods);
             manager.presenter_.PerformMouseButtonEvent(context, button, press);
         });
-        glEnable(GL_DEPTH_TEST);
-    }
-
-    void PerformFrame(Module &module) {
-        {
-            auto count = counter_();
-            if (count > 0) {
-                LOGI(TAG, "FPS %u", count);
+        glfwSetWindowCloseCallback(w.id(), [](GLFWwindow *window) {
+            auto &manager = Instance();
+            auto *w = manager.Find(window);
+            if (!w) {
+                return;
             }
-        }
-        for (auto i = pending_windows_.begin(); i != pending_windows_.end(); ) {
-            auto &window = *i;
-            LOGI(TAG, "move window %s", window->title().data());
-            windows_.push_back(std::move(window));
-            i = pending_windows_.erase(i);
-        }
-        for (auto &window : windows_) {
-            window->PerformFrame(module);
-        }
+            auto &context = *w;
+            LOGI(TAG, "WindowCloseCallback %s", context.title().data());
+            manager.presenter_.OnWindowClose(context);
+        });
+        glEnable(GL_DEPTH_TEST);
     }
 
     void Collect(std::function<void(Context &)> block) {
@@ -134,10 +139,49 @@ private:
         }
     }
 
+    void PerformFrame(Module &module) {
+        for (auto i = pending_windows_.begin(); i != pending_windows_.end(); ) {
+            auto &window = *i;
+            LOGI(TAG, "move window %s", window->title().data());
+            windows_.push_back(std::move(window));
+            i = pending_windows_.erase(i);
+        }
+        for (auto &window : windows_) {
+            window->PerformFrame(module);
+        }
+    }
+
+    void OnWindowClose(Window &window) {
+        LOGI(TAG, "OnWindowClose %s", window.title().data());
+        for (auto i = pending_windows_.begin(); i != pending_windows_.end(); ) {
+            auto &p = *i;
+            if (p.get() == &window) {
+                pending_windows_.erase(i);
+            }
+        }
+        for (auto i = windows_.begin(); i != windows_.end(); ) {
+            auto &p = *i;
+            if (p.get() == &window) {
+                i = windows_.erase(i);
+            } else {
+                ++i;
+            }
+        }
+    }
+
     void SwapBuffers() {
         for (auto &window : windows_) {
             window->SwapBuffers();
         }
+    }
+
+    Window *Find(GLFWwindow *id) {
+        for (auto &window : windows_) {
+            if (window->id() == id) {
+                return window.get();
+            }
+        }
+        return nullptr;
     }
 
 public:
@@ -165,16 +209,6 @@ public:
         pending_windows_.clear();
         glfwTerminate();
         init_ = false;
-    }
-
-    Window &Find(GLFWwindow *id) {
-        for (auto &window : windows_) {
-            if (window->id() == id) {
-                return *window;
-            }
-        }
-        LOGE(TAG, "Find fail %p", id);
-        throw std::exception();
     }
 
     void NewWindow(const std::string &title, int width, int height) {

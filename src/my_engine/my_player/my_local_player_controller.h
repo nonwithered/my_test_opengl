@@ -22,4 +22,7 @@ public:
         return module_;
     }
 
+    virtual void OnWindowClose(Context &context) {
+    }
+
 };

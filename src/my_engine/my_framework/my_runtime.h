@@ -9,6 +9,7 @@
 #include "my_framework/my_launcher_module.h"
 
 #include "my_utils/my_interval.h"
+#include "my_utils/my_counter.h"
 
 #include "my_model/my_model.h"
 
@@ -27,6 +28,7 @@ private:
 
     static constexpr auto TAG = "Runtime";
 
+    Counter counter_ = Counter(1);
     Interval interval_ = Interval(1);
 
     float interval_fraction_ = 0.0f;
@@ -45,6 +47,12 @@ private:
     }
 
     void PerformFrame() {
+        {
+            auto count = counter_();
+            if (count > 0) {
+                LOGI(TAG, "FPS %u", count);
+            }
+        }
         interval_fraction_ = interval_();
         LOGD(TAG, "PerformFrame %f", interval_fraction_);
         window_.PerformFrame(*module_);
@@ -94,14 +102,20 @@ public:
     }
 
     void PerformKeyEvent(Window &window, int key, bool press) override {
-        window.PerformKeyEvent(*module_, key, press);
         level_.PerformKeyEvent(window, key, press);
+        window.PerformKeyEvent(*module_, key, press);
         PerformFrame();
     }
 
     void PerformMouseButtonEvent(Window &window, int button, bool press) override {
-        window.PerformMouseButtonEvent(*module_, button, press);
         level_.PerformMouseButtonEvent(window, button, press);
+        window.PerformMouseButtonEvent(*module_, button, press);
+        PerformFrame();
+    }
+
+    void OnWindowClose(Window &window) override {
+        level_.OnWindowClose(window);
+        window_.OnWindowClose(window);
         PerformFrame();
     }
 };

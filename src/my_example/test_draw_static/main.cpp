@@ -37,6 +37,7 @@ class TestBackgroundModule : public ScopeModule<Level> {
 protected:
 
     bool OnFrame(Context &context) override {
+
         glViewport(0, 0, context.width(), context.height());
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -87,6 +88,10 @@ public:
         auto camera = Model<TestCamera>::Make();
         level()->actor().insert(camera);
         module().NewModule<TestDrawModule>(camera);
+    }
+
+    void OnWindowClose(Context &context) override {
+        level()->Finish();
     }
 };
 

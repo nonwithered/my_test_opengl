@@ -6,6 +6,8 @@
 
 class Window : public Context {
 
+    friend class WindowManager;
+
 private:
 
     static constexpr auto TAG = "Window";
@@ -19,7 +21,7 @@ private:
 
     Global &global_;
 
-    const std::string title_;
+    std::string title_;
 
     int width_ = 0;
     int height_ = 0;
@@ -131,8 +133,35 @@ public:
         return height_;
     }
 
+    std::array<int, 2> size() override {
+        int width = 0;
+        int height = 0;
+        glfwGetWindowSize(id_, &width, &height);
+        return { width, height };
+    }
+
+    void size(int width, int height) override {
+        glfwSetWindowSize(id_, width, height);
+    }
+
     const std::string &title() override {
         return title_;
+    }
+
+    void title(const std::string &title) override {
+        glfwSetWindowTitle(id_, title.data());
+        title_ = title;
+    }
+
+    std::array<int, 2> pos() override {
+        int x = 0;
+        int y = 0;
+        glfwGetWindowPos(id_, &x, &y);
+        return { x, y };
+    }
+
+    void pos(int x, int y)  override {
+        glfwSetWindowPos(id_, x, y);
     }
 
     ResourceManager &resource() override {

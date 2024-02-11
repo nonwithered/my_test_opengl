@@ -61,4 +61,12 @@ public:
         }
     }
 
+    void OnWindowClose(Context &context) {
+        for (auto &controller : controller_) {
+            auto *p = TypeCast<LocalPlayerController>(controller.get());
+            if (p) {
+                p->OnWindowClose(context);
+            }
+        }
+    }
 };
