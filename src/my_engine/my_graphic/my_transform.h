@@ -11,7 +11,7 @@ private:
     Transform(Transform &&) = delete;
 
     glm::vec3 translate_ = glm::vec3(0.0f);
-    glm::vec3 rotate_ = direction_default();
+    glm::mat4 rotate_ = glm::mat4(1.0f);
     glm::vec3 scale_ = glm::vec3(1.0f);
 
 public:
@@ -29,7 +29,7 @@ public:
         return translate_;
     }
 
-    const glm::vec3 &rotate() const {
+    const glm::mat4 &rotate() const {
         return rotate_;
     }
 
@@ -41,7 +41,7 @@ public:
         return translate_;
     }
 
-    glm::vec3 &rotate() {
+    glm::mat4 &rotate() {
         return rotate_;
     }
 
@@ -54,11 +54,7 @@ public:
     }
 
     glm::mat4 rotate_transform(const glm::mat4 &transform) const {
-        if (parallel(rotate_, direction_default())) {
-            return transform;
-        }
-        auto [angle, axis] = direction_to_rotate(rotate_);
-        return glm::rotate(transform, angle, axis);
+        return rotate_ * transform;
     }
 
     glm::mat4 scale_transform(const glm::mat4 &transform) const {
