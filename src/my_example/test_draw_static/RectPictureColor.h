@@ -5,10 +5,7 @@
 #include <my_model/my_mesh_actor.h>
 
 #include <my_utils/my_color.h>
-
-#include <stb_image.h>
-
-#include <learnopengl/filesystem.h>
+#include <my_utils/my_image.h>
 
 inline const ConstMesh::Parameter &RectPictureColorMeshParameter() {
     static const GLfloat data[] = {
@@ -84,15 +81,14 @@ void main()
 }
 
 inline const ConstTexture::Parameter &RectPictureColorTextureParameter() {
-    static int width, height, nrChannels;
-    static unsigned char *const data = stbi_load(FileSystem::getPath("resources/textures/container.jpg").c_str(), &width, &height, &nrChannels, 0);
-    static const std::vector<GLsizei> size = { width, height };
+    static ImageData image("resources/textures/container.jpg");
+    static const std::vector<GLsizei> size = { image.width(), image.height() };
     static const GLint level = 0;
-    static const GLint internalformat = nrChannels == 3 ? GL_RGB : nrChannels == 4 ? GL_RGBA : throw std::exception();
+    static const GLint internalformat = image.type() == 3 ? GL_RGB : image.type() == 4 ? GL_RGBA : throw std::exception();
     static const GLint border = 0;
     static const GLenum format = internalformat;
     static const GLenum type = TypeOf<GLubyte>();
-    static const void *const pixels = data;
+    static const void *const pixels = image.data();
     static const auto params = []() -> auto {
         std::unordered_map<GLenum, std::unique_ptr<Sampler::Parameter>> params_;
         params_[GL_TEXTURE_WRAP_S] = Sampler::Parameteri::Make(GL_REPEAT);
