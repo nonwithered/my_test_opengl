@@ -6,55 +6,41 @@ class LiveModule : public Module {
 
     static constexpr auto TAG = "ScopeModule";
 
-private:
-
-    virtual bool alive() = 0;
-
 protected:
 
-    void Create() final {
-        if (!alive()) {
-            LOGW(TAG, "Create but not alive");
-            return;
-        }
-        OnCreate();
-    }
+    virtual bool alive(Global &context) = 0;
 
-    bool Frame() final {
-        if (!alive()) {
+    bool Frame(Context &context) final {
+        if (!alive(context.global())) {
             return true;
         }
-        return OnFrame();
+        return OnFrame(context);
     }
 
-    bool KeyEvent(int key, bool press) final {
-        if (!alive()) {
+    bool KeyEvent(Context &context, int key, bool press) final {
+        if (!alive(context.global())) {
             return true;
         }
-        return OnKeyEvent(key, press);
+        return OnKeyEvent(context, key, press);
     }
 
-    bool MouseButtonEvent(int button, bool press) final {
-        if (!alive()) {
+    bool MouseButtonEvent(Context &context, int button, bool press) final {
+        if (!alive(context.global())) {
             return true;
         }
-        return OnMouseButtonEvent(button, press);
+        return OnMouseButtonEvent(context, button, press);
     }
 
-    virtual void OnCreate() {
-        Module::Create();
+    virtual bool OnFrame(Context &context) {
+        return Module::Frame(context);
     }
 
-    virtual bool OnFrame() {
-        return Module::Frame();
+    virtual bool OnKeyEvent(Context &context, int key, bool press) {
+        return Module::KeyEvent(context, key, press);
     }
 
-    virtual bool OnKeyEvent(int key, bool press) {
-        return Module::KeyEvent(key, press);
-    }
-
-    virtual bool OnMouseButtonEvent(int button, bool press) {
-        return Module::MouseButtonEvent(button, press);
+    virtual bool OnMouseButtonEvent(Context &context, int button, bool press) {
+        return Module::MouseButtonEvent(context, button, press);
     }
 
 public:

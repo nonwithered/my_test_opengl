@@ -51,11 +51,11 @@ class TestBackgroundModule : public Module {
 
 protected:
 
-    bool Frame() override {
-        glViewport(0, 0, context().width(), context().height());
+    bool Frame(Context &context) override {
+        glViewport(0, 0, context.width(), context.height());
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        return Module::Frame();
+        return Module::Frame(context);
     }
 
 };
@@ -64,7 +64,7 @@ class TestDrawModule : public ScopeModule<CameraActor> {
 
 protected:
 
-    bool OnFrame() override {
+    bool OnFrame(Context &context) override {
         auto level = data()->LookUp<LevelActor>(::TAG)->level();
         auto uniform = UniformParameter();
         data()->LookAt(uniform);
@@ -72,10 +72,10 @@ protected:
             auto actor = level->actor().at(i);
             auto mesh_actor = dynamic_cast<MeshActor *>(actor.get());
             if (mesh_actor) {
-                mesh_actor->Draw(context(), uniform);
+                mesh_actor->Draw(context, uniform);
             }
         }
-        return ScopeModule::OnFrame();
+        return ScopeModule::OnFrame(context);
     }
 
 public:
@@ -89,10 +89,10 @@ class TestLevelModule : public ScopeModule<Level> {
 
 protected:
 
-    void OnCreate() override {
-        ScopeModule::OnCreate();
+    void OnCreate(Global &context) override {
+        ScopeModule::OnCreate(context);
 
-        ListenKeyEvent(GLFW_KEY_ESCAPE, true, [this]() -> bool {
+        ListenKeyEvent(GLFW_KEY_ESCAPE, true, [this](Context &context) -> bool {
             data()->Finish();
             return false;
         });
@@ -115,10 +115,10 @@ class TestLauncherModule : public LauncherModule {
 
 protected:
 
-    void OnCreate() override {
-        LauncherModule::OnCreate();
+    void OnCreate(Global &context) override {
+        LauncherModule::OnCreate(context);
         glEnable(GL_DEPTH_TEST);
-        context().global().level().StartLevel<TestLevel>(std::string(::TAG));
+        context.level().StartLevel<TestLevel>(std::string(::TAG));
     }
 
 public:
@@ -130,9 +130,9 @@ public:
 
 int main() {
 
-    Runtime runtime;
+    Runtime runtime = Runtime::Make<TestLauncherModule>();
 
-    runtime.NewWindow<TestLauncherModule>(TAG, 800, 600);
+    runtime.NewWindow(TAG, 800, 600);
 
     runtime.Loop();
 

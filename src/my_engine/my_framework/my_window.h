@@ -2,7 +2,7 @@
 
 #include "my_utils/log.h"
 
-#include "my_framework/my_live_module.h"
+#include "my_framework/my_module.h"
 
 class Window : public Context {
 
@@ -23,8 +23,6 @@ private:
 
     int width_ = 0;
     int height_ = 0;
-
-    std::unique_ptr<LiveModule> module_;
 
     std::unique_ptr<ResourceManager> resource_ = std::make_unique<ResourceManager>();
 
@@ -60,7 +58,7 @@ public:
         const std::string &title,
         int width,
         int height,
-        std::function<std::unique_ptr<LiveModule>(Window &)> module)
+        std::function<void(Window &)> init)
     : id_(glfwCreateWindow(width, height, title.data(), nullptr, nullptr))
     , global_(global)
     , title_(title)
@@ -71,12 +69,11 @@ public:
             throw std::exception();
         }
         auto guard = Use();
-        if (!module) {
+        if (!init) {
             LOGW(TAG, "invalid module");
             throw std::exception();
         }
-        module_ = module(*this);
-        module_->context_ = this;
+        init(*this);
     }
 
     ~Window() {
@@ -91,21 +88,20 @@ public:
         id_ = nullptr;
     }
 
-    bool PerformFrame() {
-        LOGD(TAG, "PerformFrame %s", title_.data());
-        auto guard = Use();
-        if (!module_->PerformFrame()) {
-            LOGD(TAG, "SwapBuffers %s", title_.data());
-            glfwSwapBuffers(id_);
-            return false;
-        } else {
-            module_.reset();
-            return true;
-        }
-    }
-
     bool IsSame(GLFWwindow *id) {
         return id_ == id;
+    }
+
+    void SetFramebufferSizeCallback(GLFWframebuffersizefun callback) {
+        glfwSetFramebufferSizeCallback(id_, callback);
+    }
+
+    void SetKeyCallback(GLFWkeyfun callback) {
+        glfwSetKeyCallback(id_, callback);
+    }
+
+    void SetMouseButtonCallback(GLFWmousebuttonfun callback) {
+        glfwSetMouseButtonCallback(id_, callback);
     }
 
     void FramebufferSizeCallback(int width, int height) {
@@ -114,7 +110,7 @@ public:
         height_ = height;
     }
 
-    void KeyCallback(int key, int scancode, int action, int mods) {
+    void KeyCallback(Module &module, int key, int scancode, int action, int mods) {
         LOGD(TAG, "KeyCallback %s %d %d %d %d", title_.data(), key, scancode, action, mods);
         if (key == GLFW_KEY_UNKNOWN) {
             return;
@@ -126,11 +122,11 @@ public:
         LOGI(TAG, "PerformKeyEvent %s %d %d", title_.data(), key, press);
         {
             auto guard = Use();
-            module_->PerformKeyEvent(key, press);
+            module.PerformKeyEvent(*this, key, press);
         }
     }
 
-    void MouseButtonCallback(int button, int action, int mods) {
+    void MouseButtonCallback(Module &module, int button, int action, int mods) {
         LOGD(TAG, "MouseButtonCallback %s %d %d %d", title_.data(), button, action, mods);
         if (action != GLFW_PRESS && action != GLFW_RELEASE) {
             return;
@@ -139,19 +135,19 @@ public:
         LOGI(TAG, "PerformMouseButtonEvent %s %d %d", title_.data(), button, press);
         {
             auto guard = Use();
-            module_->PerformMouseButtonEvent(button, press);
+            module.PerformMouseButtonEvent(*this, button, press);
         }
 
     }
 
-    GLFWwindow *id() {
-        return id_;
-    }
-
-    void OnLevelStart(std::weak_ptr<Level> level) {
-        auto presenter = TypeCast<LevelPresenter>(module_.get());
-        if (presenter) {
-            presenter->OnLevelStart(std::move(level));
+    void PerformFrame(Module &module) {
+        LOGD(TAG, "PerformFrame %s", title_.data());
+        auto guard = Use();
+        if (!module.PerformFrame(*this)) {
+            LOGD(TAG, "SwapBuffers %s", title_.data());
+            glfwSwapBuffers(id_);
+        } else {
+            LOGD(TAG, "ignore SwapBuffers %s", title_.data());
         }
     }
 

@@ -10,15 +10,10 @@ private:
 
     bool init_ = false;
 
-    bool alive() final {
-        return !init_ || !context().global().level().empty();
-    }
-
 protected:
 
-    void OnCreate() override {
-        init_ = true;
-        return LiveModule::OnCreate();
+    bool alive(Global &context) final {
+        return (bool) context.level().current();
     }
 
 public:

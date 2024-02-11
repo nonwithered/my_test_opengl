@@ -11,7 +11,7 @@ private:
 
     std::weak_ptr<T> data_;
 
-    bool alive() final {
+    bool alive(Global &context) final {
         return (bool) data();
     }
 

@@ -14,6 +14,16 @@
 
 class Runtime : public Global, public LevelPresenter {
 
+public:
+
+    template<typename T, typename ...Args>
+    static Runtime Make(Args... args) {
+        auto type_name = typeid(T).name();
+        LOGI(TAG, "Runtime %s", type_name);
+        auto module = std::make_unique<T>(std::forward<Args>(args)...);
+        return Runtime(std::move(module));
+    }
+
 private:
 
     static constexpr auto TAG = "Runtime";
@@ -30,8 +40,10 @@ private:
 
     LevelManager level_ = LevelManager(*this);
 
+    std::unique_ptr<LauncherModule> module_;
+
     Runtime(const Runtime &) = delete;
-    Runtime(Runtime &&) = delete;
+    Runtime(Runtime &&) = default;
 
     static Runtime &Instance() {
         return *Instance(nullptr);
@@ -66,6 +78,7 @@ private:
 
     bool PerformFrame() {
         interval_fraction_ = interval_();
+        LOGD(TAG, "PerformFrame %f", interval_fraction_);
         {
             auto count = counter_();
             if (count > 0) {
@@ -78,16 +91,11 @@ private:
             windows_.push_back(std::move(window));
             i = pending_windows_.erase(i);
         }
-        for (auto i = windows_.begin(); i != windows_.end();) {
+        for (auto i = windows_.begin(); i != windows_.end(); ++i) {
             auto &window = *i;
-            if (!window->PerformFrame()) {
-                ++i;
-            } else {
-                LOGI(TAG, "close window %s", window->title().data());
-                i = windows_.erase(i);
-            }
+            window->PerformFrame(*module_);
         }
-        return windows_.empty() && pending_windows_.empty();
+        return !level().current();
     }
 
     void SetupWindow(Window &w) {
@@ -98,26 +106,24 @@ private:
                 throw std::exception();
             }
         }
-        glfwSetFramebufferSizeCallback(w.id(), [](GLFWwindow *window, int width, int height) {
+        w.SetFramebufferSizeCallback([](GLFWwindow *window, int width, int height) {
             auto &runtime = Instance();
             runtime.Find(window).FramebufferSizeCallback(width, height);
             runtime.PerformFrame();
         });
-        glfwSetKeyCallback(w.id(), [](GLFWwindow *window, int key, int scancode, int action, int mods) {
+        w.SetKeyCallback([](GLFWwindow *window, int key, int scancode, int action, int mods) {
             auto &runtime = Instance();
-            runtime.Find(window).KeyCallback(key, scancode, action, mods);
+            runtime.Find(window).KeyCallback(*runtime.module_, key, scancode, action, mods);
             runtime.PerformFrame();
         });
-        glfwSetMouseButtonCallback(w.id(), [](GLFWwindow *window, int button, int action, int mods) {
+        w.SetMouseButtonCallback([](GLFWwindow *window, int button, int action, int mods) {
             auto &runtime = Instance();
-            runtime.Find(window).MouseButtonCallback(button, action, mods);
+            runtime.Find(window).MouseButtonCallback(*runtime.module_, button, action, mods);
             runtime.PerformFrame();
         });
     }
 
-public:
-
-    Runtime() {
+    Runtime(std::unique_ptr<LauncherModule> module) : module_(std::move(module)) {
 
         Instance(this);
 
@@ -134,32 +140,38 @@ public:
         #endif
     }
 
+public:
+
     ~Runtime() {
+        if (!module_) {
+            return;
+        }
+        // TODO
+        windows_.clear();
+        pending_windows_.clear();
+
         glfwTerminate();
         Instance(this);
         LOGI(TAG, "dtor");
     }
 
-    template<typename T, typename ...Args>
-    void NewWindow(const std::string &title, int width, int height, Args... args) {
-        LOGI(TAG, "NewWindow %s %s", title.data(), typeid(T).name());
-        auto window = std::make_unique<Window>(*this, title, width, height, [this, &args...](Window &w) {
+    void NewWindow(const std::string &title, int width, int height) {
+        LOGI(TAG, "NewWindow %s", title.data());
+        auto window = std::make_unique<Window>(*this, title, width, height, [this](Window &w) {
             SetupWindow(w);
-            return std::make_unique<T>(std::forward(args)...);
         });
         pending_windows_.push_back(std::move(window));
     }
 
     void Loop() {
         while (!PerformFrame()) {
+            LOGD(TAG, "glfwPollEvents");
             glfwPollEvents();
         }
     }
 
     void OnLevelStart(std::weak_ptr<Level> level) final {
-        for (auto &window : windows_) {
-            window->OnLevelStart(level);
-        }
+        module_->OnLevelStart(level);
     }
 
     float interval() override {

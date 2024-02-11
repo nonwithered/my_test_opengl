@@ -29,7 +29,7 @@ private:
     LevelManager(const LevelManager &) = delete;
     LevelManager(LevelManager &&) = delete;
 
-    std::vector<std::shared_ptr<Level>> level_;
+    std::list<std::shared_ptr<Level>> level_;
 
     LevelPresenter &presenter_;
 
@@ -78,11 +78,14 @@ public:
         }
         level->cleaner_ = this;
         std::weak_ptr<Level> weak = level;
-        level_.push_back(std::move(level));
+        level_.push_front(std::move(level));
         OnLevelStart(weak);
     }
 
-    bool empty() const {
-        return level_.empty();
+    std::shared_ptr<Level> current() const {
+        if (level_.empty()) {
+            return nullptr;
+        }
+        return level_.front();
     }
 };
