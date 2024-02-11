@@ -52,6 +52,7 @@ class TestBackgroundModule : public Module {
 protected:
 
     bool Frame(Context &context) override {
+        glEnable(GL_DEPTH_TEST);
         glViewport(0, 0, context.width(), context.height());
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -87,10 +88,9 @@ public:
 
 class TestLevelModule : public ScopeModule<Level> {
 
-protected:
+public:
 
-    void OnCreate(Global &context) override {
-        ScopeModule::OnCreate(context);
+    TestLevelModule(std::weak_ptr<Level> p): ScopeModule(std::move(p)) {
 
         ListenKeyEvent(GLFW_KEY_ESCAPE, true, [this](Context &context) -> bool {
             data()->Finish();
@@ -104,11 +104,6 @@ protected:
         NewModule<TestDrawModule>(camera);
     }
 
-public:
-
-    TestLevelModule(std::weak_ptr<Level> p): ScopeModule(std::move(p)) {
-    }
-
 };
 
 class TestLauncherModule : public LauncherModule {
@@ -117,7 +112,6 @@ protected:
 
     void OnCreate(Global &context) override {
         LauncherModule::OnCreate(context);
-        glEnable(GL_DEPTH_TEST);
         context.level().StartLevel<TestLevel>(std::string(::TAG));
     }
 
@@ -130,7 +124,7 @@ public:
 
 int main() {
 
-    Runtime runtime = Runtime::Make<TestLauncherModule>();
+    auto runtime = Runtime::Make<TestLauncherModule>();
 
     runtime.NewWindow(TAG, 800, 600);
 

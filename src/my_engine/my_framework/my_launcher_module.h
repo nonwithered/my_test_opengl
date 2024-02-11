@@ -4,11 +4,11 @@
 
 class LauncherModule: public LiveModule, public LevelPresenter {
 
+    friend class Runtime;
+
 private:
 
     static constexpr auto TAG = "LauncherModule";
-
-    bool init_ = false;
 
 protected:
 
@@ -16,11 +16,14 @@ protected:
         return (bool) context.level().current();
     }
 
-public:
+    virtual void OnCreate(Global &context) {
+    }
 
     LauncherModule() : LiveModule() {
         LOGI(TAG, "ctor");
     }
+
+public:
 
     ~LauncherModule() {
         LOGI(TAG, "dtor");

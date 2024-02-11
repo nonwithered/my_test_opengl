@@ -19,8 +19,6 @@ private:
     std::unordered_map<int, std::function<bool(Context &)>> mouse_button_event_press_;
     std::unordered_map<int, std::function<bool(Context &)>> mouse_button_event_release_;
 
-    bool init_ = false;
-
     const char *type_name_ = "";
 
 protected:
@@ -80,9 +78,6 @@ protected:
         return false;
     }
 
-    virtual void OnCreate(Global &context) {
-    }
-
 public:
 
     Module() = default;
@@ -93,11 +88,6 @@ public:
     }
 
     bool PerformFrame(Context &context) {
-        if (!init_) {
-            init_ = true;
-            LOGI(TAG, "OnCreate module %s", type_name_);
-            OnCreate(context.global());
-        }
         for (auto i = pending_children_.begin(); i != pending_children_.end(); ) {
             auto &module = *i;
             LOGI(TAG, "move module %s", module->type_name_);

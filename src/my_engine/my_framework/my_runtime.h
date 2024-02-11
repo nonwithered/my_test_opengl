@@ -20,8 +20,7 @@ public:
     static Runtime Make(Args... args) {
         auto type_name = typeid(T).name();
         LOGI(TAG, "Runtime %s", type_name);
-        auto module = std::make_unique<T>(std::forward<Args>(args)...);
-        return Runtime(std::move(module));
+        return Runtime(std::make_unique<T>(std::forward<Args>(args)...));
     }
 
 private:
@@ -138,6 +137,8 @@ private:
         #ifdef __APPLE__
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
         #endif
+
+        module_->OnCreate(*this);
     }
 
 public:
