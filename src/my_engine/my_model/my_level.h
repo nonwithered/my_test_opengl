@@ -7,8 +7,7 @@
 
 #include "my_framework/my_context.h"
 
-#include "my_player/my_player_controller.h"
-#include "my_player/my_local_player_controller.h"
+#include "my_player/my_player_manager.h"
 
 class LevelCleaner {
 
@@ -62,48 +61,17 @@ private:
 
     LevelCleaner *cleaner_ = nullptr;
 
-    std::vector<std::unique_ptr<PlayerController>> controller_;
+    PlayerManager player_;
 
     void PerformStart(Global &context) {
-        OnStart(context, controller_);
-    }
-
-    void PerformFrame(Global &context_, std::function<void(Module &)>frame) {
-        for (auto &controller : controller_) {
-            controller->Frame(context_);
-        }
-        for (auto &controller : controller_) {
-            auto *p = TypeCast<LocalPlayerController>(controller.get());
-            if (p) {
-                frame(p->module());
-            }
-        }
-    }
-
-    void OnFramebufferSize(Context &context, int width, int height) {
-    }
-
-    void PerformKeyEvent(Context &context, int key, bool press) {
-        for (auto &controller : controller_) {
-            auto *p = TypeCast<LocalPlayerController>(controller.get());
-            if (p) {
-                p->module().PerformKeyEvent(context, key, press);
-            }
-        }
-    }
-
-    void PerformMouseButtonEvent(Context &context, int button, bool press) {
-        for (auto &controller : controller_) {
-            auto *p = TypeCast<LocalPlayerController>(controller.get());
-            if (p) {
-                p->module().PerformMouseButtonEvent(context, button, press);
-            }
-        }
+        PlayerManager::vector_controller_t controller;
+        OnStart(context, controller);
+        player_.OnStart(std::move(controller));
     }
 
 protected:
 
-    using vector_controller_t = typename std::vector<std::unique_ptr<PlayerController>>;
+    using vector_player_t = typename PlayerManager::vector_controller_t;
 
     void OnCreate() override {
         LOGI(TAG, "OnCreate %s", name_.data());
@@ -111,7 +79,7 @@ protected:
         actor_->name(name());
     }
 
-    virtual void OnStart(Global &context, vector_controller_t &controller) {
+    virtual void OnStart(Global &context, PlayerManager::vector_controller_t &controller) {
     }
 
 public:

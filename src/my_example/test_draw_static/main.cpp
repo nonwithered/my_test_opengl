@@ -101,7 +101,7 @@ protected:
         actor().insert(Model<RectPictureColor>::Make());
     }
 
-    void OnStart(Global &context, Level::vector_controller_t &controller) override {
+    void OnStart(Global &context, Level::vector_player_t &controller) override {
         controller.push_back(std::make_unique<TestController>(self()));
     }
 

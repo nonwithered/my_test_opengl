@@ -42,7 +42,7 @@ private:
         if (!level) {
             return;
         }
-        level->PerformFrame(global_, frame);
+        level->player_.PerformFrame(global_, frame);
     }
 
     void OnFramebufferSize(Context &context, int width, int height) {
@@ -50,7 +50,7 @@ private:
         if (!level) {
             return;
         }
-        return level->OnFramebufferSize(context, width, height);
+        return level->player_.OnFramebufferSize(context, width, height);
     }
 
     void PerformKeyEvent(Context &context, int key, bool press) {
@@ -58,7 +58,7 @@ private:
         if (!level) {
             return;
         }
-        return level->PerformKeyEvent(context, key, press);
+        return level->player_.PerformKeyEvent(context, key, press);
     }
 
     void PerformMouseButtonEvent(Context &context, int button, bool press) {
@@ -66,7 +66,7 @@ private:
         if (!level) {
             return;
         }
-        return level->PerformMouseButtonEvent(context, button, press);
+        return level->player_.PerformMouseButtonEvent(context, button, press);
     }
 
 public:
