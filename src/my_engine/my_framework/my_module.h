@@ -1,8 +1,8 @@
 #pragma once
 
-#include "my_framework/my_context.h"
+#include "my_framework/my_window_monitor.h"
 
-class Module {
+class Module : public WindowMonitor {
 
 private:
     static constexpr auto TAG = "Module";
@@ -10,62 +10,14 @@ private:
     Module(const Module &) = delete;
     Module(Module &&) = delete;
 
+    const char *type_name_ = "";
+
     std::vector<std::unique_ptr<Module>> pending_children_;
     std::vector<std::unique_ptr<Module>> children_;
 
-    std::unordered_map<int, std::function<bool(Context &)>> key_event_press_;
-    std::unordered_map<int, std::function<bool(Context &)>> key_event_release_;
-
-    std::unordered_map<int, std::function<bool(Context &)>> mouse_button_event_press_;
-    std::unordered_map<int, std::function<bool(Context &)>> mouse_button_event_release_;
-
-    const char *type_name_ = "";
-
 protected:
 
-    void ListenKeyEvent(int key, bool press, std::function<bool(Context &)> event) {
-        auto &events = press ? key_event_press_ : key_event_release_;
-        if (event) {
-            events[key] = std::move(event);
-        } else {
-            events.erase(key);
-        }
-    }
-
-    void ListenMouseButtonEvent(int button, bool press, std::function<bool(Context &)> event) {
-        auto &events = press ? mouse_button_event_press_ : mouse_button_event_release_;
-        if (event) {
-            events[button] = std::move(event);
-        } else {
-            events.erase(button);
-        }
-    }
-
-
-    virtual bool KeyEvent(Context &context, int key, bool press) {
-        auto &events = press ? key_event_press_ : key_event_release_;
-        auto i = events.find(key);
-        if (i != events.end()) {
-            auto &event = i->second;
-            if (event && event(context)) {
-                return true;
-            }
-        }
-        return false;
-    }
-    virtual bool MouseButtonEvent(Context &context, int button, bool press) {
-        auto &events = press ? mouse_button_event_press_ : mouse_button_event_release_;
-        auto i = events.find(button);
-        if (i != events.end()) {
-            auto &event = i->second;
-            if (event && event(context)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    virtual bool Frame(Context &context) {
+    bool Frame(Context &context) override {
         for (auto i = children_.begin(); i != children_.end(); ) {
             auto &module = *i;
             if (!module->PerformFrame(context)) {
@@ -75,7 +27,7 @@ protected:
                 i = children_.erase(i);
             }
         }
-        return false;
+        return WindowMonitor::Frame(context);
     }
 
 public:
