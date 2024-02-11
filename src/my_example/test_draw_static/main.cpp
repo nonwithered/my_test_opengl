@@ -81,11 +81,11 @@ public:
 class TestController : public LocalPlayerController {
 
 public:
-    TestController(std::weak_ptr<Level> level) : LocalPlayerController(level) {
-        module().NewModule<TestBackgroundModule>(data());
+    TestController(std::weak_ptr<Level> level_) : LocalPlayerController(level_) {
+        module().NewModule<TestBackgroundModule>(level());
 
         auto camera = Model<TestCamera>::Make();
-        data()->actor().insert(camera);
+        level()->actor().insert(camera);
         module().NewModule<TestDrawModule>(camera);
     }
 };

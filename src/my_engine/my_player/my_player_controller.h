@@ -18,7 +18,7 @@ protected:
     PlayerController(std::weak_ptr<Level> level) : FrameMonitor(), level_(level) {
     }
 
-    std::shared_ptr<Level> data() {
+    std::shared_ptr<Level> level() {
         return level_.lock();
     }
 

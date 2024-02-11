@@ -45,14 +45,6 @@ private:
         level->player_.PerformFrame(global_, frame);
     }
 
-    void OnFramebufferSize(Context &context, int width, int height) {
-        auto level = current();
-        if (!level) {
-            return;
-        }
-        return level->player_.OnFramebufferSize(context, width, height);
-    }
-
     void PerformKeyEvent(Context &context, int key, bool press) {
         auto level = current();
         if (!level) {

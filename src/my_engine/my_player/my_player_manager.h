@@ -43,9 +43,6 @@ public:
         }
     }
 
-    void OnFramebufferSize(Context &context, int width, int height) {
-    }
-
     void PerformKeyEvent(Context &context, int key, bool press) {
         for (auto &controller : controller_) {
             auto *p = TypeCast<LocalPlayerController>(controller.get());

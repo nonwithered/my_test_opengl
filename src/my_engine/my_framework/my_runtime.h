@@ -90,7 +90,6 @@ public:
 
     void OnFramebufferSize(Window &window, int width, int height) override {
         window.OnFramebufferSize(width, height);
-        level_.OnFramebufferSize(window, width, height);
         PerformFrame();
     }
 
