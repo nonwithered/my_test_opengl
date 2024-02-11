@@ -21,6 +21,10 @@ private:
 
     Global &global_;
 
+    operator Global &() override {
+        return global_;
+    }
+
     void OnLevelFinish(std::weak_ptr<Level> level) override {
         auto p = level.lock();
         if (!p) {

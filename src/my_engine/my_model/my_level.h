@@ -19,6 +19,8 @@ private:
 
     virtual void OnLevelFinish(std::weak_ptr<Level>) = 0;
 
+    virtual operator Global &() = 0;
+
 protected:
     LevelCleaner() = default;
 
@@ -112,6 +114,10 @@ public:
             throw std::exception();
         }
         cleaner_->OnLevelFinish(self());
+    }
+
+    Global &global() {
+        return *cleaner_;
     }
 
 };
