@@ -71,6 +71,20 @@ private:
         player_.OnStart(std::move(controller));
     }
 
+    void PerformFinish() {
+        if (finish_) {
+            LOGW(TAG, "Finish duplicate %s", name_.data());
+            return;
+        }
+        LOGI(TAG, "Finish");
+        finish_ = true;
+        if (!cleaner_) {
+            LOGE(TAG, "Finish invalid %s", name_.data());
+            throw std::exception();
+        }
+        cleaner_->OnLevelFinish(self());
+    }
+
 protected:
 
     using vector_player_t = typename PlayerManager::vector_controller_t;
@@ -91,7 +105,7 @@ public:
         LOGI(TAG, "ctor %s", name_.data());
     }
 
-    virtual ~Level() {
+    ~Level() {
         LOGI(TAG, "dtor %s", name_.data());
     }
 
@@ -101,19 +115,6 @@ public:
 
     LevelActor &actor() {
         return *actor_;
-    }
-
-    void Finish() {
-        if (finish_) {
-            LOGW(TAG, "Finish duplicate %s", name_.data());
-            return;
-        }
-        finish_ = true;
-        if (!cleaner_) {
-            LOGE(TAG, "Finish invalid %s", name_.data());
-            throw std::exception();
-        }
-        cleaner_->OnLevelFinish(self());
     }
 
     Global &global() {

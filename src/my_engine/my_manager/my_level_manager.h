@@ -46,7 +46,9 @@ private:
         if (!level) {
             return;
         }
-        level->player_.PerformFrame(global_, frame);
+        if (level->player_.PerformFrame(global_, frame)) {
+            level->PerformFinish();
+        }
     }
 
     void PerformKeyEvent(Context &context, int key, bool press) {

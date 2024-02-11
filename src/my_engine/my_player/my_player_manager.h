@@ -31,9 +31,15 @@ public:
         controller_ = std::move(controller);
     }
 
-    void PerformFrame(Global &context_, std::function<void(Module &)>frame) {
-        for (auto &controller : controller_) {
-            controller->Frame(context_);
+    bool PerformFrame(Global &context_, std::function<void(Module &)>frame) {
+        for (auto i = controller_.begin(); i != controller_.end(); ) {
+            auto &controller = *i;
+            if (controller->quit_) {
+                i = controller_.erase(i);
+            } else {
+                controller->Frame(context_);
+                ++i;
+            }
         }
         for (auto &controller : controller_) {
             auto *p = TypeCast<LocalPlayerController>(controller.get());
@@ -41,6 +47,7 @@ public:
                 frame(p->module());
             }
         }
+        return controller_.empty();
     }
 
     void PerformKeyEvent(Context &context, int key, bool press) {

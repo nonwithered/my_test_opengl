@@ -32,22 +32,22 @@ protected:
 
 };
 
-class TestBackgroundModule : public ScopeModule<Level> {
+class TestBackgroundModule : public Module {
 
 protected:
 
-    bool OnFrame(Context &context) override {
+    bool Frame(Context &context) override {
 
         glViewport(0, 0, context.width(), context.height());
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        return ScopeModule::OnFrame(context);
+        return Module::Frame(context);
     }
 
 public:
-    TestBackgroundModule(std::weak_ptr<Level> p): ScopeModule(std::move(p)) {
-        ListenKeyEvent(GLFW_KEY_ESCAPE, true, [this](Context &context) -> bool {
-            data()->Finish();
+    TestBackgroundModule(std::function<void()> quit) : Module() {
+        ListenKeyEvent(GLFW_KEY_ESCAPE, true, [quit](Context &context) -> bool {
+            quit();
             return false;
         });
     }
@@ -83,7 +83,9 @@ class TestController : public LocalPlayerController {
 
 public:
     TestController(std::weak_ptr<Level> level_) : LocalPlayerController(level_) {
-        module().NewModule<TestBackgroundModule>(level());
+        module().NewModule<TestBackgroundModule>([this]() {
+            Quit();
+        });
 
         auto camera = Model<TestCamera>::Make();
         level()->actor().insert(camera);
@@ -91,7 +93,7 @@ public:
     }
 
     void OnWindowClose(Context &context) override {
-        level()->Finish();
+        Quit();
     }
 };
 
