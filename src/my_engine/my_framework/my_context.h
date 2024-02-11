@@ -4,8 +4,9 @@
 
 #include "my_model/my_model.h"
 
-#include "my_manager/my_resource_manager.h"
-#include "my_manager/my_level_manager.h"
+class LevelManager;
+class WindowManager;
+class ResourceManager;
 
 class Global {
 
@@ -22,6 +23,7 @@ public:
     virtual float interval() = 0;
 
     virtual LevelManager &level() = 0;
+    virtual WindowManager &window() = 0;
 
 };
 

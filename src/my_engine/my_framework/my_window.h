@@ -81,9 +81,10 @@ public:
             return;
         }
         LOGI(TAG, "dtor %s", title_.data());
-        auto guard = Use();
-        resource_.reset();
-        guard.~Guard();
+        {
+            auto guard = Use();
+            resource_.reset();
+        }
         glfwDestroyWindow(id_);
         id_ = nullptr;
     }

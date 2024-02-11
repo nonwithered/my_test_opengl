@@ -126,7 +126,7 @@ int main() {
 
     auto runtime = Runtime::Make<TestLauncherModule>();
 
-    runtime.NewWindow(TAG, 800, 600);
+    runtime.window().NewWindow(TAG, 800, 600);
 
     runtime.Loop();
 
