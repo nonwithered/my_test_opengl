@@ -11,7 +11,8 @@ class PlayerManager {
 
 public:
 
-    using vector_controller_t = typename std::vector<std::unique_ptr<PlayerController>>;
+    using controller_t = typename std::shared_ptr<PlayerController>;
+    using vector_controller_t = typename std::vector<controller_t>;
 
 private:
 
@@ -27,8 +28,8 @@ public:
     PlayerManager() = default;
     ~PlayerManager() = default;
 
-    void OnStart(vector_controller_t controller) {
-        controller_ = std::move(controller);
+    void NewPlayer(controller_t controller) {
+        controller_.push_back(std::move(controller));
     }
 
     bool PerformFrame(Global &context_, std::function<void(Module &)>frame) {

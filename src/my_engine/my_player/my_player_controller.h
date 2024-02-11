@@ -6,7 +6,7 @@
 
 class Level;
 
-class PlayerController : public FrameMonitor {
+class PlayerController : public Model<PlayerController>, public FrameMonitor {
 
     friend class PlayerManager;
 

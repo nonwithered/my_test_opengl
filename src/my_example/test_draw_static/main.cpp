@@ -32,22 +32,24 @@ protected:
 
 };
 
-class TestBackgroundModule : public Module {
+class TestBackgroundModule : public ScopeModule<PlayerController> {
 
 protected:
 
-    bool Frame(Context &context) override {
+    bool OnFrame(Context &context) override {
 
         glViewport(0, 0, context.width(), context.height());
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        return Module::Frame(context);
+        return ScopeModule::OnFrame(context);
     }
 
 public:
-    TestBackgroundModule(std::function<void()> quit) : Module() {
-        ListenKeyEvent(GLFW_KEY_ESCAPE, true, [quit](Context &context) -> bool {
-            quit();
+
+    TestBackgroundModule(std::weak_ptr<PlayerController> p)
+    : ScopeModule(std::move(p)) {
+        ListenKeyEvent(GLFW_KEY_ESCAPE, true, [this](Context &context) -> bool {
+            data()->Quit();
             return false;
         });
     }
@@ -83,17 +85,20 @@ class TestController : public LocalPlayerController {
 
 public:
     TestController(std::weak_ptr<Level> level_) : LocalPlayerController(level_) {
-        module().NewModule<TestBackgroundModule>([this]() {
-            Quit();
-        });
-
-        auto camera = Model<TestCamera>::Make();
-        level()->actor().insert(camera);
-        module().NewModule<TestDrawModule>(camera);
     }
 
     void OnWindowClose(Context &context) override {
         Quit();
+    }
+
+protected:
+
+    virtual void OnCreate() {
+        module().NewModule<TestBackgroundModule>(self());
+
+        auto camera = Model<TestCamera>::Make();
+        level()->actor().insert(camera);
+        module().NewModule<TestDrawModule>(camera);
     }
 };
 
@@ -108,8 +113,8 @@ protected:
         actor().insert(Model<RectPictureColor>::Make());
     }
 
-    void OnStart(Global &context, Level::vector_player_t &controller) override {
-        controller.push_back(std::make_unique<TestController>(self()));
+    void OnStart(Global &context, NewPlayer new_player) override {
+        new_player(Model<TestController>::Make(self()));
     }
 
 public:

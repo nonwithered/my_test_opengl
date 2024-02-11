@@ -66,9 +66,9 @@ private:
     PlayerManager player_;
 
     void PerformStart(Global &context) {
-        PlayerManager::vector_controller_t controller;
-        OnStart(context, controller);
-        player_.OnStart(std::move(controller));
+        OnStart(context, [this](std::shared_ptr<PlayerController> controller) {
+            player_.NewPlayer(std::move(controller));
+        });
     }
 
     void PerformFinish() {
@@ -87,7 +87,7 @@ private:
 
 protected:
 
-    using vector_player_t = typename PlayerManager::vector_controller_t;
+    using NewPlayer = typename std::function<void(std::shared_ptr<PlayerController>)>;
 
     void OnCreate() override {
         LOGI(TAG, "OnCreate %s", name_.data());
@@ -95,7 +95,7 @@ protected:
         actor_->name(name());
     }
 
-    virtual void OnStart(Global &context, PlayerManager::vector_controller_t &controller) {
+    virtual void OnStart(Global &context, NewPlayer new_player) {
     }
 
 public:
