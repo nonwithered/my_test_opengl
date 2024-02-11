@@ -73,13 +73,13 @@ private:
                 throw std::exception();
             }
         }
-        w.SetFramebufferSizeCallback([](GLFWwindow *window, int width, int height) {
+        glfwSetFramebufferSizeCallback(w.id(), [](GLFWwindow *window, int width, int height) {
             auto &manager = Instance();
             auto &context = manager.Find(window);
             LOGD(TAG, "FramebufferSizeCallback %s %d %d", context.title().data(), width, height);
             manager.presenter_.FramebufferSizeCallback(context, width, height);
         });
-        w.SetKeyCallback([](GLFWwindow *window, int key, int scancode, int action, int mods) {
+        glfwSetKeyCallback(w.id(), [](GLFWwindow *window, int key, int scancode, int action, int mods) {
             if (key == GLFW_KEY_UNKNOWN) {
                 return;
             }
@@ -92,7 +92,7 @@ private:
             LOGD(TAG, "KeyCallback %s %d %d %d %d", context.title().data(), key, scancode, action, mods);
             manager.presenter_.KeyCallback(context, key, press);
         });
-        w.SetMouseButtonCallback([](GLFWwindow *window, int button, int action, int mods) {
+        glfwSetMouseButtonCallback(w.id(), [](GLFWwindow *window, int button, int action, int mods) {
             if (action != GLFW_PRESS && action != GLFW_RELEASE) {
                 return;
             }
@@ -133,7 +133,7 @@ public:
 
     Window &Find(GLFWwindow *id) {
         for (auto &window : windows_) {
-            if (window->IsSame(id)) {
+            if (window->id() == id) {
                 return *window;
             }
         }

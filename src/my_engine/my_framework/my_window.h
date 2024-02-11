@@ -89,20 +89,8 @@ public:
         id_ = nullptr;
     }
 
-    bool IsSame(GLFWwindow *id) {
-        return id_ == id;
-    }
-
-    void SetFramebufferSizeCallback(GLFWframebuffersizefun callback) {
-        glfwSetFramebufferSizeCallback(id_, callback);
-    }
-
-    void SetKeyCallback(GLFWkeyfun callback) {
-        glfwSetKeyCallback(id_, callback);
-    }
-
-    void SetMouseButtonCallback(GLFWmousebuttonfun callback) {
-        glfwSetMouseButtonCallback(id_, callback);
+    GLFWwindow *id() const {
+        return id_;
     }
 
     void FramebufferSizeCallback(int width, int height) {
