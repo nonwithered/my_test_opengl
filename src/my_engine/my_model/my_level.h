@@ -4,6 +4,8 @@
 
 #include "my_model/my_actor.h"
 
+#include "my_framework/my_context.h"
+
 class LevelCleaner {
 
     friend class Level;
@@ -62,6 +64,9 @@ protected:
         LOGI(TAG, "OnCreate %s", name_.data());
         actor_->level_ = self();
         actor_->name(name());
+    }
+
+    virtual void OnStart(Global &context) {
     }
 
 public:

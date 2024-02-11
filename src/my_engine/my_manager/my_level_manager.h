@@ -16,6 +16,8 @@ protected:
 public:
     virtual ~LevelPresenter() = default;
 
+    virtual operator Global &() = 0;
+
     virtual void OnLevelStart(std::weak_ptr<Level>) = 0;
 
 };
@@ -78,7 +80,8 @@ public:
         }
         level->cleaner_ = this;
         std::weak_ptr<Level> weak = level;
-        level_.push_front(std::move(level));
+        level_.push_front(level);
+        ((Level &) *level).OnStart((Global &) presenter_);
         OnLevelStart(weak);
     }
 

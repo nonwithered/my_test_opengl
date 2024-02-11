@@ -2,7 +2,7 @@
 
 #include "my_framework/my_live_module.h"
 
-class LauncherModule: public LiveModule, public LevelPresenter {
+class LauncherModule: public LiveModule {
 
     friend class Runtime;
 
@@ -29,7 +29,7 @@ public:
         LOGI(TAG, "dtor");
     }
 
-    void OnLevelStart(std::weak_ptr<Level>) override {
+    virtual void OnLevelStart(std::weak_ptr<Level>) {
     }
 
 };

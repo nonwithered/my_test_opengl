@@ -54,7 +54,7 @@ public:
     }
 
     glm::mat4 rotate_transform(const glm::mat4 &transform) const {
-        return rotate_ * transform;
+        return transform * rotate_;
     }
 
     glm::mat4 scale_transform(const glm::mat4 &transform) const {

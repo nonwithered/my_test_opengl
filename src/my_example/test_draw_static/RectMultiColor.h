@@ -94,5 +94,7 @@ protected:
         transform_.translate() = glm::vec3(0.5f, 0.5f, 0);
         transform_.scale() = glm::vec3(0.5f);
         transform(transform_);
+
+        name(TAG);
     }
 };

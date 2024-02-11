@@ -18,10 +18,12 @@ protected:
     void OnCreate() override {
 
         auto transform_ = transform();
-        transform_.translate() = glm::vec3(-0.5f, 0.5f, 0);
-        transform_.rotate() = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0, 1.0f, 0));
+        transform_.translate() = glm::vec3(-0.5f, 0.5f, 0.0f);
+        transform_.rotate() = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         transform_.scale() = glm::vec3(0.5f);
         transform(transform_);
+
+        name(TAG);
     }
 
     glm::mat4 transform_projection() override {
@@ -34,8 +36,8 @@ class TestLevel : public Level {
 
 protected:
 
-    void OnCreate() override {
-        Level::OnCreate();
+    void OnStart(Global &context) override {
+        Level::OnStart(context);
         actor().insert(Model<RectSingleColor>::Make());
         actor().insert(Model<RectMultiColor>::Make());
         actor().insert(Model<RectPictureColor>::Make());
