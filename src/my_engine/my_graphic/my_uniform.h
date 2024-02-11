@@ -1,6 +1,6 @@
 #pragma once
 
-#include "my_utils/log.h"
+#include "my_utils/my_log.h"
 
 class UniformOperator {
 

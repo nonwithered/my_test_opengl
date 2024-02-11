@@ -1,7 +1,5 @@
 #pragma once
 
-#include "my_utils/log.h"
-
 inline glm::fvec4 GetColorVec4(uint32_t argb) {
     float r = (float) ((argb >> 16) & 0xff);
     float g = (float) ((argb >> 8) & 0xff);

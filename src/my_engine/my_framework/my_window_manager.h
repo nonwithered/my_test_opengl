@@ -1,6 +1,6 @@
 #pragma once
 
-#include "my_utils/log.h"
+#include "my_utils/my_log.h"
 
 #include "my_framework/my_module.h"
 #include "my_framework/my_window.h"
@@ -102,6 +102,7 @@ private:
             LOGD(TAG, "MouseButtonCallback %s %d %d %d", context.title().data(), button, action, mods);
             manager.presenter_.MouseButtonCallback(context, button, press);
         });
+        glEnable(GL_DEPTH_TEST);
     }
 
 public:

@@ -2,7 +2,7 @@
 
 #include "my_framework/my_context.h"
 
-class WindowMonitor {
+class WindowMonitor : public FrameMonitor {
 
 private:
     static constexpr auto TAG = "WindowMonitor";
@@ -16,10 +16,12 @@ private:
     std::unordered_map<int, std::function<bool(Context &)>> mouse_button_event_press_;
     std::unordered_map<int, std::function<bool(Context &)>> mouse_button_event_release_;
 
+public:
+    virtual ~WindowMonitor() = default;
+
 protected:
 
     WindowMonitor() = default;
-    virtual ~WindowMonitor() = default;
 
     void ListenKeyEvent(int key, bool press, std::function<bool(Context &)> event) {
         auto &events = press ? key_event_press_ : key_event_release_;
@@ -60,10 +62,6 @@ protected:
                 return true;
             }
         }
-        return false;
-    }
-
-    virtual bool Frame(Context &context) {
         return false;
     }
 

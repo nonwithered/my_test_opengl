@@ -1,6 +1,6 @@
 #pragma once
 
-#include "my_utils/log.h"
+#include "my_utils/my_log.h"
 
 #include "my_model/my_model.h"
 
@@ -55,4 +55,22 @@ public:
 
     virtual std::array<double, 2> GetCursorPos() = 0;
 
+};
+
+class FrameMonitor {
+
+private:
+    FrameMonitor(const FrameMonitor &) = delete;
+    FrameMonitor(FrameMonitor &&) = delete;
+
+public:
+    virtual ~FrameMonitor() = default;
+
+protected:
+
+    FrameMonitor() = default;
+
+    virtual bool Frame(Context &context) {
+        return false;
+    }
 };
