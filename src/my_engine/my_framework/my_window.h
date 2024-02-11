@@ -111,34 +111,14 @@ public:
         height_ = height;
     }
 
-    void KeyCallback(Module &module, int key, int scancode, int action, int mods) {
-        LOGD(TAG, "KeyCallback %s %d %d %d %d", title_.data(), key, scancode, action, mods);
-        if (key == GLFW_KEY_UNKNOWN) {
-            return;
-        }
-        if (action != GLFW_PRESS && action != GLFW_RELEASE) {
-            return;
-        }
-        bool press = action == GLFW_PRESS;
-        LOGI(TAG, "PerformKeyEvent %s %d %d", title_.data(), key, press);
-        {
-            auto guard = Use();
-            module.PerformKeyEvent(*this, key, press);
-        }
+    void KeyCallback(Module &module, int key, bool press) {
+        auto guard = Use();
+        module.PerformKeyEvent(*this, key, press);
     }
 
-    void MouseButtonCallback(Module &module, int button, int action, int mods) {
-        LOGD(TAG, "MouseButtonCallback %s %d %d %d", title_.data(), button, action, mods);
-        if (action != GLFW_PRESS && action != GLFW_RELEASE) {
-            return;
-        }
-        bool press = action == GLFW_PRESS;
-        LOGI(TAG, "PerformMouseButtonEvent %s %d %d", title_.data(), button, press);
-        {
-            auto guard = Use();
-            module.PerformMouseButtonEvent(*this, button, press);
-        }
-
+    void MouseButtonCallback(Module &module, int button, bool press) {
+        auto guard = Use();
+        module.PerformMouseButtonEvent(*this, button, press);
     }
 
     void PerformFrame(Module &module) {

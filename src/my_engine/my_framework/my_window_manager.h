@@ -19,9 +19,11 @@ protected:
 public:
     virtual ~WindowPresenter() = default;
 
-    virtual void NotifyFlush() = 0;
-    virtual Module &module() = 0;
-    virtual Global &global() = 0;
+    virtual operator Global &() = 0;
+
+    virtual void FramebufferSizeCallback(Window &window, int width, int height) = 0;
+    virtual void KeyCallback(Window &window, int key, bool press) = 0;
+    virtual void MouseButtonCallback(Window &window, int button, bool press) = 0;
 
 };
 
@@ -73,18 +75,32 @@ private:
         }
         w.SetFramebufferSizeCallback([](GLFWwindow *window, int width, int height) {
             auto &manager = Instance();
-            manager.Find(window).FramebufferSizeCallback(width, height);
-            manager.presenter_.NotifyFlush();
+            auto &context = manager.Find(window);
+            LOGD(TAG, "FramebufferSizeCallback %s %d %d", context.title().data(), width, height);
+            manager.presenter_.FramebufferSizeCallback(context, width, height);
         });
         w.SetKeyCallback([](GLFWwindow *window, int key, int scancode, int action, int mods) {
+            if (key == GLFW_KEY_UNKNOWN) {
+                return;
+            }
+            if (action != GLFW_PRESS && action != GLFW_RELEASE) {
+                return;
+            }
+            auto press = action == GLFW_PRESS;
             auto &manager = Instance();
-            manager.Find(window).KeyCallback(manager.presenter_.module(), key, scancode, action, mods);
-            manager.presenter_.NotifyFlush();
+            auto &context = manager.Find(window);
+            LOGD(TAG, "KeyCallback %s %d %d %d %d", context.title().data(), key, scancode, action, mods);
+            manager.presenter_.KeyCallback(context, key, press);
         });
         w.SetMouseButtonCallback([](GLFWwindow *window, int button, int action, int mods) {
+            if (action != GLFW_PRESS && action != GLFW_RELEASE) {
+                return;
+            }
+            auto press = action == GLFW_PRESS;
             auto &manager = Instance();
-            manager.Find(window).MouseButtonCallback(manager.presenter_.module(), button, action, mods);
-            manager.presenter_.NotifyFlush();
+            auto &context = manager.Find(window);
+            LOGD(TAG, "MouseButtonCallback %s %d %d %d", context.title().data(), button, action, mods);
+            manager.presenter_.MouseButtonCallback(context, button, press);
         });
     }
 
@@ -138,15 +154,14 @@ public:
             windows_.push_back(std::move(window));
             i = pending_windows_.erase(i);
         }
-        for (auto i = windows_.begin(); i != windows_.end(); ++i) {
-            auto &window = *i;
+        for (auto &window : windows_) {
             window->PerformFrame(module);
         }
     }
 
     void NewWindow(const std::string &title, int width, int height) {
         LOGI(TAG, "NewWindow %s", title.data());
-        auto window = std::make_unique<Window>(presenter_.global(), title, width, height, [this](Window &w) {
+        auto window = std::make_unique<Window>(presenter_, title, width, height, [this](Window &w) {
             SetupWindow(w);
         });
         pending_windows_.push_back(std::move(window));

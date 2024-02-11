@@ -85,15 +85,22 @@ public:
         return window_;
     }
 
-    Module &module() override {
-        return *module_;
+    operator Global &() override {
+        return *this;
     }
 
-    void NotifyFlush() override {
+    void FramebufferSizeCallback(Window &window, int width, int height) override {
+        window.FramebufferSizeCallback(width, height);
         PerformFrame();
     }
 
-    Global &global() override {
-        return *this;
+    void KeyCallback(Window &window, int key, bool press) override {
+        window.KeyCallback(*module_, key, press);
+        PerformFrame();
+    }
+
+    void MouseButtonCallback(Window &window, int button, bool press) override {
+        window.MouseButtonCallback(*module_, button, press);
+        PerformFrame();
     }
 };
