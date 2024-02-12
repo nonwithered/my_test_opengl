@@ -9,6 +9,18 @@
 
 class PlayerManager {
 
+private:
+
+    using controller_t = typename std::shared_ptr<PlayerController>;
+    using vector_controller_t = typename std::vector<controller_t>;
+
+    static constexpr auto TAG = "Level";
+
+    PlayerManager(const PlayerManager &) = delete;
+    PlayerManager(PlayerManager &&) = delete;
+
+    vector_controller_t controller_;
+
 public:
     
     template<typename T>
@@ -26,16 +38,6 @@ public:
     ~PlayerManager() = default;
 
 protected:
-
-    using controller_t = typename std::shared_ptr<PlayerController>;
-    using vector_controller_t = typename std::vector<controller_t>;
-
-    static constexpr auto TAG = "Level";
-
-    PlayerManager(const PlayerManager &) = delete;
-    PlayerManager(PlayerManager &&) = delete;
-
-    vector_controller_t controller_;
 
     void NewPlayer(controller_t controller) {
         controller_.push_back(std::move(controller));

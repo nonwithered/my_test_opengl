@@ -60,6 +60,9 @@ public:
     TestBackgroundModule(std::weak_ptr<LocalPlayerController<2>> controller)
     : ScopeModule(controller) {
         ListenKeyEvent(GLFW_KEY_ESCAPE, true, [this](Context &context) -> bool {
+            if (&context != scope<0>()->window<0>()) {
+                return false;
+            }
             scope<0>()->Quit();
             return false;
         });
