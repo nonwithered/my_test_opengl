@@ -132,18 +132,6 @@ private:
         glEnable(GL_DEPTH_TEST);
     }
 
-    void Collect(std::function<void(Context &)> block) {
-        if (!block) {
-            return;
-        }
-        if (primary_) {
-            block(*primary_);
-        }
-        for (auto &window : windows_) {
-            block(*window);
-        }
-    }
-
     void PerformFrame(Module &module) {
         if (primary_) {
             primary_->PerformFrame(module);
