@@ -118,9 +118,9 @@ public:
         level->cleaner_ = this;
         std::weak_ptr<Level> weak = level;
         level_.push_front(level);
-        Level &l = *level;
-        l.PerformStart(global_);
-        l.PerformResume(global_);
+        Level &current_ = *level;
+        current_.PerformStart(global_);
+        current_.PerformResume(global_);
     }
 
     std::shared_ptr<Level> current() const {
