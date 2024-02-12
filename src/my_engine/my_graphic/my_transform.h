@@ -49,15 +49,15 @@ public:
         return scale_;
     }
 
-    glm::mat4 translate_transform(const glm::mat4 &transform) const {
+    glm::mat4 translate_transform(const glm::mat4 &transform = glm::mat4(1.0f)) const {
         return glm::translate(transform, translate_);
     }
 
-    glm::mat4 rotate_transform(const glm::mat4 &transform) const {
+    glm::mat4 rotate_transform(const glm::mat4 &transform = glm::mat4(1.0f)) const {
         return transform * rotate_;
     }
 
-    glm::mat4 scale_transform(const glm::mat4 &transform) const {
+    glm::mat4 scale_transform(const glm::mat4 &transform = glm::mat4(1.0f)) const {
         return glm::scale(transform, scale_);
     }
 
@@ -75,18 +75,18 @@ private:
 
 public:
 
-    static glm::vec3 direction_default() {
-        static auto direction_ = glm::vec3(1.0f, 0.0f, 0.0f);
+    static glm::vec4 direction_default() {
+        static auto direction_ = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
         return direction_;
     }
 
-    static glm::vec3 position_default() {
-        static auto position_ = glm::vec3(0.0f, 0.0f, 0.0f);
+    static glm::vec4 position_default() {
+        static auto position_ = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
         return position_;
     }
 
-    static glm::vec3 direction_up_default() {
-        static auto up_ = glm::vec3(0.0f, 0.0f, 1.0f);
+    static glm::vec4 direction_up_default() {
+        static auto up_ = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
         return up_;
     }
 
@@ -96,10 +96,16 @@ public:
         return mod < PARALLEL_ANGLE;
     }
 
+    static bool parallel_same(const glm::vec3 &lhs, const glm::vec3 &rhs) {
+        auto angle = std::abs(glm::degrees(glm::angle(lhs, rhs)));
+        auto mod = std::fmod(angle, 360.0f);
+        return mod < PARALLEL_ANGLE;
+    }
+
     static std::pair<float, glm::vec3> direction_to_rotate(const glm::vec3 &direction_) {
         auto direction = glm::normalize(direction_);
-        auto axis = glm::normalize(glm::cross(direction_default(), direction));
-        auto angle = glm::angle(direction_default(), direction);
+        auto axis = glm::normalize(glm::cross(glm::vec3(direction_default()), direction));
+        auto angle = glm::angle(glm::vec3(direction_default()), direction);
         return std::make_pair(angle, axis);
     }
 };

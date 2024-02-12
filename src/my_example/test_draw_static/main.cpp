@@ -141,8 +141,8 @@ protected:
         Level::OnResume();
         auto player = FindPlayer<TestController>();
         if (player) {
-            player->window<0>() = &RequireWindow(::TAG);
-            player->window<1>() = &RequireWindow(::TAG, 800, 600);
+            player->window<1>() = &RequireWindow(::TAG);
+            player->window<0>() = &RequireWindow(::TAG, 800, 600);
         }
     }
 

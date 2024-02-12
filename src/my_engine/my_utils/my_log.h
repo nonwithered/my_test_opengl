@@ -22,7 +22,7 @@ inline int _log_thread_num() {
     return id;
 }
 
-#define _LOG(level, tag, msg, ...) fprintf(stderr, "%s %8d %s %s: " msg "\n", _log_time(), _log_thread_num(), level, tag, __VA_ARGS__)
+#define _LOG(level, tag, msg, ...) fprintf(stderr, "%s %8d %s %20s: " msg "\n", _log_time(), _log_thread_num(), level, tag, __VA_ARGS__)
 
 #define _LOG_LEVEL_V 0
 #define _LOG_LEVEL_D 1

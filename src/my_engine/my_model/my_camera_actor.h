@@ -19,15 +19,15 @@ private:
 
     glm::mat4 transform_view() {
         auto rotate_matrix = rotate_global();
-        glm::vec3 direction = rotate_matrix * glm::vec4(Transform::direction_default(), 1.0f);
+        glm::vec3 direction = rotate_matrix * Transform::direction_default();
         auto eye = position_global();
         auto center = eye + direction;
-        glm::vec3 up = rotate_matrix * glm::vec4(Transform::direction_up_default(), 1.0f);
+        glm::vec3 up = rotate_matrix * Transform::direction_up_default();
         return glm::lookAt(eye, center, up);
     }
 
     glm::vec3 position_global() {
-        return transform_global() * glm::vec4(Transform::position_default(), 1.0f);
+        return transform_global() * Transform::position_default();
     }
 
 protected:
