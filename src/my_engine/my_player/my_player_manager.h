@@ -12,14 +12,13 @@ class PlayerManager {
 private:
 
     using controller_t = typename std::shared_ptr<PlayerController>;
-    using vector_controller_t = typename std::vector<controller_t>;
 
     static constexpr auto TAG = "Level";
 
     PlayerManager(const PlayerManager &) = delete;
     PlayerManager(PlayerManager &&) = delete;
 
-    vector_controller_t controller_;
+    std::set<controller_t> controller_;
 
 public:
     
@@ -40,7 +39,7 @@ public:
 protected:
 
     void NewPlayer(controller_t controller) {
-        controller_.push_back(std::move(controller));
+        controller_.emplace(std::move(controller));
     }
 
     void Collect(std::function<void(PlayerController &)> block) {
