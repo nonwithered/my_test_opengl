@@ -42,14 +42,11 @@ class TestBackgroundModule : public ScopeModule<LocalPlayerController<2>> {
 protected:
 
     bool OnFrame(Context &context) override {
-        auto [width, height] = context.GetFramebufferSize();   
         if (&context != scope<0>()->window<0>()) {
-            glViewport(0, 0, width, height);
             glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             return false;
         } 
-        glViewport(0, 0, width, height);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         return ScopeModule::OnFrame(context);
@@ -78,6 +75,8 @@ protected:
         if (&context != scope<0>()->window<0>()) {
             return false;
         }
+        auto [width, height] = context.GetFramebufferSize();
+        glViewport(0, 0, width, height);
         auto level = scope<1>()->LookUp<LevelActor>(::TAG)->level();
         auto uniform = UniformParameter();
         scope<1>()->Find<CameraComponent>()->LookAt(uniform);
