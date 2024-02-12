@@ -31,12 +31,22 @@ private:
             LOGE(TAG, "OnLevelFinish invalid");
             throw std::exception();
         }
+        auto last_ = current();
         for (auto i = level_.begin(); i != level_.end(); ) {
             auto &p_ = *i;
             if (p == p_) {
                 i = level_.erase(i);
             } else {
                 ++i;
+            }
+        }
+        auto current_ = current();
+        if (last_ != current_) {
+            if (last_) {
+                last_->PerformPause(global_);
+            }
+            if (current_) {
+                current_->PerformResume(global_);
             }
         }
     }
@@ -99,10 +109,18 @@ public:
                 return;
             }
         }
+
+        auto last_ = current();
+        if (last_) {
+            last_->PerformPause(global_);
+        }
+
         level->cleaner_ = this;
         std::weak_ptr<Level> weak = level;
         level_.push_front(level);
-        ((Level &) *level).PerformStart(global_);
+        Level &l = *level;
+        l.PerformStart(global_);
+        l.PerformResume(global_);
     }
 
     std::shared_ptr<Level> current() const {

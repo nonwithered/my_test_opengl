@@ -67,14 +67,6 @@ private:
 
     std::function<void(std::shared_ptr<PlayerController>)> new_player_;
 
-    void PerformStart(Global &context) {
-        new_player_ = [this](std::shared_ptr<PlayerController> controller) {
-            player_.NewPlayer(std::move(controller));
-        };
-        OnStart(context);
-        new_player_ = nullptr;
-    }
-
     void PerformFinish() {
         if (finish_) {
             LOGW(TAG, "Finish duplicate %s", name_.data());
@@ -89,6 +81,22 @@ private:
         cleaner_->OnLevelFinish(self());
     }
 
+    void PerformStart(Global &context) {
+        new_player_ = [this](std::shared_ptr<PlayerController> controller) {
+            player_.NewPlayer(std::move(controller));
+        };
+        OnStart(context);
+        new_player_ = nullptr;
+    }
+
+    void PerformResume(Global &context) {
+        OnResume(context);
+    }
+
+    void PerformPause(Global &context) {
+        OnPause(context);
+    }
+
 protected:
 
     void OnCreate() override {
@@ -98,6 +106,12 @@ protected:
     }
 
     virtual void OnStart(Global &context) {
+    }
+
+    virtual void OnResume(Global &context) {
+    }
+
+    virtual void OnPause(Global &context) {
     }
 
     template<typename T, typename ...Args>
