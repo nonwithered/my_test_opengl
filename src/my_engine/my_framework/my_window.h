@@ -23,9 +23,6 @@ private:
 
     std::string title_;
 
-    int width_ = 0;
-    int height_ = 0;
-
     std::unique_ptr<ResourceManager> resource_ = std::make_unique<ResourceManager>();
 
     class Guard {
@@ -63,9 +60,7 @@ public:
         std::function<void(Window &)> init)
     : id_(glfwCreateWindow(width, height, title.data(), nullptr, nullptr))
     , global_(global)
-    , title_(title)
-    , width_(width)
-    , height_(height) {
+    , title_(title) {
         LOGI(TAG, "ctor %s", title_.data());
         if (id_ == nullptr) {
             throw std::exception();
@@ -96,9 +91,7 @@ public:
     }
 
     void OnFramebufferSize(int width, int height) {
-        LOGI(TAG, "OnFramebufferSize %s %d %d", title_.data(), width, height);
-        width_ = width;
-        height_ = height;
+        LOGD(TAG, "OnFramebufferSize %s %d %d", title_.data(), width, height);
     }
 
     void PerformKeyEvent(Module &module, int key, bool press) {
@@ -125,47 +118,56 @@ public:
         return global_;
     }
 
-    int width() override {
-        return width_;
-    }
-
-    int height() override {
-        return height_;
-    }
-
-    std::array<int, 2> size() override {
-        int width = 0;
-        int height = 0;
-        glfwGetWindowSize(id_, &width, &height);
-        return { width, height };
-    }
-
-    void size(int width, int height) override {
-        glfwSetWindowSize(id_, width, height);
+    ResourceManager &resource() override {
+        return *resource_;
     }
 
     const std::string &title() override {
         return title_;
     }
 
-    void title(const std::string &title) override {
+    void SetWindowTitle(const std::string &title) override {
         glfwSetWindowTitle(id_, title.data());
         title_ = title;
     }
 
-    std::array<int, 2> pos() override {
+    std::array<int, 2> GetFramebufferSize() override {
+        int width = 0;
+        int height = 0;
+        glfwGetFramebufferSize(id_, &width, &height);
+        return { width, height };
+    }
+
+    std::array<int, 2> GetWindowSize() override {
+        int width = 0;
+        int height = 0;
+        glfwGetWindowSize(id_, &width, &height);
+        return { width, height };
+    }
+
+    void SetWindowSize(int width, int height) override {
+        glfwSetWindowSize(id_, width, height);
+    }
+
+    std::array<int, 2> GetWindowPos() override {
         int x = 0;
         int y = 0;
         glfwGetWindowPos(id_, &x, &y);
         return { x, y };
     }
 
-    void pos(int x, int y)  override {
+    void SetWindowPos(int x, int y)  override {
         glfwSetWindowPos(id_, x, y);
     }
 
-    ResourceManager &resource() override {
-        return *resource_;
+    std::array<double, 2> GetCursorPos() override {
+        std::array<double, 2> pos{};
+        glfwGetCursorPos(id_, &pos[0], &pos[1]);
+        return pos;
+    }
+
+    void SetCursorPos(double x, double y) override {
+        glfwSetCursorPos(id_, x, y);
     }
 
     bool GetKey(int key) override {
@@ -176,9 +178,11 @@ public:
         return glfwGetMouseButton(id_, GLFW_KEY_ESCAPE) == GLFW_PRESS;
     }
 
-    std::array<double, 2> GetCursorPos() override {
-        std::array<double, 2> pos{};
-        glfwGetCursorPos(id_, &pos[0], &pos[1]);
-        return pos;
+    int GetInputMode(int mode) override {
+        return glfwGetInputMode(id_, mode);
+    }
+
+    void SetInputMode(int mode, int value) override {
+        glfwSetInputMode(id_, mode, value);
     }
 };

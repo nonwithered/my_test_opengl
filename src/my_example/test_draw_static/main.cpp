@@ -42,8 +42,8 @@ class TestBackgroundModule : public ScopeModule<PlayerController> {
 protected:
 
     bool OnFrame(Context &context) override {
-
-        glViewport(0, 0, context.width(), context.height());
+        auto [width, height] = context.GetFramebufferSize();    
+        glViewport(0, 0, width, height);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         return ScopeModule::OnFrame(context);

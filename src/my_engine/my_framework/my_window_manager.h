@@ -127,6 +127,7 @@ private:
             LOGI(TAG, "WindowCloseCallback %s", context.title().data());
             manager.presenter_.OnWindowClose(context);
         });
+        // glfwSwapInterval(0);
         glEnable(GL_DEPTH_TEST);
     }
 
