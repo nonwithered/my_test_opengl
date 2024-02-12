@@ -63,9 +63,15 @@ public:
 
 class TestDrawModule : public ScopeModule<CameraActor> {
 
+private:
+    std::function<Context *()> window_;
+
 protected:
 
     bool OnFrame(Context &context) override {
+        if (&context != window_()) {
+            return false;
+        }
         auto level = data()->LookUp<LevelActor>(::TAG)->level();
         auto uniform = UniformParameter();
         data()->LookAt(uniform);
@@ -81,8 +87,9 @@ protected:
 
 public:
 
-    TestDrawModule(std::weak_ptr<CameraActor> p)
-    : ScopeModule(std::move(p)) {
+    TestDrawModule(std::weak_ptr<CameraActor> p, std::function<Context *()> window)
+    : ScopeModule(std::move(p))
+    , window_(window) {
     }
 };
 
@@ -103,11 +110,19 @@ protected:
 
         auto camera = Model<TestCamera>::Make();
         level()->actor().insert(camera);
-        module().NewModule<TestDrawModule>(camera);
+        module().NewModule<TestDrawModule>(camera, [this]() -> Context * {
+            return window_;
+        });
     }
+
+public:
+    Context *window_ = nullptr;
 };
 
 class TestLevel : public Level {
+
+private:
+    std::weak_ptr<TestController> test_player_;
 
 protected:
 
@@ -119,12 +134,22 @@ protected:
     }
 
     void OnStart() override {
-        NewPlayer<TestController>(self());
+        test_player_ = NewPlayer<TestController>(self());
     }
 
     void OnResume() override {
         Level::OnResume();
-        RequireWindow(::TAG);
+        auto test_player = test_player_.lock();
+        if (test_player) {
+            test_player->window_ = &RequireWindow(::TAG);
+        }
+    }
+
+    void OnPause() override {
+        auto test_player = test_player_.lock();
+        if (test_player) {
+            test_player->window_ = nullptr;
+        }
     }
 
 public:

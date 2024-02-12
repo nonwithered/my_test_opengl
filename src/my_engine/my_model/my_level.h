@@ -121,7 +121,7 @@ protected:
     }
 
     template<typename T, typename ...Args>
-    void NewPlayer(Args... args) {
+    std::weak_ptr<T> NewPlayer(Args... args) {
         if (!new_player_) {
             LOGE(TAG, "NewPlayer invalid");
             throw std::exception();
@@ -129,7 +129,9 @@ protected:
         auto type_name = typeid(T).name();
         LOGI(TAG, "NewPlayer %s", type_name);
         auto player = Model<T>::Make(std::forward<Args>(args)...);
+        auto weak = player;
         new_player_(std::move(player));
+        return weak;
     }
 
     Context &RequireWindow(const std::string &title, int width = 0, int height = 0) {

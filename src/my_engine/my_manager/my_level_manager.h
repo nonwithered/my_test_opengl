@@ -96,7 +96,7 @@ public:
     }
 
     template<typename T, typename ...Args>
-    void StartLevel(Args... args) {
+    std::weak_ptr<T> StartLevel(Args... args) {
         auto level = Model<T>::Make(std::forward<Args>(args)...);
         if (!level) {
             LOGE(TAG, "StartLevel nullptr");
@@ -106,7 +106,7 @@ public:
         for (auto &i : level_) {
             if (i == level) {
                 LOGW(TAG, "StartLevel duplicate");
-                return;
+                return level;
             }
         }
 
@@ -121,6 +121,7 @@ public:
         Level &current_ = *level;
         current_.PerformStart();
         current_.PerformResume();
+        return level;
     }
 
     std::shared_ptr<Level> current() const {
