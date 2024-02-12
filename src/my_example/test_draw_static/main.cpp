@@ -13,7 +13,7 @@ class TestCamera : public CameraComponent {
 protected:
 
     glm::mat4 transform_projection() override {
-        return glm::mat4(1.0f);
+        return glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
     }
 
 };
@@ -30,10 +30,6 @@ protected:
         PawnActor::OnCreate();
 
         insert(Model<TestCamera>::Make());
-
-        Find<MovementComponent>()->Move(-1.0, -45.0f);
-        Find<MovementComponent>()->RotatePitch(90.0f);
-        Find<MovementComponent>()->RotateYaw(90.0f);
     }
 
 };
@@ -79,6 +75,7 @@ private:
     bool move_back_ = false;
     bool move_left_ = false;
     bool move_right_ = false;
+    bool move_up_ = false;
 
     double pos_x_ = 0.0;
     double pos_y_ = 0.0;
@@ -116,6 +113,11 @@ private:
         }
         scope<1>()->Find<MovementComponent>()->Move(front_back_ * distance);
         scope<1>()->Find<MovementComponent>()->Move(left_right_ * distance, 90.0f);
+        auto up_down_ = 0;
+        if (move_up_) {
+            up_down_ = 1;
+        }
+        scope<1>()->Find<MovementComponent>()->MoveUp(up_down_ * distance);
     }
 
     void Rotate(Context &context) {
@@ -124,7 +126,7 @@ private:
         }
         auto [x, y] = context.GetCursorPos();
         auto delta_x = pos_x_ - x;
-        auto delta_y = pos_y_ - y;
+        auto delta_y = y - pos_y_;
         pos_x_ = x;
         pos_y_ = y;
         auto pitch = delta_y * sensitivity;
@@ -168,6 +170,7 @@ public:
         BindKeyEvent(GLFW_KEY_S, &TestPawnModule::move_back_);
         BindKeyEvent(GLFW_KEY_A, &TestPawnModule::move_left_);
         BindKeyEvent(GLFW_KEY_D, &TestPawnModule::move_right_);
+        BindKeyEvent(GLFW_KEY_SPACE, &TestPawnModule::move_up_);
     }
 };
 
@@ -189,6 +192,10 @@ protected:
         module().NewModule<TestBackgroundModule>(controller());
 
         auto actor = Model<TestPawn>::Make();
+        actor->Find<MovementComponent>()->Move(-1.0, -45.0f);
+        actor->Find<MovementComponent>()->RotatePitch(90.0f);
+        actor->Find<MovementComponent>()->RotateYaw(90.0f);
+        actor->Find<MovementComponent>()->Move(-1.0);
         level()->actor().insert(actor);
         module().NewModule<TestPawnModule>(controller(), actor);
     }
