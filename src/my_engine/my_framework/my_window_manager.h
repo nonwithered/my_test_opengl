@@ -62,6 +62,7 @@ private:
 
     bool init_ = false;
 
+    std::unique_ptr<Window> primary_;
     std::vector<std::unique_ptr<Window>> windows_;
     std::vector<std::unique_ptr<Window>> pending_windows_;
 
@@ -135,12 +136,18 @@ private:
         if (!block) {
             return;
         }
+        if (primary_) {
+            block(*primary_);
+        }
         for (auto &window : windows_) {
             block(*window);
         }
     }
 
     void PerformFrame(Module &module) {
+        if (primary_) {
+            primary_->PerformFrame(module);
+        }
         for (auto i = pending_windows_.begin(); i != pending_windows_.end(); ) {
             auto &window = *i;
             LOGI(TAG, "move window %s", window->title().data());
@@ -154,6 +161,9 @@ private:
 
     void OnWindowClose(Window &window) {
         LOGI(TAG, "OnWindowClose %s", window.title().data());
+        if (primary_.get() == &window) {
+            primary_.reset();
+        }
         for (auto i = pending_windows_.begin(); i != pending_windows_.end(); ) {
             auto &p = *i;
             if (p.get() == &window) {
@@ -171,12 +181,21 @@ private:
     }
 
     void SwapBuffers() {
+        if (primary_) {
+            primary_->SwapBuffers();
+        }
         for (auto &window : windows_) {
             window->SwapBuffers();
         }
     }
 
     Window *Find(GLFWwindow *id) {
+        if (primary_) {
+            auto window = primary_.get();
+            if (window->id() == id) {
+                return window;
+            }
+        }
         for (auto &window : windows_) {
             if (window->id() == id) {
                 return window.get();
@@ -206,6 +225,7 @@ public:
         LOGI(TAG, "dtor");
         Instance(this);
 
+        primary_.reset();
         windows_.clear();
         pending_windows_.clear();
         glfwTerminate();
@@ -213,11 +233,20 @@ public:
     }
 
     void NewWindow(const std::string &title, int width = 0, int height = 0) {
-        LOGI(TAG, "NewWindow %s", title.data());
+        LOGI(TAG, "NewWindow %s %d %d", title.data(), width, height);
+        bool primary = width == 0 && height == 0;
+        if (primary_ && primary) {
+            LOGW(TAG, "NewWindow primary duplicate");
+            return;
+        }
         auto window = std::make_unique<Window>(presenter_, title, width, height, [this](Window &w) {
             SetupWindow(w);
         });
-        pending_windows_.push_back(std::move(window));
+        if (primary) {
+            primary_ = std::move(window);
+        } else {
+            pending_windows_.push_back(std::move(window));
+        }
     }
 
 };
