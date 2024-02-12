@@ -12,10 +12,10 @@ private:
     using tuple_type = typename std::tuple<std::weak_ptr<T>...>;
 
     template<size_t N>
-    struct element {
-        using ptr = typename std::tuple_element<N, tuple_type>::type;
-        using type = typename ptr::element_type;
-    };
+    using element_t = typename std::tuple_element<N, tuple_type>::type;
+
+    template<size_t N>
+    using raw_type = typename element_t<N>::element_type;
 
     tuple_type data_;
 
@@ -36,7 +36,7 @@ private:
 protected:
 
     template<size_t N>
-    std::shared_ptr<typename element<N>::type> data() {
+    std::shared_ptr<raw_type<N>> data() {
         return std::get<N>(data_).lock();
     }
 
