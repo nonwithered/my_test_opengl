@@ -19,7 +19,12 @@ protected:
 
         auto transform_ = transform();
         transform_.translate() = glm::vec3(-0.5f, 0.5f, 0.0f);
-        transform_.rotate() = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        {
+            glm::mat4 rotate(1.0f);
+            rotate = glm::rotate(rotate, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+            rotate = glm::rotate(rotate, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            transform_.rotate() = rotate;
+        }
         transform_.scale() = glm::vec3(0.5f);
         transform(transform_);
 

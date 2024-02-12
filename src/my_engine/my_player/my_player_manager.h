@@ -9,12 +9,10 @@
 
 class PlayerManager {
 
-public:
+private:
 
     using controller_t = typename std::shared_ptr<PlayerController>;
     using vector_controller_t = typename std::vector<controller_t>;
-
-private:
 
     static constexpr auto TAG = "Level";
 
