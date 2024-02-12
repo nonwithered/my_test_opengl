@@ -45,4 +45,27 @@ public:
         transform.rotate() = glm::rotate(transform.rotate(), glm::radians(angle), direction);
         owner->transform(transform);
     }
+
+    void RotatePitch(float angle) {
+        auto owner = parent();
+        if (!owner) {
+            return;
+        }
+        auto transform = owner->transform();
+        auto rotate_matrix = transform.rotate_transform();
+        glm::vec3 direction = rotate_matrix * Transform::direction_left_default();
+        transform.rotate() = glm::rotate(glm::mat4(1.0f), glm::radians(angle), direction) * transform.rotate();
+        owner->transform(transform);
+    }
+
+    void RotateYaw(float angle) {
+        auto owner = parent();
+        if (!owner) {
+            return;
+        }
+        auto transform = owner->transform();
+        glm::vec3 direction = Transform::direction_up_default();
+        transform.rotate() = glm::rotate(glm::mat4(1.0f), glm::radians(angle), direction) * transform.rotate();
+        owner->transform(transform);
+    }
 };

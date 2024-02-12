@@ -86,8 +86,13 @@ public:
     }
 
     static glm::vec4 direction_up_default() {
-        static auto up_ = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
-        return up_;
+        static auto direction_ = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+        return direction_;
+    }
+
+    static glm::vec4 direction_left_default() {
+        static auto direction_ = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
+        return direction_;
     }
 
     static bool parallel(const glm::vec3 &lhs, const glm::vec3 &rhs) {

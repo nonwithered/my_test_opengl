@@ -32,7 +32,8 @@ protected:
         insert(Model<TestCamera>::Make());
 
         Find<MovementComponent>()->Move(-1.0, -45.0f);
-        Find<MovementComponent>()->Rotate(90.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+        Find<MovementComponent>()->RotatePitch(90.0f);
+        Find<MovementComponent>()->RotateYaw(90.0f);
     }
 
 };
