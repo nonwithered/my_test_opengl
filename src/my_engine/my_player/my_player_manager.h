@@ -9,7 +9,23 @@
 
 class PlayerManager {
 
-private:
+public:
+    
+    template<typename T>
+    T *FindPlayer(std::function<bool(T &)> block = nullptr) {
+        for (auto &controller : controller_) {
+            T *p = TypeCast<T>(controller.get());
+            if (p && (!block || block(*p))) {
+                return p;
+            }
+        }
+        return nullptr;
+    }
+
+    PlayerManager() = default;
+    ~PlayerManager() = default;
+
+protected:
 
     using controller_t = typename std::shared_ptr<PlayerController>;
     using vector_controller_t = typename std::vector<controller_t>;
@@ -20,11 +36,6 @@ private:
     PlayerManager(PlayerManager &&) = delete;
 
     vector_controller_t controller_;
-
-public:
-
-    PlayerManager() = default;
-    ~PlayerManager() = default;
 
     void NewPlayer(controller_t controller) {
         controller_.push_back(std::move(controller));

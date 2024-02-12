@@ -45,7 +45,7 @@ public:
     }
 };
 
-class Level : public Model<Level> {
+class Level : public Model<Level>, public PlayerManager {
 
     friend class LevelManager;
 
@@ -84,8 +84,8 @@ private:
     }
 
     void PerformStart() {
-        new_player_ = [this](std::shared_ptr<PlayerController> controller) {
-            player_.NewPlayer(std::move(controller));
+        new_player_ = [this](auto controller) {
+            PlayerManager::NewPlayer(std::move(controller));
         };
         OnStart();
         new_player_ = nullptr;
@@ -152,7 +152,7 @@ protected:
 public:
 
     Level(const std::string &name)
-    : name_(name) {
+    : Model(), PlayerManager(), name_(name) {
         LOGI(TAG, "ctor %s", name_.data());
     }
 

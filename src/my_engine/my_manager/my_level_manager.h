@@ -56,7 +56,7 @@ private:
         if (!level) {
             return;
         }
-        if (level->player_.PerformFrame(global_, frame)) {
+        if (level->PerformFrame(global_, frame)) {
             level->PerformFinish();
         }
     }
@@ -66,7 +66,7 @@ private:
         if (!level) {
             return;
         }
-        return level->player_.PerformKeyEvent(context, key, press);
+        return level->PerformKeyEvent(context, key, press);
     }
 
     void PerformMouseButtonEvent(Context &context, int button, bool press) {
@@ -74,7 +74,7 @@ private:
         if (!level) {
             return;
         }
-        return level->player_.PerformMouseButtonEvent(context, button, press);
+        return level->PerformMouseButtonEvent(context, button, press);
     }
 
     void OnWindowClose(Context &context) {
@@ -83,7 +83,7 @@ private:
             return;
         }
         LOGI(TAG, "OnWindowClose %s", context.title().data());
-        return level->player_.OnWindowClose(context);
+        return level->OnWindowClose(context);
     }
 
 public:

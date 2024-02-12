@@ -121,9 +121,6 @@ public:
 
 class TestLevel : public Level {
 
-private:
-    std::weak_ptr<TestController> test_player_;
-
 protected:
 
     void OnCreate() override {
@@ -134,21 +131,21 @@ protected:
     }
 
     void OnStart() override {
-        test_player_ = NewPlayer<TestController>(self());
+        NewPlayer<TestController>(self());
     }
 
     void OnResume() override {
         Level::OnResume();
-        auto test_player = test_player_.lock();
-        if (test_player) {
-            test_player->window_ = &RequireWindow(::TAG);
+        auto player = FindPlayer<TestController>();
+        if (player) {
+            player->window_ = &RequireWindow(::TAG);
         }
     }
 
     void OnPause() override {
-        auto test_player = test_player_.lock();
-        if (test_player) {
-            test_player->window_ = nullptr;
+        auto player = FindPlayer<TestController>();
+        if (player) {
+            player->window_ = nullptr;
         }
     }
 
