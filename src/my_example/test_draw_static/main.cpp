@@ -118,8 +118,13 @@ protected:
         actor().insert(Model<RectPictureColor>::Make());
     }
 
-    void OnStart(Global &context) override {
+    void OnStart() override {
         NewPlayer<TestController>(self());
+    }
+
+    void OnResume() override {
+        Level::OnResume();
+        RequireWindow(::TAG);
     }
 
 public:
@@ -141,8 +146,6 @@ protected:
 int main() {
 
     auto runtime = Runtime::Make<TestLauncherModule>();
-
-    runtime.window().NewWindow(TAG);
 
     runtime.Loop();
 

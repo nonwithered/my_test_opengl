@@ -6,6 +6,7 @@
 #include "my_model/my_actor.h"
 
 #include "my_framework/my_context.h"
+#include "my_framework/my_window_manager.h"
 
 #include "my_player/my_player_manager.h"
 
@@ -66,6 +67,7 @@ private:
     PlayerManager player_;
 
     std::function<void(std::shared_ptr<PlayerController>)> new_player_;
+    std::unique_ptr<std::pair<Context *, std::vector<Context *>>> require_window_;
 
     void PerformFinish() {
         if (finish_) {
@@ -81,20 +83,24 @@ private:
         cleaner_->OnLevelFinish(self());
     }
 
-    void PerformStart(Global &context) {
+    void PerformStart() {
         new_player_ = [this](std::shared_ptr<PlayerController> controller) {
             player_.NewPlayer(std::move(controller));
         };
-        OnStart(context);
+        OnStart();
         new_player_ = nullptr;
     }
 
-    void PerformResume(Global &context) {
-        OnResume(context);
+    void PerformResume() {
+        require_window_ = std::make_unique<decltype(require_window_)::element_type>();
+        OnResume();
+        require_window_->second.push_back(require_window_->first);
+        global().window().EnsureSurvivor(require_window_->second);
+        require_window_.reset();
     }
 
-    void PerformPause(Global &context) {
-        OnPause(context);
+    void PerformPause() {
+        OnPause();
     }
 
 protected:
@@ -105,13 +111,13 @@ protected:
         actor_->name(name());
     }
 
-    virtual void OnStart(Global &context) {
+    virtual void OnStart() {
     }
 
-    virtual void OnResume(Global &context) {
+    virtual void OnResume() {
     }
 
-    virtual void OnPause(Global &context) {
+    virtual void OnPause() {
     }
 
     template<typename T, typename ...Args>
@@ -124,6 +130,21 @@ protected:
         LOGI(TAG, "NewPlayer %s", type_name);
         auto player = Model<T>::Make(std::forward<Args>(args)...);
         new_player_(std::move(player));
+    }
+
+    Context &RequireWindow(const std::string &title, int width = 0, int height = 0) {
+        if (!require_window_) {
+            LOGE(TAG, "RequireWindow invalid");
+            throw std::exception();
+        }
+        if (width == 0 && height == 0) {
+            auto &context = global().window().RequirePrimary(title);
+            require_window_->first = &context;
+            return context;
+        }
+        auto &context = global().window().RequireIndex(require_window_->second.size(), title, width, height);
+        require_window_->second.push_back(&context);
+        return context;
     }
 
 public:

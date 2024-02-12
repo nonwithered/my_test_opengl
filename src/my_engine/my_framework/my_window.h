@@ -73,10 +73,6 @@ private:
             LOGI(TAG, "CreateWindow primary %s %d %d", title.data(), width, height);
             return glfwCreateWindow(width, height, title.data(), monitor, nullptr);
         }
-        if (width <= 0 || height <= 0) {
-            LOGE(TAG, "NewId but size invalid %s %d %d", title.data(), width, height);
-            throw std::exception();
-        }
         LOGI(TAG, "CreateWindow %s %d %d", title.data(), width, height);
         return glfwCreateWindow(width, height, title.data(), nullptr, nullptr);
     }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "my_utils/my_log.h"
+#include "my_utils/my_contains.h"
 
 #include "my_framework/my_module.h"
 #include "my_framework/my_window.h"
@@ -29,6 +30,7 @@ public:
 class WindowManager {
 
     friend class Runtime;
+    friend class Level;
 
 private:
 
@@ -136,12 +138,7 @@ private:
         if (primary_) {
             primary_->PerformFrame(module);
         }
-        for (auto i = pending_windows_.begin(); i != pending_windows_.end(); ) {
-            auto &window = *i;
-            LOGI(TAG, "move window %s", window->title().data());
-            windows_.push_back(std::move(window));
-            i = pending_windows_.erase(i);
-        }
+        MovePending();
         for (auto &window : windows_) {
             window->PerformFrame(module);
         }
@@ -152,12 +149,7 @@ private:
         if (primary_.get() == &window) {
             primary_.reset();
         }
-        for (auto i = pending_windows_.begin(); i != pending_windows_.end(); ) {
-            auto &p = *i;
-            if (p.get() == &window) {
-                pending_windows_.erase(i);
-            }
-        }
+        MovePending();
         for (auto i = windows_.begin(); i != windows_.end(); ) {
             auto &p = *i;
             if (p.get() == &window) {
@@ -192,6 +184,64 @@ private:
         return nullptr;
     }
 
+    void MovePending() {
+        for (auto i = pending_windows_.begin(); i != pending_windows_.end(); ) {
+            auto &window = *i;
+            LOGI(TAG, "move window %s", window->title().data());
+            windows_.push_back(std::move(window));
+            i = pending_windows_.erase(i);
+        }
+    }
+
+    Context &RequirePrimary(const std::string &title) {
+        Context *context = nullptr;
+        if (primary_) {
+            context = primary_.get();
+            context->SetWindowTitle(title);
+        } else {
+            context = &NewWindow(title);
+        }
+        return *context;
+    }
+
+    Context &RequireIndex(size_t index, const std::string &title, int width, int height) {
+        Context *context = nullptr;
+        auto size_ = windows_.size();
+        if (size_ > index) {
+            context = windows_[index].get();
+            context->SetWindowTitle(title);
+            context->SetWindowSize(width, height);
+        } else if (size_ == index) {
+            context = &NewWindow(title, width, height);
+        } else {
+            LOGE(TAG, "RequireIndex fail %" PRIu64 " %" PRIu64, (uint64_t) index, (uint64_t) size_);
+            throw std::exception();
+        }
+        return *context;
+    }
+
+    void EnsureSurvivor(std::vector<Context *> windows) {
+        for (auto context : windows) {
+            auto window = TypeCast<Window>(context);
+            if (context && !window) {
+                LOGE(TAG, "EnsureSurvivor fail");
+                throw std::exception();
+            }
+        }
+        if (!Contains(windows, (Context *) primary_.get())) {
+            primary_.reset();
+        }
+        MovePending();
+        for (auto i = windows_.begin(); i != windows_.end(); ) {
+            auto &window = *i;
+            if (!Contains(windows, (Context *) window.get())) {
+                i = windows_.erase(i);
+            } else {
+                ++i;
+            }
+        }
+    }
+
 public:
 
     WindowManager(WindowPresenter &presenter) : presenter_(presenter) {
@@ -220,21 +270,23 @@ public:
         init_ = false;
     }
 
-    void NewWindow(const std::string &title, int width = 0, int height = 0) {
+    Context &NewWindow(const std::string &title, int width = 0, int height = 0) {
         LOGI(TAG, "NewWindow %s %d %d", title.data(), width, height);
         bool primary = width == 0 && height == 0;
         if (primary_ && primary) {
             LOGW(TAG, "NewWindow primary duplicate");
-            return;
+            return *primary_;
         }
         auto window = std::make_unique<Window>(presenter_, title, width, height, [this](Window &w) {
             SetupWindow(w);
         });
+        auto &context = *window;
         if (primary) {
             primary_ = std::move(window);
         } else {
             pending_windows_.push_back(std::move(window));
         }
+        return context;
     }
 
 };

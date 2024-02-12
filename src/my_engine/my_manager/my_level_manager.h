@@ -43,10 +43,10 @@ private:
         auto current_ = current();
         if (last_ != current_) {
             if (last_) {
-                last_->PerformPause(global_);
+                last_->PerformPause();
             }
             if (current_) {
-                current_->PerformResume(global_);
+                current_->PerformResume();
             }
         }
     }
@@ -112,15 +112,15 @@ public:
 
         auto last_ = current();
         if (last_) {
-            last_->PerformPause(global_);
+            last_->PerformPause();
         }
 
         level->cleaner_ = this;
         std::weak_ptr<Level> weak = level;
         level_.push_front(level);
         Level &current_ = *level;
-        current_.PerformStart(global_);
-        current_.PerformResume(global_);
+        current_.PerformStart();
+        current_.PerformResume();
     }
 
     std::shared_ptr<Level> current() const {
