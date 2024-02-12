@@ -68,14 +68,72 @@ public:
 
 };
 
-class TestDrawModule : public ScopeModule<LocalPlayerController<2>, TestPawn> {
+class TestPawnModule : public ScopeModule<LocalPlayerController<2>, TestPawn> {
 
-protected:
+private:
 
-    bool OnFrame(Context &context) override {
-        if (&context != scope<0>()->window<0>()) {
-            return false;
+    static constexpr auto rate = 0.5;
+    static constexpr auto sensitivity = 0.05f;
+
+    bool move_front_ = false;
+    bool move_back_ = false;
+    bool move_left_ = false;
+    bool move_right_ = false;
+
+    double pos_x_ = 0.0;
+    double pos_y_ = 0.0;
+
+    void BindKeyEvent(int key, bool TestPawnModule::* field) {
+        ListenKeyEvent(key, true, [=](Context &context) -> bool {
+            if (&context != scope<0>()->window<0>()) {
+                return false;
+            }
+            this->*field = true;
+        });
+        ListenKeyEvent(key, false, [=](Context &context) -> bool {
+            if (&context != scope<0>()->window<0>()) {
+                return false;
+            }
+            this->*field = false;
+        });
+    }
+
+    void Move(Context &context) {
+        auto distance = rate * context.global().interval();
+        auto front_back_ = 0;
+        auto left_right_ = 0;
+        if (move_front_) {
+            ++front_back_;
         }
+        if (move_back_) {
+            --front_back_;
+        }
+        if (move_left_) {
+            ++left_right_;
+        }
+        if (move_right_) {
+            --left_right_;
+        }
+        scope<1>()->Find<MovementComponent>()->Move(front_back_ * distance);
+        scope<1>()->Find<MovementComponent>()->Move(left_right_ * distance, 90.0f);
+    }
+
+    void Rotate(Context &context) {
+        if (&context != scope<0>()->window<0>()) {
+            return;
+        }
+        auto [x, y] = context.GetCursorPos();
+        auto delta_x = pos_x_ - x;
+        auto delta_y = pos_y_ - y;
+        pos_x_ = x;
+        pos_y_ = y;
+        auto pitch = delta_y * sensitivity;
+        auto yaw = delta_x * sensitivity;
+        scope<1>()->Find<MovementComponent>()->RotatePitch(pitch);
+        scope<1>()->Find<MovementComponent>()->RotateYaw(yaw);
+    }
+
+    void Draw(Context &context) {
         auto [width, height] = context.GetFramebufferSize();
         glViewport(0, 0, width, height);
         auto level = scope<1>()->LookUp<LevelActor>(::TAG)->level();
@@ -88,13 +146,28 @@ protected:
                 mesh_actor->Draw(context, uniform);
             }
         }
+    }
+
+protected:
+
+    bool OnFrame(Context &context) override {
+        if (&context != scope<0>()->window<0>()) {
+            return false;
+        }
+        Move(context);
+        Rotate(context);
+        Draw(context);
         return ScopeModule::OnFrame(context);
     }
 
 public:
 
-    TestDrawModule(std::weak_ptr<LocalPlayerController<2>> controller, std::weak_ptr<TestPawn> actor)
+    TestPawnModule(std::weak_ptr<LocalPlayerController<2>> controller, std::weak_ptr<TestPawn> actor)
     : ScopeModule(controller, actor) {
+        BindKeyEvent(GLFW_KEY_W, &TestPawnModule::move_front_);
+        BindKeyEvent(GLFW_KEY_S, &TestPawnModule::move_back_);
+        BindKeyEvent(GLFW_KEY_A, &TestPawnModule::move_left_);
+        BindKeyEvent(GLFW_KEY_D, &TestPawnModule::move_right_);
     }
 };
 
@@ -117,7 +190,7 @@ protected:
 
         auto actor = Model<TestPawn>::Make();
         level()->actor().insert(actor);
-        module().NewModule<TestDrawModule>(controller(), actor);
+        module().NewModule<TestPawnModule>(controller(), actor);
     }
 };
 
@@ -141,8 +214,10 @@ protected:
         Level::OnResume();
         auto player = FindPlayer<TestController>();
         if (player) {
-            player->window<0>() = &RequireWindow(::TAG, 800, 600);
             player->window<1>() = &RequireWindow(::TAG, 600, 800);
+            player->window<0>() = &RequireWindow(::TAG, 800, 600);
+            // player->window<0>() = &RequireWindow(::TAG);
+            player->window<0>()->SetInputMode(GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         }
     }
 
