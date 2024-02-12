@@ -65,10 +65,14 @@ private:
 
     PlayerManager player_;
 
+    std::function<void(std::shared_ptr<PlayerController>)> new_player_;
+
     void PerformStart(Global &context) {
-        OnStart(context, [this](std::shared_ptr<PlayerController> controller) {
+        new_player_ = [this](std::shared_ptr<PlayerController> controller) {
             player_.NewPlayer(std::move(controller));
-        });
+        };
+        OnStart(context);
+        new_player_ = nullptr;
     }
 
     void PerformFinish() {
@@ -87,15 +91,25 @@ private:
 
 protected:
 
-    using NewPlayer = typename std::function<void(std::shared_ptr<PlayerController>)>;
-
     void OnCreate() override {
         LOGI(TAG, "OnCreate %s", name_.data());
         actor_->level_ = self();
         actor_->name(name());
     }
 
-    virtual void OnStart(Global &context, NewPlayer new_player) {
+    virtual void OnStart(Global &context) {
+    }
+
+    template<typename T, typename ...Args>
+    void NewPlayer(Args... args) {
+        if (!new_player_) {
+            LOGE(TAG, "NewPlayer invalid");
+            throw std::exception();
+        }
+        auto type_name = typeid(T).name();
+        LOGI(TAG, "NewPlayer %s", type_name);
+        auto player = Model<T>::Make(std::forward<Args>(args)...);
+        new_player_(std::move(player));
     }
 
 public:

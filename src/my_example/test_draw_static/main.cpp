@@ -113,8 +113,8 @@ protected:
         actor().insert(Model<RectPictureColor>::Make());
     }
 
-    void OnStart(Global &context, NewPlayer new_player) override {
-        new_player(Model<TestController>::Make(self()));
+    void OnStart(Global &context) override {
+        NewPlayer<TestController>(self());
     }
 
 public:
