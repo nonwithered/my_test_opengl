@@ -21,6 +21,7 @@ private:
 
     Global &global_;
 
+    bool primary_;
     std::string title_;
 
     std::unique_ptr<ResourceManager> resource_ = std::make_unique<ResourceManager>();
@@ -50,6 +51,36 @@ private:
         return Guard(*this);
     }
 
+    GLFWmonitor *GetPrimaryMonitor() {
+        auto monitor = glfwGetPrimaryMonitor();
+        if (!monitor) {
+            LOGE(TAG, "GetPrimaryMonitor fail");
+            throw std::exception();
+        }
+        return monitor;
+    }
+
+    GLFWwindow *NewId(const std::string &title, int width, int height) {
+        if (width == 0 && height == 0) {
+            auto monitor = GetPrimaryMonitor();
+            auto mode = glfwGetVideoMode(monitor);
+            if (!mode) {
+                LOGE(TAG, "GetVideoMode fail");
+                throw std::exception();
+            }
+            width = mode->width;
+            height = mode->height;
+            LOGI(TAG, "CreateWindow primary %s %d %d", title.data(), width, height);
+            return glfwCreateWindow(width, height, title.data(), monitor, nullptr);
+        }
+        if (width <= 0 || height <= 0) {
+            LOGE(TAG, "NewId but size invalid %s %d %d", title.data(), width, height);
+            throw std::exception();
+        }
+        LOGI(TAG, "CreateWindow %s %d %d", title.data(), width, height);
+        return glfwCreateWindow(width, height, title.data(), nullptr, nullptr);
+    }
+
 public:
 
     Window(
@@ -58,8 +89,9 @@ public:
         int width,
         int height,
         std::function<void(Window &)> init)
-    : id_(glfwCreateWindow(width, height, title.data(), nullptr, nullptr))
+    : id_(NewId(title, width, height))
     , global_(global)
+    , primary_(width == 0 && height == 0)
     , title_(title) {
         LOGI(TAG, "ctor %s", title_.data());
         if (id_ == nullptr) {
@@ -120,6 +152,10 @@ public:
 
     ResourceManager &resource() override {
         return *resource_;
+    }
+
+    bool primary() override {
+        return primary_;
     }
 
     const std::string &title() override {

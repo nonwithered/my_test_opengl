@@ -212,7 +212,7 @@ public:
         init_ = false;
     }
 
-    void NewWindow(const std::string &title, int width, int height) {
+    void NewWindow(const std::string &title, int width = 0, int height = 0) {
         LOGI(TAG, "NewWindow %s", title.data());
         auto window = std::make_unique<Window>(presenter_, title, width, height, [this](Window &w) {
             SetupWindow(w);
