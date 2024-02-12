@@ -21,12 +21,12 @@ private:
 
     template<size_t N>
     bool alive() {
-        return (bool) data<N>() && (bool) data<N - 1>();
+        return (bool) scope<N>() && (bool) scope<N - 1>();
     }
 
     template<>
     bool alive<0>() {
-        return (bool) data<0>();
+        return (bool) scope<0>();
     }
 
     bool alive(Global &context) final {
@@ -36,12 +36,12 @@ private:
 protected:
 
     template<size_t N>
-    std::shared_ptr<raw_type<N>> data() {
+    std::shared_ptr<raw_type<N>> scope() {
         return std::get<N>(data_).lock();
     }
 
 public:
-    ScopeModule(std::weak_ptr<T>... data) : LiveModule(), data_(std::move(data)...) {
+    ScopeModule(std::weak_ptr<T> ...data) : LiveModule(), data_(std::move(data)...) {
     }
 
     ~ScopeModule() = default;

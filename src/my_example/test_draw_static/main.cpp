@@ -37,12 +37,18 @@ protected:
 
 };
 
-class TestBackgroundModule : public ScopeModule<PlayerController> {
+class TestBackgroundModule : public ScopeModule<LocalPlayerController<2>> {
 
 protected:
 
     bool OnFrame(Context &context) override {
-        auto [width, height] = context.GetFramebufferSize();    
+        auto [width, height] = context.GetFramebufferSize();   
+        if (&context != scope<0>()->window<0>()) {
+            glViewport(0, 0, width, height);
+            glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            return false;
+        } 
         glViewport(0, 0, width, height);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -51,30 +57,27 @@ protected:
 
 public:
 
-    TestBackgroundModule(std::weak_ptr<PlayerController> p)
-    : ScopeModule(std::move(p)) {
+    TestBackgroundModule(std::weak_ptr<LocalPlayerController<2>> controller)
+    : ScopeModule(controller) {
         ListenKeyEvent(GLFW_KEY_ESCAPE, true, [this](Context &context) -> bool {
-            data<0>()->Quit();
+            scope<0>()->Quit();
             return false;
         });
     }
 
 };
 
-class TestDrawModule : public ScopeModule<CameraActor> {
-
-private:
-    std::function<Context *()> window_;
+class TestDrawModule : public ScopeModule<LocalPlayerController<2>, CameraActor> {
 
 protected:
 
     bool OnFrame(Context &context) override {
-        if (&context != window_()) {
+        if (&context != scope<0>()->window<0>()) {
             return false;
         }
-        auto level = data<0>()->LookUp<LevelActor>(::TAG)->level();
+        auto level = scope<1>()->LookUp<LevelActor>(::TAG)->level();
         auto uniform = UniformParameter();
-        data<0>()->LookAt(uniform);
+        scope<1>()->LookAt(uniform);
         for (auto i = 0; i != level->actor().size(); ++i) {
             auto actor = level->actor().at(i);
             auto mesh_actor = dynamic_cast<MeshActor *>(actor.get());
@@ -87,13 +90,12 @@ protected:
 
 public:
 
-    TestDrawModule(std::weak_ptr<CameraActor> p, std::function<Context *()> window)
-    : ScopeModule(std::move(p))
-    , window_(window) {
+    TestDrawModule(std::weak_ptr<LocalPlayerController<2>> controller, std::weak_ptr<CameraActor> camera)
+    : ScopeModule(controller, camera) {
     }
 };
 
-class TestController : public LocalPlayerController {
+class TestController : public LocalPlayerController<2> {
 
 public:
     TestController(std::weak_ptr<Level> level_) : LocalPlayerController(level_) {
@@ -106,17 +108,14 @@ public:
 protected:
 
     virtual void OnCreate() {
-        module().NewModule<TestBackgroundModule>(self());
+        LocalPlayerController<2>::OnCreate();
+
+        module().NewModule<TestBackgroundModule>(controller());
 
         auto camera = Model<TestCamera>::Make();
         level()->actor().insert(camera);
-        module().NewModule<TestDrawModule>(camera, [this]() -> Context * {
-            return window_;
-        });
+        module().NewModule<TestDrawModule>(controller(), camera);
     }
-
-public:
-    Context *window_ = nullptr;
 };
 
 class TestLevel : public Level {
@@ -131,6 +130,7 @@ protected:
     }
 
     void OnStart() override {
+        Level::OnStart();
         NewPlayer<TestController>(self());
     }
 
@@ -138,14 +138,8 @@ protected:
         Level::OnResume();
         auto player = FindPlayer<TestController>();
         if (player) {
-            player->window_ = &RequireWindow(::TAG);
-        }
-    }
-
-    void OnPause() override {
-        auto player = FindPlayer<TestController>();
-        if (player) {
-            player->window_ = nullptr;
+            player->window<0>() = &RequireWindow(::TAG);
+            player->window<1>() = &RequireWindow(::TAG, 800, 600);
         }
     }
 

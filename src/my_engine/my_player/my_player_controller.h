@@ -18,11 +18,16 @@ private:
 
     bool quit_ = false;
 
+    PlayerController(const PlayerController &) = delete;
+    PlayerController(PlayerController &&) = delete;
+
 protected:
     PlayerController(std::weak_ptr<Level> level) : FrameMonitor(), level_(level) {
     }
 
 public:
+
+    virtual ~PlayerController() = default;
 
     std::shared_ptr<Level> level() {
         return level_.lock();

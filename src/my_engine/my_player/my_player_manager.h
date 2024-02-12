@@ -41,6 +41,12 @@ protected:
         controller_.push_back(std::move(controller));
     }
 
+    void Collect(std::function<void(PlayerController &)> block) {
+        for (auto &controller : controller_) {
+            block(*controller);
+        }
+    }
+
     bool PerformFrame(Global &context_, std::function<void(Module &)>frame) {
         for (auto i = controller_.begin(); i != controller_.end(); ) {
             auto &controller = *i;
@@ -53,7 +59,7 @@ protected:
         }
         bool exist = false;
         for (auto &controller : controller_) {
-            auto *p = TypeCast<LocalPlayerController>(controller.get());
+            auto *p = TypeCast<BaseLocalPlayerController>(controller.get());
             if (p) {
                 exist = true;
                 frame(p->module());
@@ -64,7 +70,7 @@ protected:
 
     void PerformKeyEvent(Context &context, int key, bool press) {
         for (auto &controller : controller_) {
-            auto *p = TypeCast<LocalPlayerController>(controller.get());
+            auto *p = TypeCast<BaseLocalPlayerController>(controller.get());
             if (p) {
                 p->module().PerformKeyEvent(context, key, press);
             }
@@ -73,7 +79,7 @@ protected:
 
     void PerformMouseButtonEvent(Context &context, int button, bool press) {
         for (auto &controller : controller_) {
-            auto *p = TypeCast<LocalPlayerController>(controller.get());
+            auto *p = TypeCast<BaseLocalPlayerController>(controller.get());
             if (p) {
                 p->module().PerformMouseButtonEvent(context, button, press);
             }
@@ -82,7 +88,7 @@ protected:
 
     void OnWindowClose(Context &context) {
         for (auto &controller : controller_) {
-            auto *p = TypeCast<LocalPlayerController>(controller.get());
+            auto *p = TypeCast<BaseLocalPlayerController>(controller.get());
             if (p) {
                 p->OnWindowClose(context);
             }
