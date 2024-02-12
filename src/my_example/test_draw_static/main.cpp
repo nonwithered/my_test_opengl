@@ -54,7 +54,7 @@ public:
     TestBackgroundModule(std::weak_ptr<PlayerController> p)
     : ScopeModule(std::move(p)) {
         ListenKeyEvent(GLFW_KEY_ESCAPE, true, [this](Context &context) -> bool {
-            data()->Quit();
+            data<0>()->Quit();
             return false;
         });
     }
@@ -72,9 +72,9 @@ protected:
         if (&context != window_()) {
             return false;
         }
-        auto level = data()->LookUp<LevelActor>(::TAG)->level();
+        auto level = data<0>()->LookUp<LevelActor>(::TAG)->level();
         auto uniform = UniformParameter();
-        data()->LookAt(uniform);
+        data<0>()->LookAt(uniform);
         for (auto i = 0; i != level->actor().size(); ++i) {
             auto actor = level->actor().at(i);
             auto mesh_actor = dynamic_cast<MeshActor *>(actor.get());
