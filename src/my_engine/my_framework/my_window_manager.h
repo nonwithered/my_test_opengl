@@ -205,6 +205,7 @@ private:
     }
 
     Context &RequireIndex(size_t index, const std::string &title, int width, int height) {
+        MovePending();
         Context *context = nullptr;
         auto size_ = windows_.size();
         if (size_ > index) {

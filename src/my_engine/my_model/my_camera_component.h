@@ -6,7 +6,7 @@
 
 #include "my_graphic/my_uniform.h"
 
-class CameraActor : public Actor {
+class CameraComponent : public Actor {
 
 public: 
 
@@ -15,7 +15,7 @@ public:
 
 private:
 
-    static constexpr auto TAG = "CameraActor";
+    static constexpr auto TAG = "CameraComponent";
 
     glm::mat4 transform_view() {
         auto rotate_matrix = rotate_global();
@@ -35,10 +35,6 @@ protected:
     virtual glm::mat4 transform_projection() = 0;
 
 public:
-
-    CameraActor() = default;
-
-    ~CameraActor() = default;
 
     void LookAt(UniformParameter &uniform) {
         uniform.emplace(uniform_view, UniformMatrix4fv::Make(false, { transform_view() }));

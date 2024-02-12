@@ -4,10 +4,11 @@
 
 class MovementComponent : public Actor {
 
-public:
+private:
 
-    MovementComponent() = default;
-    ~MovementComponent() = default;
+    static constexpr auto TAG = "MovementComponent";
+
+public:
 
     void MoveUp(float distance) {
         auto owner = parent();
@@ -32,6 +33,16 @@ public:
         glm::vec3 direction_up = rotate_matrix * Transform::direction_up_default();
         direction = glm::rotate(glm::mat4(1.0f), glm::radians(angle), direction_up) * glm::vec4(direction, 1.0f);
         transform.translate() = transform.translate() + direction * distance;
+        owner->transform(transform);
+    }
+
+    void Rotate(float angle, glm::vec3 direction) {
+        auto owner = parent();
+        if (!owner) {
+            return;
+        }
+        auto transform = owner->transform();
+        transform.rotate() = glm::rotate(transform.rotate(), glm::radians(angle), direction);
         owner->transform(transform);
     }
 };

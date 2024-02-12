@@ -1,5 +1,6 @@
 #include <my_framework/my_runtime.h>
-#include <my_model/my_camera_actor.h>
+#include <my_model/my_camera_component.h>
+#include <my_model/my_pawn_actor.h>
 
 #include "RectSingleColor.h"
 #include "RectMultiColor.h"
@@ -7,7 +8,17 @@
 
 static constexpr auto TAG = "test_draw_rect";
 
-class TestCamera : public CameraActor {
+class TestCamera : public CameraComponent {
+
+protected:
+
+    glm::mat4 transform_projection() override {
+        return glm::mat4(1.0f);
+    }
+
+};
+
+class TestPawn : public PawnActor {
 
 private:
 
@@ -16,23 +27,12 @@ private:
 protected:
 
     void OnCreate() override {
+        PawnActor::OnCreate();
 
-        auto transform_ = transform();
-        transform_.translate() = glm::vec3(-0.5f, 0.5f, 0.0f);
-        {
-            glm::mat4 rotate(1.0f);
-            rotate = glm::rotate(rotate, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-            rotate = glm::rotate(rotate, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-            transform_.rotate() = rotate;
-        }
-        transform_.scale() = glm::vec3(0.5f);
-        transform(transform_);
+        insert(Model<TestCamera>::Make());
 
-        name(TAG);
-    }
-
-    glm::mat4 transform_projection() override {
-        return glm::mat4(1.0f);
+        Find<MovementComponent>()->Move(-1.0, -45.0f);
+        Find<MovementComponent>()->Rotate(90.0f, glm::vec3(0.0f, 1.0f, 0.0f));
     }
 
 };
@@ -70,7 +70,7 @@ public:
 
 };
 
-class TestDrawModule : public ScopeModule<LocalPlayerController<2>, CameraActor> {
+class TestDrawModule : public ScopeModule<LocalPlayerController<2>, TestPawn> {
 
 protected:
 
@@ -80,7 +80,7 @@ protected:
         }
         auto level = scope<1>()->LookUp<LevelActor>(::TAG)->level();
         auto uniform = UniformParameter();
-        scope<1>()->LookAt(uniform);
+        scope<1>()->Find<CameraComponent>()->LookAt(uniform);
         for (auto i = 0; i != level->actor().size(); ++i) {
             auto actor = level->actor().at(i);
             auto mesh_actor = dynamic_cast<MeshActor *>(actor.get());
@@ -93,8 +93,8 @@ protected:
 
 public:
 
-    TestDrawModule(std::weak_ptr<LocalPlayerController<2>> controller, std::weak_ptr<CameraActor> camera)
-    : ScopeModule(controller, camera) {
+    TestDrawModule(std::weak_ptr<LocalPlayerController<2>> controller, std::weak_ptr<TestPawn> actor)
+    : ScopeModule(controller, actor) {
     }
 };
 
@@ -115,9 +115,9 @@ protected:
 
         module().NewModule<TestBackgroundModule>(controller());
 
-        auto camera = Model<TestCamera>::Make();
-        level()->actor().insert(camera);
-        module().NewModule<TestDrawModule>(controller(), camera);
+        auto actor = Model<TestPawn>::Make();
+        level()->actor().insert(actor);
+        module().NewModule<TestDrawModule>(controller(), actor);
     }
 };
 
@@ -141,8 +141,8 @@ protected:
         Level::OnResume();
         auto player = FindPlayer<TestController>();
         if (player) {
-            player->window<1>() = &RequireWindow(::TAG);
             player->window<0>() = &RequireWindow(::TAG, 800, 600);
+            player->window<1>() = &RequireWindow(::TAG, 600, 800);
         }
     }
 
