@@ -89,12 +89,5 @@ protected:
     void OnCreate() override {
         mesh(std::make_shared<ConstMesh>(RectMultiColorMeshParameter()));
         material().Shader(std::make_shared<ConstShader>(RectMultiColorShaderParameter()));
-
-        auto transform_ = transform();
-        transform_.translate() = glm::vec3(0.5f, 0.5f, 0);
-        transform_.scale() = glm::vec3(0.5f);
-        transform(transform_);
-
-        name(TAG);
     }
 };

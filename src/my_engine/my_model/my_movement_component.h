@@ -16,8 +16,7 @@ public:
             return;
         }
         auto transform = owner->transform();
-        auto rotate_matrix = transform.rotate_transform();
-        glm::vec3 direction = rotate_matrix * Transform::direction_up_default();
+        glm::vec3 direction = Transform::direction_up_default();
         transform.translate() = transform.translate() + direction * distance;
         owner->transform(transform);
     }

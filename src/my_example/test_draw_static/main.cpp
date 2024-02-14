@@ -28,8 +28,7 @@ protected:
 
     void OnCreate() override {
         PawnActor::OnCreate();
-
-        insert(Model<TestCamera>::Make());
+        NewActor<TestCamera>();
     }
 
 };
@@ -68,7 +67,7 @@ class TestPawnModule : public ScopeModule<LocalPlayerController<2>, TestPawn> {
 
 private:
 
-    static constexpr auto rate = 0.5;
+    static constexpr auto rate = 5;
     static constexpr auto sensitivity = 0.05f;
 
     bool move_front_ = false;
@@ -86,12 +85,14 @@ private:
                 return false;
             }
             this->*field = true;
+            return false;
         });
         ListenKeyEvent(key, false, [=](Context &context) -> bool {
             if (&context != scope<0>()->window<0>()) {
                 return false;
             }
             this->*field = false;
+            return false;
         });
     }
 
@@ -125,8 +126,8 @@ private:
             return;
         }
         auto [x, y] = context.GetCursorPos();
-        auto delta_x = pos_x_ - x;
-        auto delta_y = y - pos_y_;
+        float delta_x = pos_x_ - x;
+        float delta_y = y - pos_y_;
         pos_x_ = x;
         pos_y_ = y;
         auto pitch = delta_y * sensitivity;
@@ -191,12 +192,9 @@ protected:
 
         module().NewModule<TestBackgroundModule>(controller());
 
-        auto actor = Model<TestPawn>::Make();
-        actor->Find<MovementComponent>()->Move(-1.0, -45.0f);
-        actor->Find<MovementComponent>()->RotatePitch(90.0f);
-        actor->Find<MovementComponent>()->RotateYaw(90.0f);
-        actor->Find<MovementComponent>()->Move(-1.0);
-        level()->actor().insert(actor);
+        auto actor = level()->actor().NewActor<TestPawn>();
+        actor->Find<MovementComponent>()->MoveUp(1.0f);
+
         module().NewModule<TestPawnModule>(controller(), actor);
     }
 };
@@ -207,9 +205,27 @@ protected:
 
     void OnCreate() override {
         Level::OnCreate();
-        actor().insert(Model<RectSingleColor>::Make());
-        actor().insert(Model<RectMultiColor>::Make());
-        actor().insert(Model<RectPictureColor>::Make());
+        {
+            auto mesh = actor().NewActor<RectSingleColor>("RectSingleColor");
+            auto transform= mesh->transform();
+            transform.translate() = glm::vec3(-5, 5, 0);
+            transform.scale() = glm::vec3(5);
+            mesh->transform(transform);
+        }
+        {
+            auto mesh = actor().NewActor<RectMultiColor>("RectMultiColor");
+            auto transform= mesh->transform();
+            transform.translate() = glm::vec3(5, 5, 0);
+            transform.scale() = glm::vec3(5);
+            mesh->transform(transform);
+        }
+        {
+            auto mesh = actor().NewActor<RectPictureColor>("RectPictureColor");
+            auto transform= mesh->transform();
+            transform.translate() = glm::vec3(5, -5, 0);
+            transform.scale() = glm::vec3(5);
+            mesh->transform(transform);
+        }
     }
 
     void OnStart() override {

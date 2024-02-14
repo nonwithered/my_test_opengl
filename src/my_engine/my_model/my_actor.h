@@ -122,5 +122,13 @@ public:
         return nullptr;
     }
 
-
+    template<typename T>
+    std::shared_ptr<T> NewActor(const std::string &name = "") {
+        auto actor = Model<T>::Make();
+        if (!name.empty()) {
+            actor->name(name);
+        }
+        insert(actor);
+        return actor;
+    }
 };

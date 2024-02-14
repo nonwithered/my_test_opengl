@@ -82,12 +82,5 @@ protected:
         mesh(std::make_shared<ConstMesh>(RectSingleColorMeshParameter()));
         material().Shader(std::make_shared<ConstShader>(RectSingleColorShaderParameter()));
         material().Uniform("ourColor", Uniform4f(GetColorVec4(0xffff0000)));
-
-        auto transform_ = transform();
-        transform_.translate() = glm::vec3(-0.5f, 0.5f, 0);
-        transform_.scale() = glm::vec3(0.5f);
-        transform(transform_);
-
-        name(TAG);
     }
 };
