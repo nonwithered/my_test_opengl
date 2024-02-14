@@ -49,6 +49,13 @@ public:
         return Frame(context);
     }
 
+    void PerformFramebufferSize(Context &context, int width, int height) {
+        OnFramebufferSize(context, width, height);
+        for (auto &module : children_) {
+            module->PerformFramebufferSize(context, width, height);
+        }
+    }
+
     void PerformKeyEvent(Context &context, int key, bool press) {
         if (KeyEvent(context, key, press)) {
             return;

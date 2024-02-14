@@ -61,6 +61,14 @@ private:
         }
     }
 
+    void PerformFramebufferSize(Context &context, int width, int height) {
+        auto level = current();
+        if (!level) {
+            return;
+        }
+        return level->PerformFramebufferSize(context, width, height);
+    }
+
     void PerformKeyEvent(Context &context, int key, bool press) {
         auto level = current();
         if (!level) {

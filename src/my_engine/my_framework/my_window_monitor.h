@@ -41,6 +41,8 @@ protected:
         }
     }
 
+    virtual void OnFramebufferSize(Context &context, int width, int height) {
+    }
 
     virtual bool KeyEvent(Context &context, int key, bool press) {
         auto &events = press ? key_event_press_ : key_event_release_;

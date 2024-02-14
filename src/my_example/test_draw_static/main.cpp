@@ -8,31 +8,6 @@
 
 static constexpr auto TAG = "test_draw_rect";
 
-class TestCamera : public CameraComponent {
-
-protected:
-
-    glm::mat4 transform_projection() override {
-        return glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-    }
-
-};
-
-class TestPawn : public PawnActor {
-
-private:
-
-    static constexpr auto TAG = "TestCamera";
-
-protected:
-
-    void OnCreate() override {
-        PawnActor::OnCreate();
-        NewActor<TestCamera>();
-    }
-
-};
-
 class TestBackgroundModule : public ScopeModule<LocalPlayerController<2>> {
 
 protected:
@@ -63,7 +38,7 @@ public:
 
 };
 
-class TestPawnModule : public ScopeModule<LocalPlayerController<2>, TestPawn> {
+class TestPawnModule : public ScopeModule<LocalPlayerController<2>, PawnActor> {
 
 private:
 
@@ -157,6 +132,10 @@ protected:
         if (&context != scope<0>()->window<0>()) {
             return false;
         }
+        if (auto camera = scope<1>()->Find<PerspectiveCameraComponent>(); camera) {
+            auto [width, height] = context.GetWindowSize();
+            camera->ratio((float) width / height);
+        }
         Move(context);
         Rotate(context);
         Draw(context);
@@ -165,7 +144,7 @@ protected:
 
 public:
 
-    TestPawnModule(std::weak_ptr<LocalPlayerController<2>> controller, std::weak_ptr<TestPawn> actor)
+    TestPawnModule(std::weak_ptr<LocalPlayerController<2>> controller, std::weak_ptr<PawnActor> actor)
     : ScopeModule(controller, actor) {
         BindKeyEvent(GLFW_KEY_W, &TestPawnModule::move_front_);
         BindKeyEvent(GLFW_KEY_S, &TestPawnModule::move_back_);
@@ -192,10 +171,21 @@ protected:
 
         module().NewModule<TestBackgroundModule>(controller());
 
-        auto actor = level()->actor().NewActor<TestPawn>();
-        actor->Find<MovementComponent>()->MoveUp(1.0f);
+        auto pawn = level()->actor().NewActor<PawnActor>();
+        pawn->Find<MovementComponent>()->MoveUp(1.0f);
+        pawn->Find<MovementComponent>()->RotatePitch(90);
+        // {
+        //     auto camera = pawn->NewActor<OrthoCameraComponent>();
+        //     camera->vision(0.1, 30);
+        //     camera->sight(-20, 20, -20, 20);
+        // }
+        {
+            auto camera = pawn->NewActor<PerspectiveCameraComponent>();
+            camera->vision(0.1, 100);
+            camera->sight(45);
+        }
 
-        module().NewModule<TestPawnModule>(controller(), actor);
+        module().NewModule<TestPawnModule>(controller(), pawn);
     }
 };
 

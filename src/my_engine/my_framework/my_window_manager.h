@@ -20,10 +20,10 @@ public:
 
     virtual operator Global &() = 0;
 
-    virtual void OnFramebufferSize(Window &window, int width, int height) = 0;
+    virtual void PerformFramebufferSize(Window &window, int width, int height) = 0;
     virtual void PerformKeyEvent(Window &window, int key, bool press) = 0;
     virtual void PerformMouseButtonEvent(Window &window, int button, bool press) = 0;
-    virtual void OnWindowClose(Window &window) = 0;
+    virtual void PerformWindowClose(Window &window) = 0;
 
 };
 
@@ -85,7 +85,7 @@ private:
             }
             auto &context = *w;
             LOGD(TAG, "FramebufferSizeCallback %s %d %d", context.title().data(), width, height);
-            manager.presenter_.OnFramebufferSize(context, width, height);
+            manager.presenter_.PerformFramebufferSize(context, width, height);
         });
         glfwSetKeyCallback(w.id(), [](GLFWwindow *window, int key, int scancode, int action, int mods) {
             if (key == GLFW_KEY_UNKNOWN) {
@@ -128,7 +128,7 @@ private:
             }
             auto &context = *w;
             LOGI(TAG, "WindowCloseCallback %s", context.title().data());
-            manager.presenter_.OnWindowClose(context);
+            manager.presenter_.PerformWindowClose(context);
         });
         // glfwSwapInterval(0);
         glEnable(GL_DEPTH_TEST);

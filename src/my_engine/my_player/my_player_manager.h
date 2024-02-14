@@ -69,6 +69,15 @@ protected:
         return !exist;
     }
 
+    void PerformFramebufferSize(Context &context, int width, int height) {
+        for (auto &controller : controller_) {
+            auto *p = TypeCast<BaseLocalPlayerController>(controller.get());
+            if (p) {
+                p->module().PerformFramebufferSize(context, width, height);
+            }
+        }
+    }
+
     void PerformKeyEvent(Context &context, int key, bool press) {
         for (auto &controller : controller_) {
             auto *p = TypeCast<BaseLocalPlayerController>(controller.get());

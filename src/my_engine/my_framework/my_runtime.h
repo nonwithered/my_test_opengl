@@ -96,8 +96,9 @@ public:
         return *this;
     }
 
-    void OnFramebufferSize(Window &window, int width, int height) override {
-        window.OnFramebufferSize(width, height);
+    void PerformFramebufferSize(Window &window, int width, int height) override {
+        window.PerformFramebufferSize(*module_, width, height);
+        level_.PerformFramebufferSize(window, width, height);
         PerformFrame();
     }
 
@@ -113,7 +114,7 @@ public:
         PerformFrame();
     }
 
-    void OnWindowClose(Window &window) override {
+    void PerformWindowClose(Window &window) override {
         level_.OnWindowClose(window);
         window_.OnWindowClose(window);
         PerformFrame();

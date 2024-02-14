@@ -118,8 +118,10 @@ public:
         return id_;
     }
 
-    void OnFramebufferSize(int width, int height) {
-        LOGD(TAG, "OnFramebufferSize %s %d %d", title_.data(), width, height);
+    void PerformFramebufferSize(Module &module, int width, int height) {
+        auto guard = Use();
+        module.PerformFramebufferSize(*this, width, height);
+
     }
 
     void PerformKeyEvent(Module &module, int key, bool press) {
