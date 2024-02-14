@@ -112,18 +112,10 @@ private:
     }
 
     void Draw(Context &context) {
-        auto [width, height] = context.GetFramebufferSize();
-        glViewport(0, 0, width, height);
-        auto level = scope<1>()->LookUp<LevelActor>(::TAG)->level();
-        auto uniform = UniformParameter();
-        scope<1>()->Find<CameraComponent>()->LookAt(uniform);
-        for (auto i = 0; i != level->actor().size(); ++i) {
-            auto actor = level->actor().at(i);
-            auto mesh_actor = dynamic_cast<MeshActor *>(actor.get());
-            if (mesh_actor) {
-                mesh_actor->Draw(context, uniform);
-            }
-        }
+        auto [w, h] = context.GetFramebufferSize();
+        std::array<int, 4> port = { 0, 0, w, h, };
+        auto level = scope<1>()->LookUp<LevelActor>(::TAG);
+        scope<1>()->Find<CameraComponent>()->Draw(context, *level, port);
     }
 
 protected:
@@ -131,10 +123,6 @@ protected:
     bool OnFrame(Context &context) override {
         if (&context != scope<0>()->window<0>()) {
             return false;
-        }
-        if (auto camera = scope<1>()->Find<PerspectiveCameraComponent>(); camera) {
-            auto [width, height] = context.GetWindowSize();
-            camera->ratio((float) width / height);
         }
         Move(context);
         Rotate(context);

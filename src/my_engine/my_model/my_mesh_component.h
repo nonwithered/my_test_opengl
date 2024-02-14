@@ -6,7 +6,7 @@
 
 #include "my_graphic/my_material.h"
 
-class MeshActor : public Actor {
+class MeshComponent : public Actor {
 
 public:
 
@@ -14,16 +14,16 @@ public:
 
 private:
 
-    static constexpr auto TAG = "MeshActor";
+    static constexpr auto TAG = "MeshComponent";
 
     std::shared_ptr<Mesh> mesh_;
     Material material_;
 
 public:
 
-    MeshActor() = default;
+    MeshComponent() = default;
 
-    ~MeshActor() = default;
+    ~MeshComponent() = default;
 
     void mesh(std::shared_ptr<Mesh> mesh) {
         mesh_ = mesh;

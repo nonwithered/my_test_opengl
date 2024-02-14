@@ -2,7 +2,7 @@
 
 #include <my_framework/my_runtime.h>
 
-#include <my_model/my_mesh_actor.h>
+#include <my_model/my_mesh_component.h>
 
 #include <my_utils/my_color.h>
 
@@ -70,7 +70,7 @@ void main()
     return parameter;
 }
 
-class RectSingleColor : public MeshActor {
+class RectSingleColor : public MeshComponent {
 
 private:
 

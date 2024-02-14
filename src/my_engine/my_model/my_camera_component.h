@@ -1,8 +1,10 @@
 #pragma once
 
 #include "my_utils/my_log.h"
+#include "my_utils/my_cast.h"
 
 #include "my_model/my_actor.h"
+#include <my_model/my_mesh_component.h>
 
 #include "my_graphic/my_uniform.h"
 
@@ -30,15 +32,32 @@ private:
         return transform_global() * Transform::position_default();
     }
 
+    void LookAt(UniformParameter &uniform) {
+        uniform.emplace(uniform_view, UniformMatrix4fv::Make(false, { transform_view() }));
+        uniform.emplace(uniform_projection, UniformMatrix4fv::Make(false, { transform_projection() }));
+    }
+
+    void DrawActor(Context &context, Actor &actor, const UniformParameter &uniform) {
+        if (auto *mesh = TypeCast<MeshComponent>(&actor); mesh)  {
+            mesh->Draw(context, uniform);
+        }
+        for (auto i = 0; i != actor.size(); ++i) {
+            DrawActor(context, *actor.at(i), uniform);
+        }
+    }
+
 protected:
 
     virtual glm::mat4 transform_projection() = 0;
 
 public:
 
-    void LookAt(UniformParameter &uniform) {
-        uniform.emplace(uniform_view, UniformMatrix4fv::Make(false, { transform_view() }));
-        uniform.emplace(uniform_projection, UniformMatrix4fv::Make(false, { transform_projection() }));
+    virtual void Draw(Context &context, LevelActor &actor, const std::array<int, 4> &port) {
+        auto [x, y, w, h] = port;
+        glViewport(x, y, w, h);
+        auto uniform = UniformParameter();
+        LookAt(uniform);
+        DrawActor(context, actor, uniform);
     }
 };
 
@@ -89,6 +108,12 @@ protected:
 
 public:
 
+    void Draw(Context &context, LevelActor &actor, const std::array<int, 4> &port) {
+        auto [x, y, w, h] = port;
+        ratio_ = (float) w / h;
+        CameraComponent::Draw(context, actor, port);
+    }
+
     std::array<float, 2> vision() const {
         return vision_;
     }
@@ -104,13 +129,4 @@ public:
     void sight(float v) {
         sight_ = v;
     }
-
-    float ratio() const {
-        return ratio_;
-    }
-
-    void ratio(float v) {
-        ratio_ = v;
-    }
-
 };
