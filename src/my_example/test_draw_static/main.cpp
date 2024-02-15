@@ -249,7 +249,7 @@ protected:
             camera_->vision({ 0.1f, 100.0f, });
             camera_->sight({ 20.0f, 20.0f, });
             camera_->NewActor<MovementComponent>();
-            camera_->Find<MovementComponent>()->RotatePitch(-90.0f);
+            camera_->Find<MovementComponent>()->RotatePitch(90.0f);
             camera_->Find<MovementComponent>()->Move(-10.0f);
 
             auto layout = camera_->Find<ViewportLayoutComponent>();
