@@ -164,10 +164,10 @@ public:
             }
         }
 
-        int port_x = (int) layout_left;
-        int port_y = (int) layout_bottom;
-        int port_w = (int) (layout_right - layout_left);
-        int port_h = (int) (layout_top - layout_bottom);
+        int port_x = (int) std::round(layout_left);
+        int port_y = (int) std::round(layout_bottom);
+        int port_w = (int) std::round(layout_right - layout_left);
+        int port_h = (int) std::round(layout_top - layout_bottom);
 
         LOGW("test", "%d %d %d %d", port_x, port_y, port_w, port_h);
         viewport->port({ port_x, port_y, port_w, port_h, });

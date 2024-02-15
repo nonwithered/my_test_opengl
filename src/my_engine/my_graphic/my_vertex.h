@@ -293,7 +293,7 @@ public:
             if (index_type_size) {
                 glDrawElements(mode, count, index_type, (const void *) (offset * index_type_size));
             } else {
-                glDrawArrays(mode, offset, (GLsizei) count);
+                glDrawArrays(mode, (GLint) offset, count);
             }
             offset += count;
         }

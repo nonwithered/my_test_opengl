@@ -139,24 +139,24 @@ protected:
         }
         {
             auto layout = scope<0>()->camera<0>()->Find<ViewportLayoutComponent>();
-            layout->margin_horizontal(width / 3);
+            layout->margin_horizontal((float) width / 3);
             layout->SetupViewport(width, height);
         }
         {
             auto layout = scope<0>()->camera<1>()->Find<ViewportLayoutComponent>();
-            layout->size_height(height / 3);
+            layout->size_height((float) height / 3);
             layout->size_width((float) width / height);
             layout->SetupViewport(width, height);
         }
         {
             auto layout = scope<0>()->camera<2>()->Find<ViewportLayoutComponent>();
-            layout->size_height(height / 3);
+            layout->size_height((float) height / 3);
             layout->size_width((float) width / height);
             layout->SetupViewport(width, height);
         }
         {
             auto layout = scope<0>()->camera<3>()->Find<ViewportLayoutComponent>();
-            layout->size_height(height / 3);
+            layout->size_height((float) height / 3);
             layout->size_width((float) width / height);
             layout->SetupViewport(width, height);
         }
