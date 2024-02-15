@@ -207,8 +207,8 @@ protected:
             camera_->vision({ 0.1f, 100.0f, });
             camera_->sight(45.0f);
             camera_->NewActor<MovementComponent>();
-            camera_->Find<MovementComponent>()->Move(-5.0f);
-            camera_->Find<MovementComponent>()->MoveUp(5.0f);
+            camera_->Find<MovementComponent>()->Move(-10.0f);
+            camera_->Find<MovementComponent>()->MoveUp(10.0f);
 
             auto layout = camera_->Find<ViewportLayoutComponent>();
             layout->align_horizontal(ViewportLayoutComponent::AlignHorizontal::RIGHT);
@@ -220,7 +220,7 @@ protected:
             camera_->vision({ 0.1f, 100.0f, });
             camera_->sight({ -10.0f, 10.0f, 10.0f, -10.0f, });
             camera_->NewActor<MovementComponent>();
-            camera_->Find<MovementComponent>()->Move(-5.0f);
+            camera_->Find<MovementComponent>()->Move(-10.0f);
 
             auto layout = camera_->Find<ViewportLayoutComponent>();
             layout->align_horizontal(ViewportLayoutComponent::AlignHorizontal::RIGHT);
@@ -235,7 +235,7 @@ protected:
             camera_->sight({ -10.0f, 10.0f, 10.0f, -10.0f, });
             camera_->NewActor<MovementComponent>();
             camera_->Find<MovementComponent>()->RotateYaw(90.0f);
-            camera_->Find<MovementComponent>()->Move(-5.0f);
+            camera_->Find<MovementComponent>()->Move(-10.0f);
 
             auto layout = camera_->Find<ViewportLayoutComponent>();
             layout->align_horizontal(ViewportLayoutComponent::AlignHorizontal::RIGHT);
@@ -250,7 +250,7 @@ protected:
             camera_->sight({ -10.0f, 10.0f, 10.0f, -10.0f, });
             camera_->NewActor<MovementComponent>();
             camera_->Find<MovementComponent>()->RotatePitch(-90.0f);
-            camera_->Find<MovementComponent>()->Move(-5.0f);
+            camera_->Find<MovementComponent>()->Move(-10.0f);
 
             auto layout = camera_->Find<ViewportLayoutComponent>();
             layout->align_horizontal(ViewportLayoutComponent::AlignHorizontal::RIGHT);
@@ -307,8 +307,8 @@ protected:
         auto player = FindPlayer<TestController>();
         if (player) {
             player->window<1>() = &RequireWindow(::TAG, 600, 800);
-            player->window<0>() = &RequireWindow(::TAG, 800, 600);
-            // player->window<0>() = &RequireWindow(::TAG);
+            // player->window<0>() = &RequireWindow(::TAG, 800, 600);
+            player->window<0>() = &RequireWindow(::TAG);
             player->window<0>()->SetInputMode(GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         }
     }
