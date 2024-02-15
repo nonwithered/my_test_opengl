@@ -5,6 +5,7 @@
 #include "RectSingleColor.h"
 #include "RectMultiColor.h"
 #include "RectPictureColor.h"
+#include "BoxPictureColor.h"
 
 static constexpr auto TAG = "test_draw_rect";
 
@@ -220,6 +221,13 @@ protected:
             auto mesh = actor().NewActor<RectPictureColor>("RectPictureColor");
             auto transform= mesh->transform();
             transform.translate() = glm::vec3(5, -5, 0);
+            transform.scale() = glm::vec3(5);
+            mesh->transform(transform);
+        }
+        {
+            auto mesh = actor().NewActor<BoxPictureColor>("BoxPictureColor");
+            auto transform= mesh->transform();
+            transform.translate() = glm::vec3(-5, -5, 5);
             transform.scale() = glm::vec3(5);
             mesh->transform(transform);
         }

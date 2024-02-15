@@ -26,7 +26,7 @@ inline const ConstMesh::Parameter &RectSingleColorMeshParameter() {
     };
     static const ConstMesh::Parameter parameter = {
         data,
-        4,
+        sizeof(data) / sizeof(GLfloat) / 3,
         attrib,
         index_data,
         TypeOf<GLuint>(),

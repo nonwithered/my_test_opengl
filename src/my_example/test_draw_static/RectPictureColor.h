@@ -9,7 +9,6 @@
 
 inline const ConstMesh::Parameter &RectPictureColorMeshParameter() {
     static const GLfloat data[] = {
-        // positions
             // positions          // texture coords
             1.0f,  1.0f, 0.0f,   1.0f, 1.0f, // top right
             1.0f, -1.0f, 0.0f,   1.0f, 0.0f, // bottom right
@@ -29,7 +28,7 @@ inline const ConstMesh::Parameter &RectPictureColorMeshParameter() {
     };
     static const ConstMesh::Parameter parameter = {
         data,
-        4,
+        sizeof(data) / sizeof(GLfloat) / 5,
         attrib,
         index_data,
         TypeOf<GLuint>(),

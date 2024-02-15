@@ -196,8 +196,11 @@ public:
         LOGI(TAG, "ctor %u", id_);
         auto guard = Use();
         auto vbo = vbo_.Use();
-        auto ebo= ebo_.Use();
-        LOGI(TAG, "init %u", id_);
+        auto ebo = ebo_.Use();
+        if (!index_count) {
+            ebo.~Guard();
+            ebo_.~ElementArrayBuffer();
+        }
         ebo_.Init(index_data, index_type, index_count);
         vbo_.Init(data, count, attrib);
         guard.~Guard();
@@ -287,7 +290,11 @@ public:
         GLsizeiptr offset = 0;
         for (auto &element : elements_) {
             auto [mode, count] = element;
-            glDrawElements(mode, count, index_type, (const void *) (offset * index_type_size));
+            if (index_type_size) {
+                glDrawElements(mode, count, index_type, (const void *) (offset * index_type_size));
+            } else {
+                glDrawArrays(mode, offset, count);
+            }
             offset += count;
         }
     }

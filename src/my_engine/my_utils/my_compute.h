@@ -15,8 +15,8 @@ inline GLsizei SizeOf(GLenum type) {
         case GL_FLOAT: return sizeof(GLfloat);
         case GL_DOUBLE: return sizeof(GLdouble);
     }
-    LOGE(TAG, "SizeOf invalid %" PRIx64, (uint64_t) type);
-    throw std::exception();
+    LOGW(TAG, "SizeOf invalid %" PRIx64, (uint64_t) type);
+    return 0;
 }
 
 template<typename T>
