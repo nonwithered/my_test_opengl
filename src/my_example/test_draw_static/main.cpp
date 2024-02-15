@@ -8,7 +8,7 @@
 
 static constexpr auto TAG = "test_draw_rect";
 
-class TestBackgroundModule : public ScopeModule<LocalPlayerController<2>> {
+class TestBackgroundModule : public ScopeModule<LocalPlayerController<2, 4>> {
 
 protected:
 
@@ -25,7 +25,7 @@ protected:
 
 public:
 
-    TestBackgroundModule(std::weak_ptr<LocalPlayerController<2>> controller)
+    TestBackgroundModule(std::weak_ptr<LocalPlayerController<2, 4>> controller)
     : ScopeModule(controller) {
         ListenKeyEvent(GLFW_KEY_ESCAPE, true, [this](Context &context) -> bool {
             if (&context != scope<0>()->window<0>()) {
@@ -38,7 +38,7 @@ public:
 
 };
 
-class TestPawnModule : public ScopeModule<LocalPlayerController<2>, PawnActor> {
+class TestPawnModule : public ScopeModule<LocalPlayerController<2, 4>, PawnActor> {
 
 private:
 
@@ -112,18 +112,8 @@ private:
     }
 
     void Draw(Context &context) {
-        auto [w, h] = context.GetFramebufferSize();
-        std::array<int, 4> port = { 0, 0, w, h, };
         auto level = scope<1>()->LookUp<LevelActor>(::TAG);
-        {
-            auto &layout = *scope<1>()->Find<CameraComponent>()->Find<ViewportLayoutComponent>();
-            layout.margin_horizontal(400.0f);
-            layout.margin_vertical(300.0f);
-            layout.align_horizontal(ViewportLayoutComponent::AlignHorizontal::LEFT);
-            layout.align_vertical(ViewportLayoutComponent::AlignVertical::TOP);
-            layout.SetupViewport(w, h);
-        }
-        scope<1>()->Find<CameraComponent>()->Draw(context, *level);
+        scope<0>()->camera<0>()->Draw(context, *level);
     }
 
 protected:
@@ -138,9 +128,15 @@ protected:
         return ScopeModule::OnFrame(context);
     }
 
+    void OnFramebufferSize(Context &context, int width, int height) override {
+        ScopeModule::OnFramebufferSize(context, width, height);
+        auto layout = scope<0>()->camera<0>()->Find<ViewportLayoutComponent>();
+        layout->SetupViewport(width, height);
+    }
+
 public:
 
-    TestPawnModule(std::weak_ptr<LocalPlayerController<2>> controller, std::weak_ptr<PawnActor> actor)
+    TestPawnModule(std::weak_ptr<LocalPlayerController<2, 4>> controller, std::weak_ptr<PawnActor> actor)
     : ScopeModule(controller, actor) {
         BindKeyEvent(GLFW_KEY_W, &TestPawnModule::move_front_);
         BindKeyEvent(GLFW_KEY_S, &TestPawnModule::move_back_);
@@ -150,7 +146,7 @@ public:
     }
 };
 
-class TestController : public LocalPlayerController<2> {
+class TestController : public LocalPlayerController<2, 4> {
 
 public:
     TestController(std::weak_ptr<Level> level_) : LocalPlayerController(level_) {
@@ -162,8 +158,8 @@ public:
 
 protected:
 
-    virtual void OnCreate() {
-        LocalPlayerController<2>::OnCreate();
+    void OnCreate() override {
+        LocalPlayerController::OnCreate();
 
         module().NewModule<TestBackgroundModule>(controller());
 
@@ -175,13 +171,27 @@ protected:
         //     camera->vision(0.1, 30);
         //     camera->sight(-20, 20, -20, 20);
         // }
-        {
-            auto camera = pawn->NewActor<PerspectiveCameraComponent>();
-            camera->vision({ 0.1f, 100.0f, });
-            camera->sight(45.0f);
-        }
+
+        auto camera_ = pawn->NewActor<PerspectiveCameraComponent>();
+        camera<0>() = camera_;
+        camera_->vision({ 0.1f, 100.0f, });
+        camera_->sight(45.0f);
+
+        auto layout = camera<0>()->Find<ViewportLayoutComponent>();
+        layout->margin_horizontal(400.0f);
+        layout->margin_vertical(300.0f);
+        layout->align_horizontal(ViewportLayoutComponent::AlignHorizontal::LEFT);
+        layout->align_vertical(ViewportLayoutComponent::AlignVertical::TOP);
 
         module().NewModule<TestPawnModule>(controller(), pawn);
+    }
+
+    void OnResume() override {
+        LocalPlayerController::OnResume();
+
+        auto [width, height] = window<0>()->GetFramebufferSize();
+        auto layout = camera<0>()->Find<ViewportLayoutComponent>();
+        layout->SetupViewport(width, height);
     }
 };
 

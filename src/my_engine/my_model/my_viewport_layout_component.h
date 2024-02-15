@@ -11,7 +11,7 @@ private:
     ViewportPresenter(const ViewportPresenter &) = delete;
     ViewportPresenter(ViewportPresenter &&) = delete;
 
-    std::array<int, 4> port_;
+    std::array<int, 4> port_ = { 0, 0, 0, 0, };
 
 protected:
     ViewportPresenter() = default;
@@ -182,12 +182,12 @@ public:
             }
         }
 
-        viewport->port({
-            (int) layout_left,
-            (int) layout_bottom,
-            (int) (layout_right - layout_left),
-            (int) (layout_top - layout_bottom),
-        });
+        int port_x = (int) layout_left;
+        int port_y = (int) layout_bottom;
+        int port_w = (int) (layout_right - layout_left);
+        int port_h = (int) (layout_top - layout_bottom);
+
+        viewport->port({ port_x, port_y, port_w, port_h, });
     }
 
 };

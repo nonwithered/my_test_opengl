@@ -101,8 +101,8 @@ private:
     }
 
     void PerformPause() {
-        OnPause();
         PlayerManager::PerformPause();
+        OnPause();
     }
 
 protected:
@@ -120,12 +120,6 @@ protected:
     }
 
     virtual void OnPause() {
-        Collect([](PlayerController &controller) {
-            auto player = TypeCast<BaseLocalPlayerController>(&controller);
-            if (player) {
-                player->clear();
-            }
-        });
     }
 
     template<typename T, typename ...Args>
