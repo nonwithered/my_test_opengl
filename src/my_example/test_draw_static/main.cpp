@@ -218,7 +218,7 @@ protected:
             auto camera_ = pawn->NewActor<OrthoCameraComponent>();
             camera<1>() = camera_;
             camera_->vision({ 0.1f, 100.0f, });
-            camera_->sight({ -10.0f, 10.0f, 10.0f, -10.0f, });
+            camera_->sight({ 20.0f, 20.0f, });
             camera_->NewActor<MovementComponent>();
             camera_->Find<MovementComponent>()->Move(-10.0f);
 
@@ -232,7 +232,7 @@ protected:
             auto camera_ = pawn->NewActor<OrthoCameraComponent>();
             camera<2>() = camera_;
             camera_->vision({ 0.1f, 100.0f, });
-            camera_->sight({ -10.0f, 10.0f, 10.0f, -10.0f, });
+            camera_->sight({ 20.0f, 20.0f, });
             camera_->NewActor<MovementComponent>();
             camera_->Find<MovementComponent>()->RotateYaw(90.0f);
             camera_->Find<MovementComponent>()->Move(-10.0f);
@@ -247,7 +247,7 @@ protected:
             auto camera_ = pawn->NewActor<OrthoCameraComponent>();
             camera<3>() = camera_;
             camera_->vision({ 0.1f, 100.0f, });
-            camera_->sight({ -10.0f, 10.0f, 10.0f, -10.0f, });
+            camera_->sight({ 20.0f, 20.0f, });
             camera_->NewActor<MovementComponent>();
             camera_->Find<MovementComponent>()->RotatePitch(-90.0f);
             camera_->Find<MovementComponent>()->Move(-10.0f);
@@ -307,8 +307,8 @@ protected:
         auto player = FindPlayer<TestController>();
         if (player) {
             player->window<1>() = &RequireWindow(::TAG, 600, 800);
-            // player->window<0>() = &RequireWindow(::TAG, 800, 600);
-            player->window<0>() = &RequireWindow(::TAG);
+            player->window<0>() = &RequireWindow(::TAG, 800, 600);
+            // player->window<0>() = &RequireWindow(::TAG);
             player->window<0>()->SetInputMode(GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         }
     }

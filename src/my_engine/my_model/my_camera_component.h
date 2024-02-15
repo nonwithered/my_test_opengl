@@ -71,15 +71,45 @@ class OrthoCameraComponent : public CameraComponent {
 
 private:
 
+    float ratio_ = 1.0f;
+
     using vision_t = std::array<float, 2>;
     PROPERTY(vision_t, vision);
-    using sight_t = std::array<float, 4>;
+    using sight_t = std::array<float, 2>;
     PROPERTY(sight_t, sight);
+    PROPERTY(bool, shrink);
 
 protected:
 
     glm::mat4 transform_projection() final {
-        return glm::ortho(sight_[0], sight_[1], sight_[2], sight_[3], vision_[0], vision_[1]);
+        auto [w, h] = sight_;
+        w /= 2;
+        h /= 2;
+        auto r = ratio_;
+        if (!shrink_) {
+            auto w_ = h * r;
+            auto h_ = w / r;
+            if (w > w_) {
+                h = h_;
+            } else {
+                w = w_;
+            }
+        } else {
+            r = -r;
+            auto w_ = h * r;
+            auto h_ = w / r;
+            if (w > w_) {
+                w = w_;
+            } else {
+                h = h_;
+            }
+        }
+        return glm::ortho(-w, w, -h, h, vision_[0], vision_[1]);
+    }
+    
+    void port(const std::array<int, 4> &v) override {
+        CameraComponent::port(v);
+        ratio_ = (float) std::get<2>(v) / std::get<3>(v);
     }
 };
 
