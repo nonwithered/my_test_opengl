@@ -25,6 +25,12 @@ protected:
     PlayerController(std::weak_ptr<Level> level) : FrameMonitor(), level_(level) {
     }
 
+    virtual void OnResume() {
+    }
+
+    virtual void OnPause() {
+    }
+
 public:
 
     virtual ~PlayerController() = default;

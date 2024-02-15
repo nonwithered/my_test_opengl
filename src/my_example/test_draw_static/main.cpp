@@ -51,8 +51,8 @@ private:
     bool move_right_ = false;
     bool move_up_ = false;
 
-    double pos_x_ = 0.0;
-    double pos_y_ = 0.0;
+    float pos_x_ = 0.0f;
+    float pos_y_ = 0.0f;
 
     void BindKeyEvent(int key, bool TestPawnModule::* field) {
         ListenKeyEvent(key, true, [=](Context &context) -> bool {
@@ -101,10 +101,10 @@ private:
             return;
         }
         auto [x, y] = context.GetCursorPos();
-        float delta_x = pos_x_ - x;
-        float delta_y = y - pos_y_;
-        pos_x_ = x;
-        pos_y_ = y;
+        float delta_x = pos_x_ - (float) x;
+        float delta_y = (float) y - pos_y_;
+        pos_x_ = (float) x;
+        pos_y_ = (float) y;
         auto pitch = delta_y * sensitivity;
         auto yaw = delta_x * sensitivity;
         scope<1>()->Find<MovementComponent>()->RotatePitch(pitch);
@@ -115,7 +115,15 @@ private:
         auto [w, h] = context.GetFramebufferSize();
         std::array<int, 4> port = { 0, 0, w, h, };
         auto level = scope<1>()->LookUp<LevelActor>(::TAG);
-        scope<1>()->Find<CameraComponent>()->Draw(context, *level, port);
+        {
+            auto &layout = *scope<1>()->Find<CameraComponent>()->Find<ViewportLayoutComponent>();
+            layout.margin_horizontal(400.0f);
+            layout.margin_vertical(300.0f);
+            layout.align_horizontal(ViewportLayoutComponent::AlignHorizontal::LEFT);
+            layout.align_vertical(ViewportLayoutComponent::AlignVertical::TOP);
+            layout.SetupViewport(w, h);
+        }
+        scope<1>()->Find<CameraComponent>()->Draw(context, *level);
     }
 
 protected:
@@ -169,8 +177,8 @@ protected:
         // }
         {
             auto camera = pawn->NewActor<PerspectiveCameraComponent>();
-            camera->vision(0.1, 100);
-            camera->sight(45);
+            camera->vision({ 0.1f, 100.0f, });
+            camera->sight(45.0f);
         }
 
         module().NewModule<TestPawnModule>(controller(), pawn);
@@ -207,7 +215,6 @@ protected:
     }
 
     void OnStart() override {
-        Level::OnStart();
         NewPlayer<TestController>(self());
     }
 

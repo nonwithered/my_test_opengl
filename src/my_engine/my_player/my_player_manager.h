@@ -48,6 +48,18 @@ protected:
         }
     }
 
+    void PerformResume() {
+        Collect([](PlayerController &controller) {
+            controller.OnResume();
+        });
+    }
+
+    void PerformPause() {
+        Collect([](PlayerController &controller) {
+            controller.OnPause();
+        });
+    }
+
     bool PerformFrame(Global &context_, std::function<void(Module &)>frame) {
         for (auto i = controller_.begin(); i != controller_.end(); ) {
             auto &controller = *i;

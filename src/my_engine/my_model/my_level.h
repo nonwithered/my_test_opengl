@@ -97,10 +97,12 @@ private:
         require_window_->second.push_back(require_window_->first);
         global().window().EnsureSurvivor(require_window_->second);
         require_window_.reset();
+        PlayerManager::PerformResume();
     }
 
     void PerformPause() {
         OnPause();
+        PlayerManager::PerformPause();
     }
 
 protected:

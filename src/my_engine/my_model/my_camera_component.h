@@ -4,11 +4,12 @@
 #include "my_utils/my_cast.h"
 
 #include "my_model/my_actor.h"
-#include <my_model/my_mesh_component.h>
+#include "my_model/my_mesh_component.h"
+#include "my_model/my_viewport_layout_component.h"
 
 #include "my_graphic/my_uniform.h"
 
-class CameraComponent : public Actor {
+class CameraComponent : public Actor, public ViewportPresenter {
 
 public: 
 
@@ -50,10 +51,15 @@ protected:
 
     virtual glm::mat4 transform_projection() = 0;
 
+    void OnCreate() override {
+        Actor::OnCreate();
+        NewActor<ViewportLayoutComponent>();
+    }
+
 public:
 
-    virtual void Draw(Context &context, LevelActor &actor, const std::array<int, 4> &port) {
-        auto [x, y, w, h] = port;
+    void Draw(Context &context, Actor &actor) {
+        auto [x, y, w, h] = port();
         glViewport(x, y, w, h);
         auto uniform = UniformParameter();
         LookAt(uniform);
@@ -65,40 +71,27 @@ class OrthoCameraComponent : public CameraComponent {
 
 private:
 
-    std::array<float, 2> vision_ = { 0.1, 1, };
-    std::array<float, 4> sight_ = { -1, 1, -1, 1, };
+    using vision_t = std::array<float, 2>;
+    PROPERTY(vision_t, vision);
+    using sight_t = std::array<float, 4>;
+    PROPERTY(sight_t, sight);
 
 protected:
 
     glm::mat4 transform_projection() final {
         return glm::ortho(sight_[0], sight_[1], sight_[2], sight_[3], vision_[0], vision_[1]);
     }
-
-public:
-
-    std::array<float, 2> vision() const {
-        return vision_;
-    }
-
-    void vision(float near_, float far_) {
-        vision_ = { near_, far_, };
-    }
-
-    std::array<float, 4> sight() const {
-        return sight_;
-    }
-
-    void sight(float left, float right, float bottom, float top) {
-        sight_ = { left, right, bottom, top, };
-    }
 };
 
 class PerspectiveCameraComponent : public CameraComponent {
 
 private:
-    std::array<float, 2> vision_ = { 0.1, 1, };
-    float sight_ = 45;
-    float ratio_ = 1;
+
+    float ratio_ = 1.0f;
+
+    using vision_t = std::array<float, 2>;
+    PROPERTY(vision_t, vision);
+    PROPERTY(float, sight);
 
 protected:
 
@@ -107,26 +100,9 @@ protected:
     }
 
 public:
-
-    void Draw(Context &context, LevelActor &actor, const std::array<int, 4> &port) {
-        auto [x, y, w, h] = port;
-        ratio_ = (float) w / h;
-        CameraComponent::Draw(context, actor, port);
-    }
-
-    std::array<float, 2> vision() const {
-        return vision_;
-    }
-
-    void vision(float near_, float far_) {
-        vision_ = { near_, far_, };
-    }
-
-    float sight() const {
-        return sight_;
-    }
-
-    void sight(float v) {
-        sight_ = v;
+    
+    void port(const std::array<int, 4> &v) override {
+        CameraComponent::port(v);
+        ratio_ = (float) std::get<2>(v) / std::get<3>(v);
     }
 };

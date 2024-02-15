@@ -1,8 +1,8 @@
 #pragma once
 
 #include "my_utils/my_log.h"
-
 #include "my_utils/my_cast.h"
+#include "my_utils/my_property.h"
 
 #include "my_model/my_model.h"
 

@@ -15,7 +15,7 @@ protected:
 
     void OnCreate() override {
         Actor::OnCreate();
-        insert(Model<MovementComponent>::Make());
+        NewActor<MovementComponent>();
     }
 
 public:
