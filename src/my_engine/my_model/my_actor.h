@@ -29,7 +29,6 @@ private:
     glm::mat4 rotate_global_ = glm::mat4();
     bool rotate_global_cache_ = false;
 
-private:
     void TransformChanged() {
         {
             auto s = name();
@@ -42,7 +41,10 @@ private:
         }
     }
 
+protected:
+
     void OnParentChanged() override {
+        NestedModel::OnParentChanged();
         TransformChanged();
     }
 

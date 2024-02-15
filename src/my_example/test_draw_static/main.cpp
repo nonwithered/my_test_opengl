@@ -89,7 +89,7 @@ private:
         }
         scope<1>()->Find<MovementComponent>()->Move(front_back_ * distance);
         scope<1>()->Find<MovementComponent>()->Move(left_right_ * distance, 90.0f);
-        auto up_down_ = 0;
+        auto up_down_ = scope<1>()->transform().translate().z > 1 ? -1 : 0;
         if (move_up_) {
             up_down_ = 1;
         }
@@ -107,7 +107,7 @@ private:
         pos_y_ = (float) y;
         auto pitch = delta_y * sensitivity;
         auto yaw = delta_x * sensitivity;
-        scope<1>()->Find<MovementComponent>()->RotatePitch(pitch);
+        scope<0>()->camera<0>()->Find<MovementComponent>()->RotatePitch(pitch);
         scope<1>()->Find<MovementComponent>()->RotateYaw(yaw);
     }
 
@@ -165,7 +165,6 @@ protected:
 
         auto pawn = level()->actor().NewActor<PawnActor>();
         pawn->Find<MovementComponent>()->MoveUp(1.0f);
-        pawn->Find<MovementComponent>()->RotatePitch(90);
         // {
         //     auto camera = pawn->NewActor<OrthoCameraComponent>();
         //     camera->vision(0.1, 30);
@@ -176,6 +175,8 @@ protected:
         camera<0>() = camera_;
         camera_->vision({ 0.1f, 100.0f, });
         camera_->sight(45.0f);
+        camera_->NewActor<MovementComponent>();
+        camera_->Find<MovementComponent>()->RotatePitch(90);
 
         auto layout = camera<0>()->Find<ViewportLayoutComponent>();
         layout->margin_horizontal(400.0f);

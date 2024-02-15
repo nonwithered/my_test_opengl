@@ -86,13 +86,13 @@ private:
 
     }
 
-    virtual void OnParentChanged() {
-    }
-
 protected:
 
     std::shared_ptr<value_type> parent() {
         return parent_.lock();
+    }
+
+    virtual void OnParentChanged() {
     }
 
 public:
