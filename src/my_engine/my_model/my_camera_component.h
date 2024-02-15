@@ -95,7 +95,6 @@ protected:
                 w = w_;
             }
         } else {
-            r = -r;
             auto w_ = h * r;
             auto h_ = w / r;
             if (w > w_) {
