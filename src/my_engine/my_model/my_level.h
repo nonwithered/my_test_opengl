@@ -96,8 +96,15 @@ private:
         OnResume();
         require_window_->second.push_back(require_window_->first);
         global().window().EnsureSurvivor(require_window_->second);
-        require_window_.reset();
         PlayerManager::PerformResume();
+        for (auto window : require_window_->second) {
+            if (!window) {
+                continue;
+            }
+           auto [w, h] = window->GetFramebufferSize();
+           PerformFramebufferSize(*window, w, h);
+        }
+        require_window_.reset();
     }
 
     void PerformPause() {

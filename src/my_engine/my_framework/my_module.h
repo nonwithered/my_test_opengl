@@ -15,6 +15,15 @@ private:
     std::vector<std::unique_ptr<Module>> pending_children_;
     std::vector<std::unique_ptr<Module>> children_;
 
+    void MovePending() {
+        for (auto i = pending_children_.begin(); i != pending_children_.end(); ) {
+            auto &module = *i;
+            LOGI(TAG, "move module %s", module->type_name_);
+            children_.push_back(std::move(module));
+            i = pending_children_.erase(i);
+        }
+    }
+
 protected:
 
     bool Frame(Context &context) override {
@@ -40,17 +49,13 @@ public:
     }
 
     bool PerformFrame(Context &context) {
-        for (auto i = pending_children_.begin(); i != pending_children_.end(); ) {
-            auto &module = *i;
-            LOGI(TAG, "move module %s", module->type_name_);
-            children_.push_back(std::move(module));
-            i = pending_children_.erase(i);
-        }
+        MovePending();
         return Frame(context);
     }
 
     void PerformFramebufferSize(Context &context, int width, int height) {
         OnFramebufferSize(context, width, height);
+        MovePending();
         for (auto &module : children_) {
             module->PerformFramebufferSize(context, width, height);
         }
@@ -60,6 +65,7 @@ public:
         if (KeyEvent(context, key, press)) {
             return;
         }
+        MovePending();
         for (auto &module : children_) {
             module->PerformKeyEvent(context, key, press);
         }
@@ -69,6 +75,7 @@ public:
         if (MouseButtonEvent(context, button, press)) {
             return;
         }
+        MovePending();
         for (auto &module : children_) {
             module->PerformMouseButtonEvent(context, button, press);
         }

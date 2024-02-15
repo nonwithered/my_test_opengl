@@ -38,14 +38,14 @@ public:
     enum class AlignVertical {
         CENTER, TOP, BOTTOM,
     };
-    enum class SizePrimary {
+    enum class MeasurePrimary {
         NONE, WIDTH, HEIGHT,
     };
 
 private:
     PROPERTY(AlignHorizontal, align_horizontal);
     PROPERTY(AlignVertical, align_vertical);
-    PROPERTY(SizePrimary, size_primary);
+    PROPERTY(MeasurePrimary, measure_primary);
     PROPERTY(float, margin_horizontal);
     PROPERTY(float, margin_vertical);
     PROPERTY(float, size_width);
@@ -79,9 +79,6 @@ public:
                 break;
             }
         }
-        if (container_right <= container_left) {
-            return;
-        }
 
         float container_bottom = 0.0f;
         float container_top = (float) height;
@@ -100,46 +97,31 @@ public:
                 break;
             }
         }
-        if (container_top <= container_bottom) {
-            return;
-        }
 
         auto measured_width = 0.0f;
-        if (size_primary_ != SizePrimary::HEIGHT) {
+        if (measure_primary_ != MeasurePrimary::HEIGHT) {
             if (size_width_ > 0) {
                 measured_width = size_width_;
             } else {
                 measured_width = container_right - container_left + size_width_;
             }
         }
-        if (measured_width <= 0) {
-            return;
-        }
         
         auto measured_height = 0.0f;
-        if (size_primary_ != SizePrimary::WIDTH) {
+        if (measure_primary_ != MeasurePrimary::WIDTH) {
             if (size_height_ > 0) {
                 measured_height = size_height_;
             } else {
                 measured_height = container_top - container_bottom + size_height_;
             }
         }
-        if (measured_height <= 0) {
-            return;
-        }
 
-        if (size_primary_ == SizePrimary::HEIGHT) {
+        if (measure_primary_ == MeasurePrimary::HEIGHT) {
             measured_width = measured_height * size_width_;
         }
-        if (measured_width <= 0) {
-            return;
-        }
 
-        if (size_primary_ == SizePrimary::WIDTH) {
+        if (measure_primary_ == MeasurePrimary::WIDTH) {
             measured_height = measured_width * size_height_;
-        }
-        if (measured_height <= 0) {
-            return;
         }
 
         auto layout_left = container_left;
@@ -187,6 +169,7 @@ public:
         int port_w = (int) (layout_right - layout_left);
         int port_h = (int) (layout_top - layout_bottom);
 
+        LOGW("test", "%d %d %d %d", port_x, port_y, port_w, port_h);
         viewport->port({ port_x, port_y, port_w, port_h, });
     }
 

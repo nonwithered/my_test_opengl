@@ -15,7 +15,6 @@ inline GLsizei SizeOf(GLenum type) {
         case GL_FLOAT: return sizeof(GLfloat);
         case GL_DOUBLE: return sizeof(GLdouble);
     }
-    LOGW(TAG, "SizeOf invalid %" PRIx64, (uint64_t) type);
     return 0;
 }
 

@@ -119,18 +119,15 @@ public:
     }
 
     void PerformFramebufferSize(Module &module, int width, int height) {
-        auto guard = Use();
         module.PerformFramebufferSize(*this, width, height);
 
     }
 
     void PerformKeyEvent(Module &module, int key, bool press) {
-        auto guard = Use();
         module.PerformKeyEvent(*this, key, press);
     }
 
     void PerformMouseButtonEvent(Module &module, int button, bool press) {
-        auto guard = Use();
         module.PerformMouseButtonEvent(*this, button, press);
     }
 

@@ -97,24 +97,28 @@ public:
     }
 
     void PerformFramebufferSize(Window &window, int width, int height) override {
+        LOGI(TAG, "PerformFramebufferSize %s %d %d", window.title().data(), width, height);
         window.PerformFramebufferSize(*module_, width, height);
         level_.PerformFramebufferSize(window, width, height);
         PerformFrame();
     }
 
     void PerformKeyEvent(Window &window, int key, bool press) override {
+        LOGI(TAG, "PerformKeyEvent %s %d %d", window.title().data(), key, press);
         level_.PerformKeyEvent(window, key, press);
         window.PerformKeyEvent(*module_, key, press);
         PerformFrame();
     }
 
     void PerformMouseButtonEvent(Window &window, int button, bool press) override {
+        LOGI(TAG, "PerformMouseButtonEvent %s %d %d", window.title().data(), button, press);
         level_.PerformMouseButtonEvent(window, button, press);
         window.PerformMouseButtonEvent(*module_, button, press);
         PerformFrame();
     }
 
     void PerformWindowClose(Window &window) override {
+        LOGI(TAG, "PerformWindowClose %s", window.title().data());
         level_.OnWindowClose(window);
         window_.OnWindowClose(window);
         PerformFrame();

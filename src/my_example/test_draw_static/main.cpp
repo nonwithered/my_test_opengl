@@ -115,6 +115,9 @@ private:
     void Draw(Context &context) {
         auto level = scope<1>()->LookUp<LevelActor>(::TAG);
         scope<0>()->camera<0>()->Draw(context, *level);
+        scope<0>()->camera<1>()->Draw(context, *level);
+        scope<0>()->camera<2>()->Draw(context, *level);
+        scope<0>()->camera<3>()->Draw(context, *level);
     }
 
 protected:
@@ -131,8 +134,32 @@ protected:
 
     void OnFramebufferSize(Context &context, int width, int height) override {
         ScopeModule::OnFramebufferSize(context, width, height);
-        auto layout = scope<0>()->camera<0>()->Find<ViewportLayoutComponent>();
-        layout->SetupViewport(width, height);
+        if (&context != scope<0>()->window<0>()) {
+            return;
+        }
+        {
+            auto layout = scope<0>()->camera<0>()->Find<ViewportLayoutComponent>();
+            layout->margin_horizontal(width / 3);
+            layout->SetupViewport(width, height);
+        }
+        {
+            auto layout = scope<0>()->camera<1>()->Find<ViewportLayoutComponent>();
+            layout->size_height(height / 3);
+            layout->size_width((float) width / height);
+            layout->SetupViewport(width, height);
+        }
+        {
+            auto layout = scope<0>()->camera<2>()->Find<ViewportLayoutComponent>();
+            layout->size_height(height / 3);
+            layout->size_width((float) width / height);
+            layout->SetupViewport(width, height);
+        }
+        {
+            auto layout = scope<0>()->camera<3>()->Find<ViewportLayoutComponent>();
+            layout->size_height(height / 3);
+            layout->size_width((float) width / height);
+            layout->SetupViewport(width, height);
+        }
     }
 
 public:
@@ -166,34 +193,71 @@ protected:
 
         auto pawn = level()->actor().NewActor<PawnActor>();
         pawn->Find<MovementComponent>()->MoveUp(1.0f);
-        // {
-        //     auto camera = pawn->NewActor<OrthoCameraComponent>();
-        //     camera->vision(0.1, 30);
-        //     camera->sight(-20, 20, -20, 20);
-        // }
 
-        auto camera_ = pawn->NewActor<PerspectiveCameraComponent>();
-        camera<0>() = camera_;
-        camera_->vision({ 0.1f, 100.0f, });
-        camera_->sight(45.0f);
-        camera_->NewActor<MovementComponent>();
-        camera_->Find<MovementComponent>()->RotatePitch(90);
+        pawn->NewActor<BoxPictureColor>();
+        {
+            auto mesh = pawn->Find<BoxPictureColor>();
+            auto transform = mesh->transform();
+            transform.scale() = glm::vec3(0.5f, 0.5f, 1.0f);
+            mesh->transform(transform);
+        }
+        {
+            auto camera_ = pawn->NewActor<PerspectiveCameraComponent>();
+            camera<0>() = camera_;
+            camera_->vision({ 0.1f, 100.0f, });
+            camera_->sight(45.0f);
+            camera_->NewActor<MovementComponent>();
+            camera_->Find<MovementComponent>()->Move(-5.0f);
+            camera_->Find<MovementComponent>()->MoveUp(5.0f);
 
-        auto layout = camera<0>()->Find<ViewportLayoutComponent>();
-        layout->margin_horizontal(400.0f);
-        layout->margin_vertical(300.0f);
-        layout->align_horizontal(ViewportLayoutComponent::AlignHorizontal::LEFT);
-        layout->align_vertical(ViewportLayoutComponent::AlignVertical::TOP);
+            auto layout = camera_->Find<ViewportLayoutComponent>();
+            layout->align_horizontal(ViewportLayoutComponent::AlignHorizontal::RIGHT);
+        }
+
+        {
+            auto camera_ = pawn->NewActor<OrthoCameraComponent>();
+            camera<1>() = camera_;
+            camera_->vision({ 0.1f, 100.0f, });
+            camera_->sight({ -10.0f, 10.0f, 10.0f, -10.0f, });
+            camera_->NewActor<MovementComponent>();
+            camera_->Find<MovementComponent>()->Move(-5.0f);
+
+            auto layout = camera_->Find<ViewportLayoutComponent>();
+            layout->align_horizontal(ViewportLayoutComponent::AlignHorizontal::RIGHT);
+            layout->align_vertical(ViewportLayoutComponent::AlignVertical::TOP);
+            layout->measure_primary(ViewportLayoutComponent::MeasurePrimary::HEIGHT);
+        }
+
+        {
+            auto camera_ = pawn->NewActor<OrthoCameraComponent>();
+            camera<2>() = camera_;
+            camera_->vision({ 0.1f, 100.0f, });
+            camera_->sight({ -10.0f, 10.0f, 10.0f, -10.0f, });
+            camera_->NewActor<MovementComponent>();
+            camera_->Find<MovementComponent>()->RotateYaw(90.0f);
+            camera_->Find<MovementComponent>()->Move(-5.0f);
+
+            auto layout = camera_->Find<ViewportLayoutComponent>();
+            layout->align_horizontal(ViewportLayoutComponent::AlignHorizontal::RIGHT);
+            layout->align_vertical(ViewportLayoutComponent::AlignVertical::BOTTOM);
+            layout->measure_primary(ViewportLayoutComponent::MeasurePrimary::HEIGHT);
+        }
+
+        {
+            auto camera_ = pawn->NewActor<OrthoCameraComponent>();
+            camera<3>() = camera_;
+            camera_->vision({ 0.1f, 100.0f, });
+            camera_->sight({ -10.0f, 10.0f, 10.0f, -10.0f, });
+            camera_->NewActor<MovementComponent>();
+            camera_->Find<MovementComponent>()->RotatePitch(-90.0f);
+            camera_->Find<MovementComponent>()->Move(-5.0f);
+
+            auto layout = camera_->Find<ViewportLayoutComponent>();
+            layout->align_horizontal(ViewportLayoutComponent::AlignHorizontal::RIGHT);
+            layout->measure_primary(ViewportLayoutComponent::MeasurePrimary::HEIGHT);
+        }
 
         module().NewModule<TestPawnModule>(controller(), pawn);
-    }
-
-    void OnResume() override {
-        LocalPlayerController::OnResume();
-
-        auto [width, height] = window<0>()->GetFramebufferSize();
-        auto layout = camera<0>()->Find<ViewportLayoutComponent>();
-        layout->SetupViewport(width, height);
     }
 };
 
@@ -215,6 +279,7 @@ protected:
             auto transform= mesh->transform();
             transform.translate() = glm::vec3(5, 5, 0);
             transform.scale() = glm::vec3(5);
+            transform.rotate() = glm::rotate(glm::mat4(1.0f), glm::radians(15.0f), (glm::vec3) Transform::direction_default()) * transform.rotate();
             mesh->transform(transform);
         }
         {
